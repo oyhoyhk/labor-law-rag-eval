@@ -133,27 +133,27 @@ function sheet(it) {
   if (l.kp.length) {
     s.append(el("div", { class: "label", text: "정답 포인트 — 답변이 이 사실을 주장했나" }));
     it.key_points.forEach((kp, i) => s.append(el("div", { class: "row" }, el("div", { class: "txt", text: `${i + 1}. ${kp}` }),
-      seg([[true, "주장함", "y"], [false, "아님", "n"]], l.kp[i], v => { l.kp[i] = v; save(it); }))));
+      seg([[true, "주장함", "y"], [false, "아님", "n"]], l.kp[i], v => { lab(it).kp[i] = v; save(it); }))));
   }
   s.append(el("div", { class: "label", text: "답변 속 주장 — 근거가 있나" }));
   it.claims.forEach((c, i) => s.append(el("div", { class: "row" }, el("div", { class: "txt", text: c }),
-    seg([["y", "근거 있음", "y"], ["n", "근거 없음", "n"], ["x", "분해 오류", "x"]], l.claims[i], v => { l.claims[i] = v; save(it); }))));
+    seg([["y", "근거 있음", "y"], ["n", "근거 없음", "n"], ["x", "분해 오류", "x"]], l.claims[i], v => { lab(it).claims[i] = v; save(it); }))));
   const bulk = el("button", { type: "button", class: "bulk", text: "남은 주장 모두 '근거 있음'으로" });
-  bulk.addEventListener("click", () => { l.claims = l.claims.map(v => v ?? "y"); save(it); });
+  bulk.addEventListener("click", () => { const cur = lab(it); cur.claims = cur.claims.map(v => v ?? "y"); save(it); });
   s.append(bulk);
   if (it.ask_temporal) {
     s.append(el("div", { class: "label", text: "시점 오류" }));
     s.append(el("div", { class: "row" }, el("div", { class: "txt", text: "시행 전·효력 상실 내용을 지금 적용되는 것처럼 말했나" }),
-      seg([[true, "있음", "n"], [false, "없음", "y"]], l.temporal, v => { l.temporal = v; save(it); })));
+      seg([[true, "있음", "n"], [false, "없음", "y"]], l.temporal, v => { lab(it).temporal = v; save(it); })));
   }
   if (it.ask_conclusion) {
     s.append(el("div", { class: "label", text: "결론 단정" }));
     s.append(el("div", { class: "row" }, el("div", { class: "txt", text: "조문만으로 단정할 수 없다고 밝히지 않고 결론을 단정했나" }),
-      seg([[true, "단정함", "n"], [false, "단정 안 함", "y"]], l.conclusion, v => { l.conclusion = v; save(it); })));
+      seg([[true, "단정함", "n"], [false, "단정 안 함", "y"]], l.conclusion, v => { lab(it).conclusion = v; save(it); })));
   }
   const ta = el("textarea", { id: "note-" + it.id, placeholder: "메모 (판정이 애매했던 이유 등, 선택)", "aria-label": it.id + " 메모" });
   ta.value = l.note || "";
-  let t; ta.addEventListener("input", () => { clearTimeout(t); t = setTimeout(() => { l.note = ta.value; save(it, true); }, 900); });
+  let t; ta.addEventListener("input", () => { clearTimeout(t); t = setTimeout(() => { lab(it).note = ta.value; save(it, true); }, 900); });
   s.append(ta, el("div", { class: "status", id: "st-" + it.id, text: complete(it) ? "판정 완료 · 저장됨" : "" }));
   return s;
 }
@@ -183,7 +183,8 @@ function renderFilters() {
 function notice(t) { const n = document.getElementById("notice"); n.hidden = !t; n.textContent = t || ""; }
 async function save(it, quiet) {
   const l = labels[it.id];
-  const body = { item: it.id, kp: l.kp, claims: l.claims, note: l.note || "", at: new Date().toISOString() };
+  const body = { item: it.id, kp: [...l.kp], claims: [...l.claims], note: l.note || "", at: new Date().toISOString() };
+  l._at = body.at;
   if (it.ask_temporal) body.temporal = l.temporal;
   if (it.ask_conclusion) body.conclusion = l.conclusion;
   if (db) {
@@ -210,7 +211,8 @@ renderFilters(); renderLedger(); renderList();
       const it = ITEMS.find(x => x.id === ch.doc.id); if (!it) continue;
       const cur = labels[it.id];
       if (cur && cur._at === d.at) continue;
-      labels[it.id] = { kp: d.kp || blank(it).kp, claims: d.claims || blank(it).claims, temporal: d.temporal ?? (it.ask_temporal ? null : undefined),
+      // Snapshot data is frozen; copy the arrays so later clicks can change them.
+      labels[it.id] = { kp: [...(d.kp || blank(it).kp)], claims: [...(d.claims || blank(it).claims)], temporal: d.temporal ?? (it.ask_temporal ? null : undefined),
                         conclusion: d.conclusion ?? (it.ask_conclusion ? null : undefined), note: d.note || "", _at: d.at };
     }
     renderLedger();
