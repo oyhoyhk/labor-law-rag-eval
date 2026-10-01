@@ -22,3 +22,21 @@ uv run python scripts/fetch_precedents.py fetch <판례일련번호>
 ```
 
 - `LAW_OC`: [국가법령정보 공동활용](https://open.law.go.kr) OPEN API 활용신청 후 발급
+
+### 3. 인제스트 (Provision Graph + 인덱스)
+
+```bash
+uv run python -m app.ingest.provision            # 시행 상태 그래프
+uv run python -m app.index build --strategy article
+uv run python -m app.index build --strategy fixed  # H1 비교용
+uv run pytest -q
+```
+
+### 4. 서버 실행
+
+```bash
+uv run uvicorn app.api:app --port 8000
+curl localhost:8000/v1/query -H 'Content-Type: application/json' \
+  -d '{"question": "연차휴가를 시간 단위로 쓸 수 있나요?", "as_of": "2026-10-01"}'
+# 스트리밍: "stream": true → SSE `delta` 이벤트 후 `final` 이벤트(전체 응답)
+```

@@ -52,7 +52,25 @@ class LLM:
             model=self.model, messages=messages, max_completion_tokens=max_tokens,
             reasoning_effort=reasoning_effort, **kwargs,
         )
-        u = resp.usage
+        usage = self._record(resp.usage)
+        return resp.choices[0].message.content or "", {"model": resp.model, **usage}
+
+    def stream(self, messages: list[dict], *, max_tokens: int = 1024, reasoning_effort: str = "none"):
+        """Yields text deltas; the final chunk carries usage only (choices is empty)."""
+        if self.spent_krw >= self.budget_krw:
+            raise BudgetExceeded(f"spent {self.spent_krw:.1f} KRW >= budget {self.budget_krw} KRW")
+        stream = self.client.chat.completions.create(
+            model=self.model, messages=messages, max_completion_tokens=max_tokens,
+            reasoning_effort=reasoning_effort, stream=True, stream_options={"include_usage": True},
+        )
+        self.last_stream_meta = {}
+        for chunk in stream:
+            if chunk.choices and chunk.choices[0].delta.content:
+                yield chunk.choices[0].delta.content
+            if chunk.usage:
+                self.last_stream_meta = {"model": chunk.model, **self._record(chunk.usage)}
+
+    def _record(self, u) -> dict:
         self.usage.calls += 1
         self.usage.input += u.prompt_tokens
         self.usage.output += u.completion_tokens
@@ -60,4 +78,4 @@ class LLM:
             self.usage.cached_input += u.prompt_tokens_details.cached_tokens or 0
         if u.completion_tokens_details:
             self.usage.reasoning += u.completion_tokens_details.reasoning_tokens or 0
-        return resp.choices[0].message.content or "", {"model": resp.model, **u.model_dump()}
+        return u.model_dump()
