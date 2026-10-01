@@ -1,0 +1,41 @@
+{
+ "name": "baseline-judge-v2",
+ "started_at": "2026-10-02T00:18:24",
+ "finished_at": "2026-10-02T00:19:56",
+ "git_sha": "823fc05",
+ "git_dirty": true,
+ "config": {
+  "name": "baseline-judge-v2",
+  "strategy": "article",
+  "k": 5,
+  "tau": 0.5,
+  "no_inject": false,
+  "no_links": false,
+  "split": "all",
+  "ids": "",
+  "no_judge": false,
+  "no_cache": false,
+  "budget": 300.0
+ },
+ "model": "openai/gpt-5.6-luna",
+ "seed": 42,
+ "temperature": 0,
+ "prompt_version": "gen-v1",
+ "judge_version": "judge-v2",
+ "embedding": "nlpai-lab/KURE-v1@8b418a58",
+ "gold_sha256": "320c8e5c568a",
+ "splits_sha256": "46a18868e410",
+ "corpus_manifest_sha256": "e1e80175747a",
+ "usage": {
+  "input": 190742,
+  "cached_input": 0,
+  "output": 10916,
+  "reasoning": 0,
+  "calls": 46,
+  "cache_hits": 101
+ },
+ "cost_krw": 77.93,
+ "items_planned": 56,
+ "items_done": 56,
+ "aborted": null
+}

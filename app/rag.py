@@ -14,7 +14,7 @@ from urllib.parse import quote
 
 from app.index import INDEX_DIR, Retriever
 from app.ingest.provision import GRAPH, status_at
-from app.llm import LLM
+from app.llm import LLM, cost_of
 
 PROMPT_VERSION = "gen-v1"
 TAU = 0.50  # top-1 cosine below this → refuse without calling the LLM (calibrated in H3)
@@ -167,7 +167,9 @@ def finalize(answer: str, blocks: list[Block]) -> tuple[str, list[dict], str | N
     return "answered", citations, None
 
 
-def answer(question: str, opt: Options | None = None, as_of: date | None = None, llm: LLM | None = None) -> dict:
+def answer(question: str, opt: Options | None = None, as_of: date | None = None, llm: LLM | None = None,
+           include_context: bool = False) -> dict:
+    """include_context adds meta["context"] (the rendered blocks the model saw) for grounding checks."""
     opt, t0 = opt or Options(), time.time()
     as_of_s = (as_of or date.today()).isoformat()
     llm = llm or LLM()
@@ -181,12 +183,15 @@ def answer(question: str, opt: Options | None = None, as_of: date | None = None,
                 "meta": {**base_meta, "model": None, "latency_ms": int((time.time() - t0) * 1000),
                          "usage": None, "cost_krw": 0.0, "refusal_reason": "retrieval_below_tau"}}
 
-    before = llm.spent_krw
     text, usage = llm.chat(messages(question, blocks, as_of_s, opt.inject_status), max_tokens=800)
     status, citations, reason = finalize(text, blocks)
+    context = [{"source": b.source, "chunk_id": b.chunk_id, "article_ids": b.article_ids,
+                "text": _render(b, as_of_s, opt.inject_status)} for b in blocks] if include_context else None
     return {"status": status, "answer": text if status == "answered" else None, "citations": citations,
             "retrieval": retrieval,
             "meta": {**base_meta, "model": usage["model"], "latency_ms": int((time.time() - t0) * 1000),
                      "usage": {"input": usage["prompt_tokens"], "output": usage["completion_tokens"],
                                "cached_input": (usage.get("prompt_tokens_details") or {}).get("cached_tokens") or 0},
-                     "cost_krw": round(llm.spent_krw - before, 4), "refusal_reason": reason, "raw_answer": text}}
+                     "cost_krw": 0.0 if usage.get("cached") else round(cost_of(llm.model, usage), 4),
+                     "refusal_reason": reason, "raw_answer": text,
+                     "cached": bool(usage.get("cached")), "context": context}}
