@@ -1,0 +1,11 @@
+{
+ "cross_version": "cross-judge-v1",
+ "models": [
+  "claude-opus-5-5"
+ ],
+ "cli": "2.1.287 (Claude Code)",
+ "items": 30,
+ "cost_usd": 1.7382,
+ "missing_verdicts": [],
+ "run_at": "2026-10-02T08:24:41"
+}

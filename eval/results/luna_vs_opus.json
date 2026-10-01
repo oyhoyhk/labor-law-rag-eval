@@ -1,0 +1,224 @@
+{
+ "sample": "eval/gold/human_label_sample_v1.json",
+ "judgments": "runs/20261002-001824_baseline-judge-v2/judgments.jsonl",
+ "labels": "eval/gold/opus_labels_v1.jsonl",
+ "judge_version": "judge-v2",
+ "labeled_items": 30,
+ "incomplete": [],
+ "key_points": {
+  "n": 70,
+  "agreement": 0.8571,
+  "kappa": 0.5674,
+  "positive": "asserted",
+  "confusion": {
+   "both_pos": 51,
+   "judge_only": 10,
+   "human_only": 0,
+   "both_neg": 9
+  },
+  "judge_precision": 0.8361,
+  "judge_recall": 1.0
+ },
+ "claims": {
+  "n": 168,
+  "agreement": 0.9464,
+  "kappa": 0.4425,
+  "positive": "unsupported",
+  "confusion": {
+   "both_pos": 4,
+   "judge_only": 4,
+   "human_only": 5,
+   "both_neg": 155
+  },
+  "judge_precision": 0.5,
+  "judge_recall": 0.4444
+ },
+ "claim_decomposition_error_rate": 0.0118,
+ "temporal": {
+  "n": 5,
+  "agreement": 1.0,
+  "kappa": null,
+  "positive": "temporal_error",
+  "confusion": {
+   "both_pos": 0,
+   "judge_only": 0,
+   "human_only": 0,
+   "both_neg": 5
+  },
+  "judge_precision": null,
+  "judge_recall": null
+ },
+ "conclusion": {
+  "n": 2,
+  "agreement": 1.0,
+  "kappa": null,
+  "positive": "asserts_conclusion",
+  "confusion": {
+   "both_pos": 0,
+   "judge_only": 0,
+   "human_only": 0,
+   "both_neg": 2
+  },
+  "judge_precision": null,
+  "judge_recall": null
+ },
+ "adopt": {
+  "rule": "kappa >= 0.6",
+  "key_points": false,
+  "claims": false
+ },
+ "disagreements": [
+  {
+   "id": "l5a03",
+   "type": "key_point",
+   "index": 1,
+   "human": false,
+   "judge": true,
+   "text": "사용자는 퇴직 시 지급사유 발생일부터 14일 이내에 퇴직금을 지급해야 함(근로자퇴직급여 보장법 제9조 제1항)"
+  },
+  {
+   "id": "l5a03",
+   "type": "claim",
+   "index": 3,
+   "human": "y",
+   "judge": "n",
+   "text": "합의한 연장기일까지도 지급하지 않았다면 그 이후에는 지급기일을 넘긴 상태이다."
+  },
+  {
+   "id": "l5a03",
+   "type": "claim",
+   "index": 4,
+   "human": "y",
+   "judge": "n",
+   "text": "근거 블록에는 연장기일 이후의 법적 효과에 관한 내용이 없다."
+  },
+  {
+   "id": "l5a05",
+   "type": "key_point",
+   "index": 1,
+   "human": false,
+   "judge": true,
+   "text": "임금은 직접 근로자에게 그 전액을 지급해야 함(근로기준법 제43조 제1항)"
+  },
+  {
+   "id": "l5a05",
+   "type": "key_point",
+   "index": 2,
+   "human": false,
+   "judge": true,
+   "text": "연차휴가미사용수당도 근로의 대가로 지급하는 임금(제2조제1항제5호)이므로 지급기일에 전액 지급하지 않으면 제43조 위반"
+  },
+  {
+   "id": "l5a05",
+   "type": "claim",
+   "index": 2,
+   "human": "n",
+   "judge": "y",
+   "text": "연차수당이 매달 지급되는 월급이 아니라는 이유만으로 임금체불이 아니라고 할 수 없다."
+  },
+  {
+   "id": "l5a08",
+   "type": "key_point",
+   "index": 3,
+   "human": false,
+   "judge": true,
+   "text": "기간제법에 근로기준법 제17조의 적용을 배제하는 규정이 없음"
+  },
+  {
+   "id": "l5a08",
+   "type": "claim",
+   "index": 1,
+   "human": "n",
+   "judge": "y",
+   "text": "계약직에게도 근로기준법상 근로조건 명시 의무가 적용된다."
+  },
+  {
+   "id": "l5a08",
+   "type": "claim",
+   "index": 13,
+   "human": "n",
+   "judge": "y",
+   "text": "기간제법만 적용된다는 회사의 설명만으로 근로기준법상 의무가 배제되지는 않는다."
+  },
+  {
+   "id": "l5a08",
+   "type": "claim",
+   "index": 15,
+   "human": "y",
+   "judge": "n",
+   "text": "제시된 근거에는 위반 시 제재 내용이 없다."
+  },
+  {
+   "id": "l5b06",
+   "type": "claim",
+   "index": 4,
+   "human": "y",
+   "judge": "n",
+   "text": "제시된 사실만으로 위반 여부를 확정할 수 없다."
+  },
+  {
+   "id": "g017",
+   "type": "key_point",
+   "index": 1,
+   "human": false,
+   "judge": true,
+   "text": "사업주는 신청일부터 14일 이내에 허용 사실을 서면 또는 전자적 방식으로 알려야 함"
+  },
+  {
+   "id": "g020",
+   "type": "claim",
+   "index": 6,
+   "human": "n",
+   "judge": "y",
+   "text": "퇴직 후 국외로 출국한 경우에는 개인형퇴직연금제도 계정 등으로 이전하지 않을 수 있다."
+  },
+  {
+   "id": "g020",
+   "type": "claim",
+   "index": 7,
+   "human": "n",
+   "judge": "y",
+   "text": "다른 법령에 따라 급여의 전부 또는 일부를 공제하는 경우에는 개인형퇴직연금제도 계정 등으로 이전하지 않을 수 있다."
+  },
+  {
+   "id": "g022",
+   "type": "key_point",
+   "index": 1,
+   "human": false,
+   "judge": true,
+   "text": "대통령령으로 정하는 경우 육아휴직 허용 의무의 예외"
+  },
+  {
+   "id": "g027",
+   "type": "key_point",
+   "index": 2,
+   "human": false,
+   "judge": true,
+   "text": "육아휴직 기간은 근속기간에 포함"
+  },
+  {
+   "id": "g035",
+   "type": "key_point",
+   "index": 2,
+   "human": false,
+   "judge": true,
+   "text": "최초 4일 유급으로 늘리는 개정이 공포됨"
+  },
+  {
+   "id": "g036",
+   "type": "key_point",
+   "index": 1,
+   "human": false,
+   "judge": true,
+   "text": "근로기준법 제44조의4(도급 사업에서 임금비용의 구분지급)는 2026.3.17 공포된 개정으로 신설"
+  },
+  {
+   "id": "g036",
+   "type": "key_point",
+   "index": 3,
+   "human": false,
+   "judge": true,
+   "text": "시행 후 국가·지방자치단체·공공기관 등 도급인은 임금비용을 구분하여 매월 지급"
+  }
+ ]
+}

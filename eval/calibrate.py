@@ -44,6 +44,7 @@ def main() -> None:
     ap = argparse.ArgumentParser()
     ap.add_argument("--labels", type=Path, default=LABELS)
     ap.add_argument("--judgments", type=Path, default=None, help="defaults to the sample's source run")
+    ap.add_argument("--out", type=Path, default=OUT)
     args = ap.parse_args()
 
     sample = json.loads(SAMPLE.read_text())
@@ -92,6 +93,7 @@ def main() -> None:
     cl = binary_report(cl_h, cl_j, "unsupported")
     out = {
         "sample": str(SAMPLE.relative_to(ROOT)), "judgments": str(jpath.relative_to(ROOT)),
+        "labels": str(args.labels.resolve().relative_to(ROOT)) if args.labels.resolve().is_relative_to(ROOT) else str(args.labels),
         "judge_version": sample["judge_version"], "labeled_items": len(sample["items"]) - len(incomplete),
         "incomplete": incomplete, "key_points": kp, "claims": cl,
         "claim_decomposition_error_rate": round(decomp_err / cl_total, 4) if cl_total else None,
@@ -102,7 +104,7 @@ def main() -> None:
                   "claims": cl["kappa"] is not None and cl["kappa"] >= KAPPA_MIN},
         "disagreements": disagreements,
     }
-    OUT.write_text(json.dumps(out, ensure_ascii=False, indent=1))
+    args.out.write_text(json.dumps(out, ensure_ascii=False, indent=1))
     for name in ("key_points", "claims", "temporal", "conclusion"):
         r = out[name]
         if r:
@@ -110,7 +112,7 @@ def main() -> None:
                   f"judge P/R({r['positive']})={r['judge_precision']}/{r['judge_recall']}")
     print(f"claim decomposition errors: {out['claim_decomposition_error_rate']}")
     print(f"adopt (κ≥{KAPPA_MIN}): key_points={out['adopt']['key_points']} claims={out['adopt']['claims']}")
-    print(f"incomplete: {incomplete}\n→ {OUT.relative_to(ROOT)}")
+    print(f"incomplete: {incomplete}\n→ {args.out}")
 
 
 if __name__ == "__main__":

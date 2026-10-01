@@ -1,0 +1,30 @@
+{"item": "g013", "rater": "claude-opus", "kp": [false], "claims": ["y", "y", "y", "y", "y", "n", "n"], "at": "2026-10-02T08:23:26"}
+{"item": "g019", "rater": "claude-opus", "kp": [false, true, true], "claims": ["y", "y"], "at": "2026-10-02T08:23:23"}
+{"item": "g021", "rater": "claude-opus", "kp": [false, true, false], "claims": ["y", "y", "y", "y", "y", "y", "y", "y"], "at": "2026-10-02T08:23:24"}
+{"item": "g030", "rater": "claude-opus", "kp": [true, true, false], "claims": ["y", "y", "y", "y", "y", "y", "y", "y", "y"], "at": "2026-10-02T08:23:31"}
+{"item": "g037", "rater": "claude-opus", "kp": [true, true, true], "claims": ["y", "n", "y"], "at": "2026-10-02T08:23:32", "temporal": false}
+{"item": "l5a01", "rater": "claude-opus", "kp": [true, true, true], "claims": ["y", "y", "y", "x", "y", "y", "y", "y"], "at": "2026-10-02T08:23:35"}
+{"item": "l5a02", "rater": "claude-opus", "kp": [true, true, true, false], "claims": ["y", "y", "y", "y", "y", "y", "y", "y"], "at": "2026-10-02T08:23:43"}
+{"item": "l5a03", "rater": "claude-opus", "kp": [false, true, false], "claims": ["y", "y", "y", "y", "y"], "at": "2026-10-02T08:23:41"}
+{"item": "l5a05", "rater": "claude-opus", "kp": [false, false, false], "claims": ["y", "n", "y", "y", "y", "y"], "at": "2026-10-02T08:23:47"}
+{"item": "l5a06", "rater": "claude-opus", "kp": [true, true, false], "claims": ["y", "y", "y", "y", "y", "y", "y", "y", "y", "y", "n"], "at": "2026-10-02T08:23:50"}
+{"item": "l5a08", "rater": "claude-opus", "kp": [true, true, false], "claims": ["n", "y", "y", "y", "y", "y", "y", "y", "y", "y", "y", "y", "n", "y", "y"], "at": "2026-10-02T08:23:54"}
+{"item": "l5b05", "rater": "claude-opus", "kp": [], "claims": ["x", "y", "y", "y", "y", "y", "y", "y", "y"], "at": "2026-10-02T08:23:54", "conclusion": false}
+{"item": "l5b06", "rater": "claude-opus", "kp": [], "claims": ["y", "y", "y", "y", "y", "y"], "at": "2026-10-02T08:23:57", "conclusion": false}
+{"item": "g001", "rater": "claude-opus", "kp": [true], "claims": ["y", "y", "y", "y"], "at": "2026-10-02T08:24:02"}
+{"item": "g002", "rater": "claude-opus", "kp": [true, true], "claims": ["y"], "at": "2026-10-02T08:23:59"}
+{"item": "g003", "rater": "claude-opus", "kp": [true, true], "claims": ["y", "y", "y", "y", "y", "y", "y", "y"], "at": "2026-10-02T08:24:03"}
+{"item": "g008", "rater": "claude-opus", "kp": [true, true], "claims": ["y", "y", "y", "y", "y", "y", "y"], "at": "2026-10-02T08:24:04"}
+{"item": "g015", "rater": "claude-opus", "kp": [true, true], "claims": ["y", "y", "y"], "at": "2026-10-02T08:24:08"}
+{"item": "g017", "rater": "claude-opus", "kp": [false, true], "claims": ["y", "y"], "at": "2026-10-02T08:24:11"}
+{"item": "g020", "rater": "claude-opus", "kp": [true, true, true], "claims": ["y", "y", "y", "y", "y", "n", "n", "y"], "at": "2026-10-02T08:24:14"}
+{"item": "g022", "rater": "claude-opus", "kp": [false, true], "claims": ["y", "y", "y"], "at": "2026-10-02T08:24:17"}
+{"item": "g024", "rater": "claude-opus", "kp": [true, true, true], "claims": ["y", "y", "y"], "at": "2026-10-02T08:24:19"}
+{"item": "g027", "rater": "claude-opus", "kp": [true, false, true], "claims": ["y", "y", "y", "y", "y", "y"], "at": "2026-10-02T08:24:22"}
+{"item": "g029", "rater": "claude-opus", "kp": [true, true], "claims": ["y", "y", "y", "y", "y"], "at": "2026-10-02T08:24:24"}
+{"item": "g032", "rater": "claude-opus", "kp": [true, true, true], "claims": ["y", "y", "y"], "at": "2026-10-02T08:24:26", "temporal": false}
+{"item": "g033", "rater": "claude-opus", "kp": [true, true], "claims": ["y", "y", "y", "y"], "at": "2026-10-02T08:24:32", "temporal": false}
+{"item": "g035", "rater": "claude-opus", "kp": [true, false, true], "claims": ["y", "y", "y", "y"], "at": "2026-10-02T08:24:31", "temporal": false}
+{"item": "g036", "rater": "claude-opus", "kp": [false, true, false], "claims": ["y", "y"], "at": "2026-10-02T08:24:33", "temporal": false}
+{"item": "g042", "rater": "claude-opus", "kp": [true], "claims": ["y", "y", "y", "y", "y"], "at": "2026-10-02T08:24:36"}
+{"item": "l5a07", "rater": "claude-opus", "kp": [true, true], "claims": ["y", "y", "y", "y", "y"], "at": "2026-10-02T08:24:41"}
