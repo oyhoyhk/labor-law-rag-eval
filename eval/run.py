@@ -99,6 +99,8 @@ def main() -> None:
     ap.add_argument("--ids", default="")
     ap.add_argument("--no-judge", action="store_true")
     ap.add_argument("--no-cache", action="store_true", help="force fresh LLM calls (noise-floor runs)")
+    ap.add_argument("--judge-no-cache", action="store_true",
+                    help="reuse cached answers but call the judge fresh (judge-consistency runs)")
     ap.add_argument("--budget", type=float, default=2000, help="hard cap in KRW for this run")
     ap.add_argument("--workers", type=int, default=4)
     args = ap.parse_args()
@@ -116,7 +118,8 @@ def main() -> None:
                   expand_links=not args.no_links, tau=args.tau)
     cache = None if args.no_cache else CACHE
     gen = LLM(budget_krw=args.budget, cache_dir=cache)
-    jdg = None if args.no_judge else LLM(budget_krw=args.budget, cache_dir=cache)
+    jdg = None if args.no_judge else LLM(budget_krw=args.budget,
+                                         cache_dir=None if args.judge_no_cache else cache)
     out = ROOT / "runs" / f"{datetime.now():%Y%m%d-%H%M%S}_{args.name}"
     out.mkdir(parents=True)
     started = datetime.now().isoformat(timespec="seconds")

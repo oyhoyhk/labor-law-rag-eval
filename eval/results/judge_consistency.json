@@ -1,0 +1,126 @@
+{
+ "runs": [
+  "runs/20261002-001824_baseline-judge-v2",
+  "runs/20261002-003429_judge-repeat-2",
+  "runs/20261002-003629_judge-repeat-3"
+ ],
+ "items": 46,
+ "key_points": 99,
+ "kp_flip_rate": 0.0202,
+ "items_with_kp_flip": 2,
+ "temporal_flips": 0,
+ "conclusion_flips": 0,
+ "unsupported_rate_item_range_mean": 0.0302,
+ "items_with_unsupported_change": 6,
+ "claim_count_range_mean": 0.54,
+ "M5_by_run": [
+  0.0319,
+  0.0315,
+  0.04
+ ],
+ "pairwise_kp_agreement": [
+  0.9798,
+  0.9899,
+  0.9899
+ ],
+ "changed_items": [
+  {
+   "id": "g013",
+   "kp_flips": 0,
+   "unsup_rates": [
+    0.286,
+    0.0,
+    0.444
+   ],
+   "n_claims": [
+    7,
+    6,
+    9
+   ]
+  },
+  {
+   "id": "g019",
+   "kp_flips": 1,
+   "unsup_rates": [
+    0.0,
+    0.0,
+    0.0
+   ],
+   "n_claims": [
+    2,
+    2,
+    2
+   ]
+  },
+  {
+   "id": "l5a01",
+   "kp_flips": 0,
+   "unsup_rates": [
+    0.125,
+    0.0,
+    0.143
+   ],
+   "n_claims": [
+    8,
+    6,
+    7
+   ]
+  },
+  {
+   "id": "l5a02",
+   "kp_flips": 0,
+   "unsup_rates": [
+    0.0,
+    0.25,
+    0.25
+   ],
+   "n_claims": [
+    8,
+    8,
+    8
+   ]
+  },
+  {
+   "id": "l5a08",
+   "kp_flips": 1,
+   "unsup_rates": [
+    0.067,
+    0.0,
+    0.067
+   ],
+   "n_claims": [
+    15,
+    14,
+    15
+   ]
+  },
+  {
+   "id": "l5b05",
+   "kp_flips": 0,
+   "unsup_rates": [
+    0.0,
+    0.0,
+    0.111
+   ],
+   "n_claims": [
+    9,
+    9,
+    9
+   ]
+  },
+  {
+   "id": "l5b06",
+   "kp_flips": 0,
+   "unsup_rates": [
+    0.167,
+    0.375,
+    0.0
+   ],
+   "n_claims": [
+    6,
+    8,
+    6
+   ]
+  }
+ ]
+}
