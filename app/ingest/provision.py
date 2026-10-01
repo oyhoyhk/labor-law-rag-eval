@@ -133,10 +133,10 @@ def build() -> dict:
     manifest = json.loads((ROOT / "data" / "manifest.json").read_text())["documents"]
     current = {article_id(a.law, a.article_key): a for a in load_corpus("현행")}
     pending, sunsets, delegates = _pending(current, manifest), _sunsets(current, manifest), _delegations(current)
-    delegated_from: dict[str, list[str]] = {}
+    implementing_provisions: dict[str, list[str]] = {}
     for child, parents in delegates.items():
         for p in parents:
-            delegated_from.setdefault(p, []).append(child)
+            implementing_provisions.setdefault(p, []).append(child)
     nodes = {}
     for aid in set(current) | set(pending):
         a = current.get(aid)
@@ -147,8 +147,8 @@ def build() -> dict:
             "in_current": a is not None,
             "pending": pending.get(aid, []),
             "sunsets": sunsets.get(aid, []),
-            "delegates_to": delegates.get(aid, []),
-            "delegated_from": sorted(delegated_from.get(aid, [])),
+            "parent_provisions": delegates.get(aid, []),
+            "implementing_provisions": sorted(implementing_provisions.get(aid, [])),
         }
     graph = {"built_at": date.today().isoformat(), "nodes": nodes}
     GRAPH.parent.mkdir(parents=True, exist_ok=True)
@@ -179,5 +179,5 @@ if __name__ == "__main__":
     g = build()["nodes"]
     n_pending = sum(bool(n["pending"]) for n in g.values())
     n_sunset = sum(bool(n["sunsets"]) for n in g.values())
-    n_deleg = sum(bool(n["delegates_to"]) for n in g.values())
-    print(f"{len(g)} nodes · {n_pending} with scheduled changes · {n_sunset} with sunsets · {n_deleg} delegating")
+    n_impl = sum(bool(n["parent_provisions"]) for n in g.values())
+    print(f"{len(g)} nodes · {n_pending} with scheduled changes · {n_sunset} with sunsets · {n_impl} implementing a parent provision")

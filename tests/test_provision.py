@@ -45,5 +45,5 @@ def test_untouched_article_is_in_force(nodes):
 
 
 def test_delegation_links_decree_to_statute(nodes):
-    assert "근로기준법#11" in nodes["근로기준법 시행령#7의2"]["delegates_to"]
-    assert "근로기준법 시행령#7의2" in nodes["근로기준법#11"]["delegated_from"]
+    assert "근로기준법#11" in nodes["근로기준법 시행령#7의2"]["parent_provisions"]
+    assert "근로기준법 시행령#7의2" in nodes["근로기준법#11"]["implementing_provisions"]

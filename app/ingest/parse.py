@@ -13,7 +13,7 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parents[2]
 MANIFEST = ROOT / "data" / "manifest.json"
 
-AMEND_TAG = re.compile(r"<(개정|신설|전문개정|본조신설)\s+([\d.,\s]+)>")
+AMEND_TAG = re.compile(r"[<\[](개정|신설|전문개정|본조신설)\s+([\d.,\s]+)[>\]]")
 DATE = re.compile(r"(\d{4})\.\s*(\d{1,2})\.\s*(\d{1,2})")
 HEADING = re.compile(r"^제\d+조(의\d+)?(\([^)]*\))?\s*")
 
@@ -89,8 +89,8 @@ def parse_file(path: Path, name: str) -> list[Article]:
         if not paras:  # single-paragraph article: body lives in 조문내용 after the heading
             paras = [Paragraph("", HEADING.sub("", head, count=1), [])]
         elif not any(p.text for p in paras):  # 항 without 항내용 holds only 호 items
-            paras = [Paragraph("", head, [i for p in paras for i in p.items])]
-        all_text = head + " " + " ".join(p.text + " " + " ".join(p.items) for p in paras)
+            paras = [Paragraph("", HEADING.sub("", head, count=1), [i for p in paras for i in p.items])]
+        all_text = head + " " + _text(u, "조문참고자료") + " " + " ".join(p.text + " " + " ".join(p.items) for p in paras)
         articles.append(Article(
             law=name, law_id=law_id, level=level_of(name), version_effective=version_eff,
             article_key=key, title=_text(u, "조문제목"), chapter=chapter,

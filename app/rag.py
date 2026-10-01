@@ -103,7 +103,7 @@ def build_blocks(question: str, opt: Options, as_of: str) -> list[Block]:
         for b in list(blocks[:3]):
             for aid in b.article_ids:
                 node = graph().get(aid, {})
-                for linked in node.get("delegates_to", []) + node.get("delegated_from", []):
+                for linked in node.get("parent_provisions", []) + node.get("implementing_provisions", []):
                     if linked not in seen and linked in article_texts() and len(blocks) < opt.top_k + MAX_LINKED:
                         seen.add(linked)
                         blocks.append(Block(f"S{len(blocks) + 1}", f"art:{linked}", [linked],
