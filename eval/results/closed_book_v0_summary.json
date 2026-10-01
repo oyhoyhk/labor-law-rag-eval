@@ -1,0 +1,18 @@
+{
+  "model": "openai/gpt-5.6-luna",
+  "repeats": 2,
+  "items": 20,
+  "accuracy": {
+    "stable": 1.0,
+    "recent": 0.5
+  },
+  "overall": 0.75,
+  "usage": {
+    "input": 3356,
+    "cached_input": 0,
+    "output": 3846,
+    "reasoning": 0,
+    "calls": 40
+  },
+  "cost_krw": 8.05
+}
