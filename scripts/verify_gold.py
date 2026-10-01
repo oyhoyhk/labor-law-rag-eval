@@ -17,10 +17,12 @@ sys.path.insert(0, str(ROOT))
 from app.ingest.parse import load_corpus  # noqa: E402
 from app.ingest.provision import status_at  # noqa: E402
 
-DEFAULT = ROOT / "eval/gold/gold_v1_draft_L1-L4.jsonl"
+DEFAULT = ROOT / "eval/gold/gold_v1.jsonl"
 GRAPH = ROOT / "data/processed/provision_graph.json"
 AS_OF = "2026-10-01"
-EXPECTED_COUNTS = {"L1": 10, "L2": 10, "L3": 10, "L4": 7, "OOS": 4}
+EXPECTED_COUNTS = {"L1": 10, "L2": 11, "L3": 10, "L4": 7, "OOS": 4, "L5a": 8, "L5b": 6}
+DRAFT_COUNTS = {"L1": 10, "L2": 10, "L3": 10, "L4": 7, "OOS": 4}
+CASES = ROOT / "data/raw/precedents"
 REQUIRED = ["id", "level", "question", "expected_status", "as_of", "gold_evidence", "key_points",
             "key_point_literals", "reference_answer", "recent_amendment", "notes"]
 
@@ -51,8 +53,9 @@ def main(path: Path) -> int:
     if dups := [k for k, v in ids.items() if v > 1]:
         global_errors.append(f"duplicate ids: {dups}")
     counts = Counter(i.get("level") for i in items)
-    if dict(counts) != EXPECTED_COUNTS:
-        global_errors.append(f"level counts {dict(counts)} != {EXPECTED_COUNTS}")
+    expected = DRAFT_COUNTS if "draft" in path.name else EXPECTED_COUNTS
+    if dict(counts) != expected:
+        global_errors.append(f"level counts {dict(counts)} != {expected}")
 
     rows, n_fail = [], 0
     for it in items:
@@ -65,7 +68,20 @@ def main(path: Path) -> int:
         if it.get("as_of") != AS_OF:
             errs.append("as_of")
 
-        if lvl == "OOS":
+        if lvl in ("L5a", "L5b"):
+            case_no = it.get("case", {}).get("case_no", "")
+            if not any(CASES.glob(case_no.split(",")[0].strip() + "*.xml")):
+                errs.append(f"precedent XML missing for {case_no}")
+            want = "answered" if lvl == "L5a" else "insufficient_context"
+            if it.get("expected_status") != want:
+                errs.append(f"{lvl} must be {want}")
+            if lvl == "L5a" and not it.get("key_points"):
+                errs.append("L5a needs key_points")
+            unknown = [aid for aid in ev if aid not in corpus]
+            if unknown:
+                errs.append(f"unknown evidence ids {unknown}")
+            info.append(f"case {case_no}")
+        elif lvl == "OOS":
             if it.get("expected_status") != "insufficient_context":
                 errs.append("OOS must be insufficient_context")
             if ev or kps or lits:
