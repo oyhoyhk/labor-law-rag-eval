@@ -11,3 +11,11 @@ verify-gold:
 	uv run python scripts/verify_gold.py
 
 .PHONY: eval retrieval test verify-gold
+
+calibrate:
+	uv run python -m eval.calibrate $(ARGS)
+
+compare:
+	uv run python -m eval.compare $(ARGS)
+
+.PHONY: calibrate compare

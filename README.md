@@ -41,6 +41,20 @@ curl localhost:8000/v1/query -H 'Content-Type: application/json' \
 # 스트리밍: "stream": true → SSE `delta` 이벤트 후 `final` 이벤트(전체 응답)
 ```
 
+### 5. 평가 실행
+
+```bash
+make eval NAME=baseline                          # Gold Set 56문항 → RAG → Judge → runs/<시각>_<이름>/report.md
+make eval NAME=h4-off ARGS="--no-inject"         # 실험: 시행 상태 주입 끄기
+make eval NAME=noise-2 ARGS="--no-cache"         # 노이즈 측정: 캐시 없이 재실행
+make retrieval ARGS="--strategy fixed"           # 검색 지표만(LLM 호출 없음)
+make compare ARGS="diff runs/<기준> runs/<실험>"  # 노이즈 폭·부트스트랩 CI로 개선 판정
+make calibrate                                   # Judge vs 사람 판정 일치도(κ)
+```
+
+- 실행 폴더: `predictions.jsonl`(답변·인용·검색 결과), `judgments.jsonl`(Judge 판정), `scores.jsonl`(문항별 지표), `report.md`, `manifest.json`(git·모델·seed·프롬프트·Corpus·GT 해시·비용)
+- 재현성: seed 42·temperature 0 고정, LLM 응답 캐시(`data/cache/llm`, 동일 요청 0원), 실행당 예산 상한(`--budget`)
+
 ## 설계 결정
 
 ### 검색 저장소: FAISS 인덱스 + 메타데이터 파일 (서버형 Vector DB 미사용)
