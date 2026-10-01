@@ -61,6 +61,16 @@ pre.ctx { background: var(--code); border-radius: 6px; padding: 10px 12px; margi
 textarea { width: 100%; margin-top: 10px; font: inherit; font-size: .88rem; border: 1px solid var(--rule); border-radius: 6px; padding: 8px 10px; background: var(--sheet); color: var(--ink); min-height: 2.4em; resize: vertical }
 .status { font-size: .78rem; color: var(--muted); margin-top: 6px }
 button:focus-visible, textarea:focus-visible, summary:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px }
+.tbl { overflow-x: auto; margin-top: 4px }
+table.ret { border-collapse: collapse; width: 100%; font-size: .82rem; font-variant-numeric: tabular-nums }
+table.ret th, table.ret td { text-align: left; padding: 4px 8px; border-bottom: 1px solid var(--rule); white-space: nowrap }
+table.ret th { color: var(--muted); font-weight: 500 }
+table.ret td.cid { font-family: var(--f-mono); font-size: .78rem; white-space: normal; overflow-wrap: anywhere; min-width: 14em }
+table.ret tr.cited td { background: var(--accent-soft) }
+.tag { border-radius: 4px; padding: 0 6px; font-size: .74rem }
+.tag.on { background: var(--yes-soft); color: var(--yes) }
+.tag.gold { background: var(--warn-soft); color: var(--warn) }
+.tag.link { background: var(--accent-soft); color: var(--accent) }
 @media (max-width: 560px) { .row { grid-template-columns: minmax(0, 1fr) } .seg { justify-content: flex-start } }
 @media (prefers-reduced-motion: reduce) { .bar i { transition: none } }
 </style>
@@ -126,7 +136,21 @@ function sheet(it) {
   s.append(el("div", { class: "meta" }, el("span", { class: "id", text: it.id }), el("span", { class: "chip", text: LEVEL[it.level] || it.level })));
   s.append(el("p", { class: "q", text: it.question }));
   s.append(el("div", { class: "label", text: "시스템 답변" }), el("div", { class: "answer", text: it.answer }));
-  const det = el("details", {}, el("summary", { text: `모델이 본 근거 ${it.context.length}개 블록 펼치기 ([S#] 번호가 답변의 인용과 대응)` }));
+  if (it.retrieval && it.retrieval.length) {
+    s.append(el("div", { class: "label", text: "답변 생성 때 벡터 DB에서 꺼낸 청크 (음영 = 답변이 인용한 블록)" }));
+    const tb = el("tbody");
+    for (const r of it.retrieval) {
+      tb.append(el("tr", { class: r.cited ? "cited" : "" },
+        el("td", { text: r.source }), el("td", { class: "cid", text: r.chunk_id }),
+        el("td", { text: r.linked ? "—" : String(r.rank) }), el("td", { text: r.linked ? "—" : r.score.toFixed(3) }),
+        el("td", {}, el("span", { class: "tag" + (r.linked ? " link" : ""), text: r.linked ? "위임 확장" : "벡터 검색" })),
+        el("td", {}, r.cited ? el("span", { class: "tag on", text: "인용" }) : null),
+        el("td", {}, r.gold ? el("span", { class: "tag gold", text: "GT 근거" }) : null)));
+    }
+    s.append(el("div", { class: "tbl" }, el("table", { class: "ret" },
+      el("thead", {}, el("tr", {}, ...["블록", "청크 ID (벡터 DB 인덱스)", "순위", "유사도", "경로", "답변 인용", "정답 조문"].map(h => el("th", { text: h })))), tb)));
+  }
+  const det = el("details", {}, el("summary", { text: `모델이 본 근거 ${it.context.length}개 블록 본문 펼치기 ([S#] 번호가 답변의 인용과 대응)` }));
   it.context.forEach(c => det.append(el("pre", { class: "ctx", text: c.text })));
   s.append(det);
 
