@@ -172,7 +172,8 @@ def answer(question: str, opt: Options | None = None, as_of: date | None = None,
     as_of_s = (as_of or date.today()).isoformat()
     llm = llm or LLM()
     blocks = build_blocks(question, opt, as_of_s)
-    retrieval = [{"chunk_id": b.chunk_id, "score": round(b.score, 4), "linked": b.linked} for b in blocks]
+    retrieval = [{"rank": i + 1, "chunk_id": b.chunk_id, "article_ids": b.article_ids, "score": round(b.score, 4),
+                  "linked": b.linked} for i, b in enumerate(blocks)]
     base_meta = {"prompt_version": PROMPT_VERSION, "strategy": opt.strategy, "as_of": as_of_s}
 
     if not blocks or blocks[0].score < opt.tau:

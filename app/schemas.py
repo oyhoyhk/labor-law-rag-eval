@@ -26,7 +26,9 @@ class Citation(BaseModel):
 
 
 class RetrievalHit(BaseModel):
+    rank: int = Field(description="1부터 시작하는 순위. 확장 블록은 검색 순위 뒤에 이어짐")
     chunk_id: str
+    article_ids: list[str] = Field(description="청크가 포함하는 조문 ID — GT gold_evidence와 같은 형식(법령명#조)")
     score: float
     linked: bool = Field(default=False, description="검색이 아니라 위임 관계로 확장된 블록")
 

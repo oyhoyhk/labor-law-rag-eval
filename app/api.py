@@ -44,7 +44,8 @@ def _sse(req: QueryRequest, opt: Options):
     """`delta` events carry answer text; one `final` event carries the full QueryResponse."""
     t0, as_of = time.time(), (req.as_of or date.today()).isoformat()
     blocks = build_blocks(req.question, opt, as_of)
-    retrieval = [{"chunk_id": b.chunk_id, "score": round(b.score, 4), "linked": b.linked} for b in blocks]
+    retrieval = [{"rank": i + 1, "chunk_id": b.chunk_id, "article_ids": b.article_ids, "score": round(b.score, 4),
+                  "linked": b.linked} for i, b in enumerate(blocks)]
     meta = {"prompt_version": "gen-v1", "strategy": opt.strategy, "as_of": as_of, "model": None,
             "usage": None, "cost_krw": 0.0}
     if not blocks or blocks[0].score < opt.tau:
