@@ -12,6 +12,7 @@ from datetime import date
 from functools import lru_cache
 from urllib.parse import quote
 
+from app import hybrid
 from app.index import INDEX_DIR, PrecedentScorer, Retriever
 from app.ingest.precedent import load_precedents
 from app.ingest.provision import GRAPH, status_at
@@ -79,6 +80,7 @@ class Options:
     expand_reverse_refs: bool = False
     prompt: str = PROMPT_VERSION  # key of SYSTEMS
     precedents: bool = True  # add linked Supreme Court precedents; switches the prompt to gen-v3-precedent
+    hybrid: bool = False  # dense + character-bigram BM25 fused by RRF (app/hybrid.py)
 
     def __post_init__(self):
         if self.precedents:
@@ -170,7 +172,10 @@ def _render(b: Block, as_of: str, inject: bool) -> str:
 
 
 def build_blocks(question: str, opt: Options, as_of: str) -> list[Block]:
-    hits = retriever(opt.strategy).search(question, opt.top_k)
+    if opt.hybrid:
+        hits = hybrid.search(retriever(opt.strategy), question, opt.top_k)
+    else:
+        hits = retriever(opt.strategy).search(question, opt.top_k)
     blocks = [Block(f"S{i + 1}", h["chunk_id"], h["article_ids"], h["text"], h["score"]) for i, h in enumerate(hits)]
     n_sib = 0
     if opt.include_siblings:

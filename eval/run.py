@@ -19,6 +19,7 @@ from datetime import date, datetime
 from app.index import INDEX_DIR
 from app.ingest.parse import ROOT
 from app.llm import LLM, SEED, TEMPERATURE, BudgetExceeded
+from app import hybrid
 from app.rag import SYSTEMS, Options, answer, graph, retriever
 from app.ingest.provision import status_at
 from eval import judge as J
@@ -104,6 +105,7 @@ def main() -> None:
     ap.add_argument("--prompt", default=Options.prompt, choices=list(SYSTEMS), help="generation prompt version")
     ap.add_argument("--precedents", action=argparse.BooleanOptionalAction, default=Options.precedents,
                     help="add Supreme Court precedents linked to retrieved articles (forces gen-v3-precedent)")
+    ap.add_argument("--hybrid", action="store_true", help="dense + character-bigram BM25 fused by RRF (app/hybrid.py)")
     ap.add_argument("--split", default="all", choices=["all", "dev", "test"])
     ap.add_argument("--ids", default="")
     ap.add_argument("--no-judge", action="store_true")
@@ -126,7 +128,7 @@ def main() -> None:
     opt = Options(strategy=args.strategy, top_k=args.k, inject_status=not args.no_inject,
                   expand_links=not args.no_links, tau=args.tau,
                   include_siblings=args.siblings, expand_reverse_refs=args.reverse_refs, prompt=args.prompt,
-                  precedents=args.precedents)
+                  precedents=args.precedents, hybrid=args.hybrid)
     args.prompt = opt.prompt  # record the prompt actually used (--precedents switches it)
     cache = None if args.no_cache else CACHE
     gen = LLM(budget_krw=args.budget, cache_dir=cache)
@@ -138,6 +140,8 @@ def main() -> None:
     print(f"{len(items)} items → {out.relative_to(ROOT)}  (budget {args.budget}원)")
 
     retriever(opt.strategy).search("워밍업", 1)  # load the embedder once, before worker threads
+    if opt.hybrid:
+        hybrid.bm25(retriever(opt.strategy))  # build the BM25 index once, too
     results, aborted = {}, None
     with ThreadPoolExecutor(args.workers) as pool:
         futures = {pool.submit(run_item, it, opt, gen, jdg): it for it in items}
@@ -167,7 +171,9 @@ def main() -> None:
     manifest = {
         "name": args.name, "started_at": started, "finished_at": datetime.now().isoformat(timespec="seconds"),
         "git_sha": git("rev-parse", "--short", "HEAD"), "git_dirty": bool(git("status", "--porcelain", "--", "app", "eval")),
-        "config": {k: v for k, v in vars(args).items() if k not in ("workers",)},
+        "config": {k: v for k, v in vars(args).items() if k not in ("workers",)}
+        | ({"hybrid_params": {"n": hybrid.CANDIDATES_N, "rrf_k": hybrid.RRF_K, "bm25_weight": hybrid.BM25_WEIGHT,
+                              "k1": hybrid.BM25_K1, "b": hybrid.BM25_B}} if args.hybrid else {}),
         "model": gen.model, "seed": SEED, "temperature": TEMPERATURE,
         "prompt_version": opt.prompt, "judge_version": J.JUDGE_VERSION,
         "embedding": json.loads((INDEX_DIR / args.strategy / "meta.json").read_text()),
