@@ -72,6 +72,9 @@ table.ret td.cid { font-family: var(--f-mono); font-size: .78rem; white-space: n
 table.ret tr.cited td { background: var(--accent-soft) }
 .tag { border-radius: 4px; padding: 0 6px; font-size: .74rem }
 .tag.on { background: var(--yes-soft); color: var(--yes) } .tag.gold { background: var(--warn-soft); color: var(--warn) } .tag.link { background: var(--accent-soft); color: var(--accent) }
+mark.gold { background: #ffe58a; color: #1b2430; border-radius: 2px; padding: 0 1px }
+span.cited { text-decoration: underline; text-decoration-color: var(--accent); text-decoration-thickness: 2px; text-underline-offset: 3px }
+.legend { display: flex; flex-wrap: wrap; gap: 12px; font-size: .8rem; color: var(--muted); margin-top: 8px }
 pre.ctx { background: var(--code); border-radius: 6px; padding: 10px 12px; margin: 6px 0 0; white-space: pre-wrap; overflow-wrap: anywhere; font-family: var(--f-body); font-size: .84rem; max-height: 480px; overflow: auto }
 .decide { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 14px; align-items: center }
 .decide button { font: inherit; font-size: .9rem; padding: 6px 16px; border-radius: 6px; border: 1px solid var(--rule); background: var(--sheet); color: var(--ink); cursor: pointer }
@@ -160,7 +163,11 @@ function sheet(it) {
       el("td", {}, el("span", { class: "tag" + (x.path === "위임 확장" ? " link" : ""), text: x.path })),
       el("td", {}, x.cited ? el("span", { class: "tag on", text: "인용" }) : null), el("td", {}, x.gold ? el("span", { class: "tag gold", text: "GT 근거" }) : null)));
     det.append(el("div", { class: "tbl" }, el("table", { class: "ret" }, el("thead", {}, el("tr", {}, ...["블록", "청크 ID", "유사도", "경로", "인용", "정답 조문"].map(h => el("th", { text: h })))), tb)));
-    it.context.forEach(t => det.append(el("pre", { class: "ctx", text: t })));
+    const nGold = (it.marks || []).reduce((n, m) => n + m.gold.length, 0);
+    det.append(el("div", { class: "legend" }, el("span", {}, el("mark", { class: "gold", text: "노란 배경" }), document.createTextNode(" 정답 근거 문장 (GT)")),
+      el("span", {}, el("span", { class: "cited", text: "밑줄" }), document.createTextNode(" 답변이 인용한 문장"))));
+    it.context.forEach((t, n) => det.append(ctxBlock(t, (it.marks || [])[n] || { gold: [], cited: [] })));
+    det.querySelector("summary").textContent += nGold ? ` · 정답 근거 문장 ${nGold}곳 표시` : " · 정답 근거 문장이 검색 결과에 없음";
     s.append(det);
   }
   const row = el("div", { class: "decide", role: "group", "aria-label": "확인" });
@@ -176,6 +183,25 @@ function sheet(it) {
   let t; ta.addEventListener("input", () => { clearTimeout(t); t = setTimeout(() => save(it, { note: ta.value }, true), 900); });
   s.append(ta);
   return s;
+}
+// Render one context block with gold spans as <mark> and cited spans underlined; spans never nest wrongly
+// because each character gets its own (gold, cited) state and runs of equal state become one node.
+function ctxBlock(text, m) {
+  const pre = el("pre", { class: "ctx" });
+  const state = new Array(text.length).fill(0);
+  for (const [a, b] of m.gold) for (let i = a; i < b; i++) state[i] |= 1;
+  for (const [a, b] of m.cited) for (let i = a; i < b; i++) state[i] |= 2;
+  let i = 0;
+  while (i < text.length) {
+    let j = i; while (j < text.length && state[j] === state[i]) j++;
+    const chunk = text.slice(i, j), st = state[i];
+    let node = document.createTextNode(chunk);
+    if (st & 2) { const u = el("span", { class: "cited" }); u.append(node); node = u; }
+    if (st & 1) { const g = el("mark", { class: "gold" }); g.append(node); node = g; }
+    pre.append(node);
+    i = j;
+  }
+  return pre;
 }
 function visible(it) {
   const d = decisions[it.id];
