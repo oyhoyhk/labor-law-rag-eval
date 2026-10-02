@@ -101,6 +101,8 @@ def main() -> None:
     ap.add_argument("--reverse-refs", action="store_true",
                     help="add articles that reference a top hit with an exception/준용 cue")
     ap.add_argument("--prompt", default=Options.prompt, choices=list(SYSTEMS), help="generation prompt version")
+    ap.add_argument("--precedents", action="store_true",
+                    help="add Supreme Court precedents linked to retrieved articles (forces gen-v3-precedent)")
     ap.add_argument("--split", default="all", choices=["all", "dev", "test"])
     ap.add_argument("--ids", default="")
     ap.add_argument("--no-judge", action="store_true")
@@ -122,7 +124,9 @@ def main() -> None:
 
     opt = Options(strategy=args.strategy, top_k=args.k, inject_status=not args.no_inject,
                   expand_links=not args.no_links, tau=args.tau,
-                  include_siblings=args.siblings, expand_reverse_refs=args.reverse_refs, prompt=args.prompt)
+                  include_siblings=args.siblings, expand_reverse_refs=args.reverse_refs, prompt=args.prompt,
+                  precedents=args.precedents)
+    args.prompt = opt.prompt  # record the prompt actually used (--precedents switches it)
     cache = None if args.no_cache else CACHE
     gen = LLM(budget_krw=args.budget, cache_dir=cache)
     jdg = None if args.no_judge else LLM(budget_krw=args.budget,

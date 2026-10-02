@@ -78,7 +78,7 @@ curl localhost:8000/v1/query -H 'Content-Type: application/json' \
 
 ```bash
 make eval NAME=baseline                          # Gold Set 56문항 → RAG → Judge → runs/<시각>_<이름>/report.md
-make eval NAME=h4-off ARGS="--no-inject"         # 실험 플래그: --no-inject --strategy fixed --k 10 --siblings --reverse-refs --prompt gen-v2-partial
+make eval NAME=h4-off ARGS="--no-inject"         # 실험 플래그: --no-inject --strategy fixed --k 10 --siblings --reverse-refs --prompt gen-v2-partial --precedents
 make eval NAME=noise-2 ARGS="--no-cache"         # 노이즈 측정: 캐시 없이 재실행
 make retrieval ARGS="--strategy fixed"           # 검색 지표만(LLM 호출 없음)
 make compare ARGS="diff runs/<기준> runs/<실험>"  # 노이즈 폭·부트스트랩 CI로 개선 판정
@@ -154,6 +154,14 @@ make calibrate                                   # Judge vs 사람 판정 일치
 - 시행령·시행규칙의 "법 제N조"·"영 제N조" 인용으로 위임 관계 연결, 검색 상위 3개 결과에서 1단계 확장(최대 3개)
 - 효과 실측: g042(임신 10주 유산) — 검색 실패한 시행령 제43조를 법 제74조 연결로 확보
 - 미구현: 같은 법 내 조문 참조, 타 법률 참조, 연결 조문의 관련도 정렬
+
+### 판례 연결: 조문 → 판례 그래프 확장 (`--precedents`, 기본 꺼짐)
+- 판례는 독립 검색 대상이 아니라 검색된 조문의 참조조문 연결로만 도달 → 조문 근거 없이 판례만으로 답하는 경로 차단
+- 수집: 코퍼스 법률 8건 본문 검색, 대법원·2010년 이후 400건(`scripts/fetch_precedents.py bulk`), 참조조문 파싱으로 347건이 조문 150개에 연결
+- 질의 시: 검색 결과(확장 블록 제외) 조문에 연결된 판례 후보 → 판례 임베딩(KURE-v1, `판시사항+판결요지`)과 질의의 코사인 ≥ `PREC_TAU` 0.54 → 상위 2건을 `[판례]` 블록으로 추가, 판결요지는 3,000자(코퍼스 p90) 초과 시 문장 경계에서 절단
+- `PREC_TAU` 선정: dev 분할 44문항만 사용. 정답 판례가 연결 후보에 있는 dev L5b 3건의 점수(0.545·0.613·0.707, 모두 후보 1위)를 모두 남기는 0.01 단위 최댓값 → 0.54. 한계: 코사인 절대값은 판례 불필요 문항(dev 비L5 평균 1.05블록 추가)과 잘 분리되지 않아, 무관 판례 무시는 프롬프트 규칙에 의존
+- 프롬프트 `gen-v3-precedent`: 조문 먼저 → 관련 판례는 사건번호·선고일과 함께 "대법원은 …라고 판단했습니다" 형식 → 사실관계에 따라 달라질 수 있다는 단서, 블록 밖 판례 금지
+- 거절 게이트 τ는 조문 검색 점수에만 적용(판례 점수 무관), 플래그를 끄면 프롬프트·블록·LLM 캐시 키가 기존과 동일
 
 ### 임베딩: 로컬 nlpai-lab/KURE-v1
 - 엘리스 ML API 카탈로그에 임베딩 모델 부재 → 로컬 실행, 크레딧 0원

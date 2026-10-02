@@ -30,7 +30,7 @@ def healthz() -> dict:
 
 @app.post("/v1/query", response_model=QueryResponse)
 def query(req: QueryRequest):
-    opt = Options(strategy=STRATEGY, top_k=req.top_k)
+    opt = Options(strategy=STRATEGY, top_k=req.top_k, precedents=req.precedents)
     if not req.stream:
         return rag_answer(req.question, opt, req.as_of, llm)
     return StreamingResponse(_sse(req, opt), media_type="text/event-stream")
@@ -45,8 +45,8 @@ def _sse(req: QueryRequest, opt: Options):
     t0, as_of = time.time(), (req.as_of or date.today()).isoformat()
     blocks = build_blocks(req.question, opt, as_of)
     retrieval = [{"rank": i + 1, "chunk_id": b.chunk_id, "article_ids": b.article_ids, "score": round(b.score, 4),
-                  "linked": b.linked} for i, b in enumerate(blocks)]
-    meta = {"prompt_version": "gen-v1", "strategy": opt.strategy, "as_of": as_of, "model": None,
+                  "linked": b.linked, "via": b.via} for i, b in enumerate(blocks)]
+    meta = {"prompt_version": opt.prompt, "strategy": opt.strategy, "as_of": as_of, "model": None,
             "usage": None, "cost_krw": 0.0}
     if not blocks or blocks[0].score < opt.tau:
         yield _event("final", {"status": "insufficient_context", "answer": None, "citations": [],
@@ -54,7 +54,7 @@ def _sse(req: QueryRequest, opt: Options):
                                                                 "latency_ms": int((time.time() - t0) * 1000)}})
         return
     before, parts = llm.spent_krw, []
-    for delta in llm.stream(messages(req.question, blocks, as_of, opt.inject_status), max_tokens=800):
+    for delta in llm.stream(messages(req.question, blocks, as_of, opt.inject_status, opt.prompt), max_tokens=800):
         parts.append(delta)
         yield _event("delta", {"text": delta})
     text = "".join(parts)

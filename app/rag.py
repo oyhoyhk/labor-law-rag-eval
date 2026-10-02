@@ -1,4 +1,4 @@
-"""Retrieve → link-expand → refusal gate → generate → validate citations.
+"""Retrieve → link-expand → (precedent-expand) → refusal gate → generate → validate citations.
 
 Answers cite context blocks inline as [S1]; citations are derived from those
 markers, so streaming and non-streaming share one output format.
@@ -12,12 +12,14 @@ from datetime import date
 from functools import lru_cache
 from urllib.parse import quote
 
-from app.index import INDEX_DIR, Retriever
+from app.index import INDEX_DIR, PrecedentScorer, Retriever
+from app.ingest.precedent import load_precedents
 from app.ingest.provision import GRAPH, status_at
 from app.llm import LLM, cost_of
 
 PROMPT_VERSION = "gen-v1"  # default generation prompt
 PROMPT_VERSION_PARTIAL = "gen-v2-partial"  # adds a partial-answer mode between full answer and refusal
+PROMPT_VERSION_PRECEDENT = "gen-v3-precedent"  # statute first, then linked Supreme Court holdings; set by --precedents
 TAU = 0.50  # top-1 cosine below this → refuse without calling the LLM (calibrated in H3)
 MAX_LINKED = 3
 MAX_SIBLINGS = 4  # sibling-chunk cap → at most top_k + MAX_SIBLINGS + MAX_LINKED blocks
@@ -26,6 +28,11 @@ MAX_SIBLINGS = 4  # sibling-chunk cap → at most top_k + MAX_SIBLINGS + MAX_LIN
 # (exception before 준용), then the best rank of the hit they reference; plain references are never added.
 MAX_REVERSE = 2
 REVERSE_CUES = ("exception", "mutatis")
+# Precedent expansion: Supreme Court cases linked (참조조문) to a search hit's article, ranked by cosine(query,
+# precedent); PREC_TAU chosen on the dev split only (README "판례 연결").
+PREC_TAU = 0.54
+MAX_PRECEDENTS = 2
+PREC_HOLDING_CHARS = 3000  # ≈ p90 of 판결요지 length; longer ones cut at a sentence end, 판시사항 always whole
 REFUSAL = "[정보 부족]"
 MARKER = re.compile(r"\[S(\d+)\]")
 
@@ -47,7 +54,18 @@ SYSTEM_PARTIAL = """당신은 한국 노동법령 질의응답 도우미입니�
 6. 질문이 묻는 쟁점에 답하는 내용이 근거 블록에 하나도 없으면, 주변 조문으로 답을 채우지 말고 첫 줄을 정확히 "[정보 부족]"으로 쓰고, 무엇이 없는지만 한 문장으로 쓴다. 근거 블록으로 답할 수 있는 내용이 있으면 "[정보 부족]"을 쓰지 않는다.
 7. 질문에 답하는 데 쓰지 않는 조문은 소개하지 않는다. 간결하게 답한다."""
 
-SYSTEMS = {PROMPT_VERSION: SYSTEM, PROMPT_VERSION_PARTIAL: SYSTEM_PARTIAL}
+SYSTEM_PRECEDENT = """당신은 한국 노동법령 질의응답 도우미입니다. 아래 [근거] 블록만 사용해 답하세요. [근거] 블록은 법령 조문과, 검색된 조문에 연결된 대법원 판례("[판례]"로 시작하는 블록)로 이루어집니다.
+규칙:
+1. 근거 블록에 없는 내용은 쓰지 않는다. 일반 지식, 근거 블록에 없는 판례, 행정해석으로 보충하지 않는다.
+2. 사실을 말하는 모든 문장 끝에 근거 블록 번호를 [S1]처럼 붙인다.
+3. 근거 블록의 '시행 상태'에 효력 상실이나 시행 예정이 적혀 있으면, 답변에 그 사실과 날짜를 밝힌다. 기준일은 {as_of}이다.
+4. 조문이 정한 내용을 먼저 쓴다.
+5. 판례 블록이 질문의 쟁점에 관련되면, 조문 다음에 "대법원은 ~ 사안에서 ~라고 판단했습니다(대법원 2024. 12. 19. 선고 2020다247190 판결) [S3]"처럼 판례 블록의 판단을 사건번호·선고일과 함께 대법원의 판단으로 쓴다. 판례를 인용했으면 끝에 "다만 판례는 개별 사안의 사실관계에 따라 달리 판단될 수 있습니다."라고 덧붙인다.
+6. 판례의 판단을 조문의 내용처럼 쓰지 않는다. 질문과 관련 없는 판례 블록은 쓰지 않는다.
+7. 조문 블록과 판례 블록으로 모두 답할 수 없으면 첫 줄을 정확히 "[정보 부족]"으로 쓰고, 무엇이 없는지만 한 문장으로 쓴다.
+8. 한국어 합니다체로 간결하게 답한다."""
+
+SYSTEMS = {PROMPT_VERSION: SYSTEM, PROMPT_VERSION_PARTIAL: SYSTEM_PARTIAL, PROMPT_VERSION_PRECEDENT: SYSTEM_PRECEDENT}
 
 
 @dataclass
@@ -60,6 +78,11 @@ class Options:
     include_siblings: bool = False  # add the other chunks of a split article when one is retrieved
     expand_reverse_refs: bool = False
     prompt: str = PROMPT_VERSION  # key of SYSTEMS
+    precedents: bool = False  # add linked Supreme Court precedents; switches the prompt to gen-v3-precedent
+
+    def __post_init__(self):
+        if self.precedents:
+            self.prompt = PROMPT_VERSION_PRECEDENT
 
 
 @dataclass
@@ -70,9 +93,10 @@ class Block:
     text: str
     score: float
     linked: bool = False  # not a search hit (excluded from M1)
-    via: str = "search"  # search | sibling | link | reverse
+    via: str = "search"  # search | sibling | link | reverse | precedent
     status: dict = field(default_factory=dict)
-    referenced: list[str] = field(default_factory=list)  # reverse-ref blocks: the hits this article refers to
+    # reverse-ref blocks: the hits this article refers to; precedent blocks: the hit articles linking to the case
+    referenced: list[str] = field(default_factory=list)
 
 
 @lru_cache(maxsize=2)
@@ -83,6 +107,16 @@ def retriever(strategy: str) -> Retriever:
 @lru_cache(maxsize=1)
 def graph() -> dict:
     return json.loads(GRAPH.read_text())["nodes"]
+
+
+@lru_cache(maxsize=1)
+def precedents() -> dict:
+    return load_precedents()
+
+
+@lru_cache(maxsize=1)
+def precedent_scorer() -> PrecedentScorer:
+    return PrecedentScorer()
 
 
 @lru_cache(maxsize=1)
@@ -116,6 +150,8 @@ def _status(article_ids: list[str], as_of: str) -> dict:
 
 
 def _render(b: Block, as_of: str, inject: bool) -> str:
+    if b.via == "precedent":
+        return f"[{b.source}] (검색된 조문 {'·'.join(_title(a) for a in b.referenced)}에 연결된 대법원 판례)\n{b.text}"
     if b.referenced:
         note = f" ({'·'.join(_label(a) for a in b.referenced)}의 예외·준용을 정한 조문)"
     else:
@@ -160,7 +196,42 @@ def build_blocks(question: str, opt: Options, as_of: str) -> list[Block]:
         blocks += _reverse_ref_blocks(blocks, len(blocks))
     for b in blocks:
         b.status = _status(b.article_ids, as_of)
+    if opt.precedents:
+        blocks += _precedent_blocks(question, blocks, len(blocks))
     return blocks
+
+
+def precedent_candidates(question: str, blocks: list[Block]) -> list[tuple[str, float, list[str]]]:
+    """(precedent id, cosine to the question, linking hit articles) for every case linked to a search hit, best first."""
+    links: dict[str, list[str]] = {}
+    for b in blocks:
+        if not b.linked:
+            for aid in b.article_ids:
+                for pid in graph().get(aid, {}).get("precedents", []):
+                    if aid not in links.setdefault(pid, []):
+                        links[pid].append(aid)
+    scores = precedent_scorer().scores(question, list(links))
+    return sorted(((pid, scores[pid], links[pid]) for pid in scores), key=lambda c: (-c[1], c[0]))
+
+
+def _truncate_holding(holding: str) -> str:
+    if len(holding) <= PREC_HOLDING_CHARS:
+        return holding
+    cut = holding[:PREC_HOLDING_CHARS]
+    end = cut.rfind("다.")
+    return (cut[:end + 2] if end > 0 else cut) + " …(이하 생략)"
+
+
+def _precedent_blocks(question: str, blocks: list[Block], start: int) -> list[Block]:
+    kept = [c for c in precedent_candidates(question, blocks) if c[1] >= PREC_TAU][:MAX_PRECEDENTS]
+    out = []
+    for i, (pid, score, via) in enumerate(kept):
+        p = precedents()[pid]
+        text = p.render()
+        text = text[:len(text) - len(p.holding)] + _truncate_holding(p.holding)
+        out.append(Block(f"S{start + i + 1}", f"prec:{pid}", [pid], text, score, linked=True, via="precedent",
+                         status={"status": "not_applicable", "notes": []}, referenced=via))
+    return out
 
 
 def _reverse_ref_blocks(blocks: list[Block], start: int) -> list[Block]:
@@ -204,6 +275,17 @@ def _article_url(aid: str) -> str:
     return f"https://www.law.go.kr/법령/{quote(law)}/제{num}조" + (f"의{branch}" if branch else "")
 
 
+def _title(aid: str) -> str:
+    return f"{aid.split('#')[0]} {_label(aid)}"
+
+
+def _precedent_citation(b: Block) -> dict:
+    p = precedents()[b.article_ids[0]]
+    y, m, d = p.decided.split("-")
+    return {"source_type": "precedent", "law": "대법원", "article": f"대법원 {y}. {int(m)}. {int(d)}. 선고 {p.case_no} 판결",
+            "url": f"https://www.law.go.kr/판례/({quote(p.case_no.split(',')[0].strip())})"}
+
+
 def _label(aid: str) -> str:
     law, key = aid.split("#")
     num, _, branch = key.partition("의")
@@ -225,10 +307,13 @@ def finalize(answer: str, blocks: list[Block]) -> tuple[str, list[dict], str | N
         if b is None:
             continue  # marker pointing at a block that does not exist
         primary = b.article_ids[0]
+        ref = _precedent_citation(b) if b.via == "precedent" else {
+            "source_type": "statute", "law": primary.split("#")[0],
+            "article": " · ".join(_label(a) for a in b.article_ids), "url": _article_url(primary)}
         citations.append({
-            "source": src, "chunk_id": b.chunk_id, "article_ids": b.article_ids, "law": primary.split("#")[0],
-            "article": " · ".join(_label(a) for a in b.article_ids), "quote": _quote(b, sents),
-            "url": _article_url(primary), "status": b.status["status"], "status_notes": b.status["notes"],
+            "source": src, "chunk_id": b.chunk_id, "article_ids": b.article_ids, "law": ref["law"],
+            "article": ref["article"], "quote": _quote(b, sents), "url": ref["url"], "source_type": ref["source_type"],
+            "status": b.status["status"], "status_notes": b.status["notes"],
         })
     if not citations:
         return "insufficient_context", [], "no_valid_citation"
