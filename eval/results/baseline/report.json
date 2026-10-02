@@ -17,17 +17,17 @@
    0.923,
    52
   ],
-  "M2_unanswerable_recall": [
-   0.8,
-   10
+  "M2_oos_refusal": [
+   1.0,
+   4
+  ],
+  "M2_l5b_no_assertion": [
+   1.0,
+   6
   ],
   "M2_over_refusal": [
    0.043,
    46
-  ],
-  "M2_soft_refusal_ok": [
-   1.0,
-   2
   ],
   "M3_citation_precision": [
    0.759,
@@ -75,17 +75,17 @@
     1.0,
     10
    ],
-   "M2_unanswerable_recall": [
+   "M2_oos_refusal": [
+    null,
+    0
+   ],
+   "M2_l5b_no_assertion": [
     null,
     0
    ],
    "M2_over_refusal": [
     0.0,
     10
-   ],
-   "M2_soft_refusal_ok": [
-    null,
-    0
    ],
    "M3_citation_precision": [
     0.775,
@@ -132,17 +132,17 @@
     1.0,
     11
    ],
-   "M2_unanswerable_recall": [
+   "M2_oos_refusal": [
+    null,
+    0
+   ],
+   "M2_l5b_no_assertion": [
     null,
     0
    ],
    "M2_over_refusal": [
     0.0,
     11
-   ],
-   "M2_soft_refusal_ok": [
-    null,
-    0
    ],
    "M3_citation_precision": [
     0.689,
@@ -189,17 +189,17 @@
     1.0,
     10
    ],
-   "M2_unanswerable_recall": [
+   "M2_oos_refusal": [
+    null,
+    0
+   ],
+   "M2_l5b_no_assertion": [
     null,
     0
    ],
    "M2_over_refusal": [
     0.0,
     10
-   ],
-   "M2_soft_refusal_ok": [
-    null,
-    0
    ],
    "M3_citation_precision": [
     0.917,
@@ -246,17 +246,17 @@
     0.857,
     7
    ],
-   "M2_unanswerable_recall": [
+   "M2_oos_refusal": [
+    null,
+    0
+   ],
+   "M2_l5b_no_assertion": [
     null,
     0
    ],
    "M2_over_refusal": [
     0.143,
     7
-   ],
-   "M2_soft_refusal_ok": [
-    null,
-    0
    ],
    "M3_citation_precision": [
     1.0,
@@ -303,17 +303,17 @@
     0.875,
     8
    ],
-   "M2_unanswerable_recall": [
+   "M2_oos_refusal": [
+    null,
+    0
+   ],
+   "M2_l5b_no_assertion": [
     null,
     0
    ],
    "M2_over_refusal": [
     0.125,
     8
-   ],
-   "M2_soft_refusal_ok": [
-    null,
-    0
    ],
    "M3_citation_precision": [
     0.512,
@@ -360,17 +360,17 @@
     0.667,
     6
    ],
-   "M2_unanswerable_recall": [
-    0.667,
+   "M2_oos_refusal": [
+    null,
+    0
+   ],
+   "M2_l5b_no_assertion": [
+    1.0,
     6
    ],
    "M2_over_refusal": [
     null,
     0
-   ],
-   "M2_soft_refusal_ok": [
-    1.0,
-    2
    ],
    "M3_citation_precision": [
     0.417,
@@ -417,15 +417,15 @@
     null,
     0
    ],
-   "M2_unanswerable_recall": [
+   "M2_oos_refusal": [
     1.0,
     4
    ],
-   "M2_over_refusal": [
+   "M2_l5b_no_assertion": [
     null,
     0
    ],
-   "M2_soft_refusal_ok": [
+   "M2_over_refusal": [
     null,
     0
    ],
@@ -476,17 +476,17 @@
     0.9,
     20
    ],
-   "M2_unanswerable_recall": [
-    0.75,
-    4
+   "M2_oos_refusal": [
+    1.0,
+    2
+   ],
+   "M2_l5b_no_assertion": [
+    1.0,
+    2
    ],
    "M2_over_refusal": [
     0.056,
     18
-   ],
-   "M2_soft_refusal_ok": [
-    1.0,
-    1
    ],
    "M3_citation_precision": [
     0.745,
@@ -533,17 +533,17 @@
     0.938,
     32
    ],
-   "M2_unanswerable_recall": [
-    0.833,
-    6
+   "M2_oos_refusal": [
+    1.0,
+    2
+   ],
+   "M2_l5b_no_assertion": [
+    1.0,
+    4
    ],
    "M2_over_refusal": [
     0.036,
     28
-   ],
-   "M2_soft_refusal_ok": [
-    1.0,
-    1
    ],
    "M3_citation_precision": [
     0.768,

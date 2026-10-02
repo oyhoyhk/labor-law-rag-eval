@@ -12,9 +12,9 @@
 | M1_recall_any | 0.885 (n=52) |
 | M1_recall_all | 0.712 (n=52) |
 | M1_mrr | 0.791 (n=52) |
-| M2_unanswerable_recall | 0.800 (n=10) |
+| M2_oos_refusal | 1.000 (n=4) |
+| M2_l5b_no_assertion | 1.000 (n=6) |
 | M2_over_refusal | 0.043 (n=46) |
-| M2_soft_refusal_ok | 1.000 (n=2) |
 | M3_citation_precision | 0.759 (n=46) |
 | M3_citation_recall | 0.886 (n=46) |
 | M4_kp_coverage | 0.919 (n=44) |
@@ -29,9 +29,9 @@
 | M1_recall_any | 1.00 | 0.91 | 1.00 | 0.86 | 0.75 | 0.67 | — |
 | M1_recall_all | 1.00 | 0.73 | 0.90 | 0.86 | 0.12 | 0.50 | — |
 | M1_mrr | 0.95 | 0.73 | 0.93 | 0.79 | 0.75 | 0.47 | — |
-| M2_unanswerable_recall | — | — | — | — | — | 0.67 | 1.00 |
+| M2_oos_refusal | — | — | — | — | — | — | 1.00 |
+| M2_l5b_no_assertion | — | — | — | — | — | 1.00 | — |
 | M2_over_refusal | 0.00 | 0.00 | 0.00 | 0.14 | 0.12 | — | — |
-| M2_soft_refusal_ok | — | — | — | — | — | 1.00 | — |
 | M3_citation_precision | 0.78 | 0.69 | 0.92 | 1.00 | 0.51 | 0.42 | — |
 | M3_citation_recall | 1.00 | 0.95 | 0.85 | 1.00 | 0.53 | 1.00 | — |
 | M4_kp_coverage | 1.00 | 0.88 | 0.90 | 1.00 | 0.82 | — | — |
@@ -46,9 +46,9 @@
 | M1_recall_any | 0.90 | 0.88 |
 | M1_recall_all | 0.75 | 0.69 |
 | M1_mrr | 0.80 | 0.78 |
-| M2_unanswerable_recall | 0.75 | 0.83 |
+| M2_oos_refusal | 1.00 | 1.00 |
+| M2_l5b_no_assertion | 1.00 | 1.00 |
 | M2_over_refusal | 0.06 | 0.04 |
-| M2_soft_refusal_ok | 1.00 | 1.00 |
 | M3_citation_precision | 0.74 | 0.77 |
 | M3_citation_recall | 0.89 | 0.88 |
 | M4_kp_coverage | 0.89 | 0.94 |
@@ -56,7 +56,7 @@
 | M5_unsupported_rate | 0.03 | 0.03 |
 | M6_temporal_error | 0.00 | 0.00 |
 
-## 확인이 필요한 문항 (18)
+## 확인이 필요한 문항 (17)
 
 | id | 단계 | 기대→실제 | 검색 | 정답 포인트 | 근거 없는 주장 | 시점 오류 |
 |---|---|---|---|---|---|---|
@@ -76,5 +76,4 @@
 | l5a08 | L5a | ans→ans | O | 1.00 | 0.07 | — |
 | l5b01 | L5b | ins→ins(model_declined) | X | — | — | — |
 | l5b03 | L5b | ins→ins(model_declined) | X | — | — | — |
-| l5b05 | L5b | ins→ans | O | — | 0.00 | — |
 | l5b06 | L5b | ins→ans | O | — | 0.17 | — |

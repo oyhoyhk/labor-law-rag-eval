@@ -18,7 +18,7 @@ from eval.metrics import aggregate
 
 ROOT = Path(__file__).resolve().parents[1]
 NOISE = ROOT / "eval" / "results" / "noise_floor.json"
-METRICS = ["M1_recall_any", "M1_recall_all", "M1_mrr", "M2_unanswerable_recall", "M2_over_refusal",
+METRICS = ["M1_recall_any", "M1_recall_all", "M1_mrr", "M2_oos_refusal", "M2_l5b_no_assertion", "M2_over_refusal",
            "M3_citation_precision", "M3_citation_recall", "M4_kp_coverage", "M4_all_kp",
            "M5_unsupported_rate", "M6_temporal_error"]
 # Per-item score field behind each metric, for the paired bootstrap (None = not item-pairable).

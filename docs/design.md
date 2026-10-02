@@ -222,7 +222,7 @@
 | # | Metric | 측정 대상 | 방식 | 선정 이유 |
 |---|---|---|---|---|
 | M1 | Evidence Recall@k · MRR | 검색 | 결정적 (gold_evidence ∩ top-k) | 생성 품질의 상한 결정 요인, 원인 분리 |
-| M2 | 거절 정확도 (unanswerable recall · over-refusal rate) | 거절 | 결정적 (status 비교) | Hallucination 방지 요구사항의 직접 측정 |
+| M2 | 거절 정확도: Corpus 밖 거절률 · L5b 단정 회피율 · 과잉 거절률 | 거절 | Corpus 밖·과잉 거절은 결정적(status), L5b는 "거절 또는 결론 단정 없는 부분 답변"이면 통과(Judge의 asserts_conclusion) | Hallucination 방지 요구사항의 직접 측정. L5b는 조문 인용 + 판단 불가 범위 명시가 이상적 응답이라 status만으로 채점하면 좋은 답변을 벌줌(2026-10-02 사람 확인에서 l5b05·l5b06으로 확인) |
 | M3 | Citation precision | 인용 | 결정적 (인용 ∩ gold_evidence) | 근거 제시 요구사항 직접 측정 |
 | **M4** | **Key-point coverage** (정답성) | 생성 | Judge — key_point별 포함 여부 이진 판정 | 요약·추론처럼 정답 문자열이 없는 질의 채점 |
 | **M5** | **Unsupported claim rate** (충실성) | 생성 | Judge — 답변을 주장 단위로 분해, 인용 원문 지지 여부 이진 판정 | 그럴듯한 오답(Hallucination) 직접 검출 |
