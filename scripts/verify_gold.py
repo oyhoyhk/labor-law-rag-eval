@@ -17,10 +17,11 @@ sys.path.insert(0, str(ROOT))
 from app.ingest.parse import load_corpus  # noqa: E402
 from app.ingest.provision import status_at  # noqa: E402
 
-DEFAULT = ROOT / "eval/gold/gold_v1.jsonl"
+DEFAULT = ROOT / "eval/gold/gold_v1_1.jsonl"
 GRAPH = ROOT / "data/processed/provision_graph.json"
 AS_OF = "2026-10-01"
-EXPECTED_COUNTS = {"L1": 10, "L2": 11, "L3": 10, "L4": 7, "OOS": 4, "L5a": 8, "L5b": 6}
+EXPECTED_COUNTS = {"L1": 10, "L2": 11, "L3": 10, "L4": 7, "OOS": 4, "L5a": 8, "L5b": 6, "SUM": 5}
+V1_COUNTS = {"L1": 10, "L2": 11, "L3": 10, "L4": 7, "OOS": 4, "L5a": 8, "L5b": 6}
 DRAFT_COUNTS = {"L1": 10, "L2": 10, "L3": 10, "L4": 7, "OOS": 4}
 CASES = ROOT / "data/raw/precedents"
 REQUIRED = ["id", "level", "question", "expected_status", "as_of", "gold_evidence", "key_points",
@@ -53,7 +54,7 @@ def main(path: Path) -> int:
     if dups := [k for k, v in ids.items() if v > 1]:
         global_errors.append(f"duplicate ids: {dups}")
     counts = Counter(i.get("level") for i in items)
-    expected = DRAFT_COUNTS if "draft" in path.name else EXPECTED_COUNTS
+    expected = DRAFT_COUNTS if "draft" in path.name else V1_COUNTS if path.name == "gold_v1.jsonl" else EXPECTED_COUNTS
     if dict(counts) != expected:
         global_errors.append(f"level counts {dict(counts)} != {expected}")
 
@@ -94,7 +95,7 @@ def main(path: Path) -> int:
                 errs.append("expected_status should be answered")
             if not ev:
                 errs.append("empty gold_evidence")
-            if lvl == "L3" and len(ev) < 2:
+            if lvl in ("L3",) and len(ev) < 2:
                 errs.append("L3 needs >=2 evidence articles")
             if len(kps) != len(lits) or not kps:
                 errs.append(f"key_points({len(kps)}) / literals({len(lits)}) mismatch")

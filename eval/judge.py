@@ -65,12 +65,34 @@ GROUND_USER = """[근거]
 {{"claims": [{{"claim": "주장", "supported": true, "source": "S1", "derived": false}}]}}"""
 
 
+RETRY_CAP = 2000
+
+
+class JudgeParseError(RuntimeError):
+    pass
+
+
 def _parse(text: str) -> dict:
     try:
         return json.loads(text)
     except json.JSONDecodeError:
         start, end = text.find("{"), text.rfind("}")
-        return json.loads(text[start:end + 1]) if start >= 0 else {}
+        try:
+            return json.loads(text[start:end + 1]) if start >= 0 else {}
+        except json.JSONDecodeError as e:
+            raise JudgeParseError(str(e)) from e
+
+
+def _chat_json(llm: LLM, messages: list[dict], max_tokens: int) -> tuple[dict, dict]:
+    """JSON-mode call; if the output is cut off (long answers → many claims), retry once with a larger cap.
+    The first attempt keeps the original cap so earlier runs stay cache hits."""
+    text, usage = llm.chat(messages, max_tokens=max_tokens, json_mode=True)
+    try:
+        return _parse(text), usage
+    except JudgeParseError:
+        # Elice gateway caps non-streaming replies at 2,000 output tokens.
+        text, usage = llm.chat(messages, max_tokens=min(max_tokens * 3, RETRY_CAP), json_mode=True)
+        return _parse(text), {**usage, "retried": True}
 
 
 def grade(llm: LLM, item: dict, answer: str, temporal_facts: list[str] | None = None) -> dict:
@@ -86,9 +108,7 @@ def grade(llm: LLM, item: dict, answer: str, temporal_facts: list[str] | None = 
         temporal_field=', "temporal_error": false, "temporal_reason": "근거"' if temporal_facts else "",
         conclusion_field=', "asserts_conclusion": false' if wants_conclusion else "",
     )
-    text, usage = llm.chat([{"role": "system", "content": GRADE_SYSTEM}, {"role": "user", "content": user}],
-                           max_tokens=900, json_mode=True)
-    out = _parse(text)
+    out, usage = _chat_json(llm, [{"role": "system", "content": GRADE_SYSTEM}, {"role": "user", "content": user}], 900)
     got = {int(k.get("index", 0)): k for k in out.get("key_points", []) if isinstance(k, dict)}
     out["key_points"] = [{"index": i, "key_point": kp, "asserted": bool(got.get(i, {}).get("asserted")),
                           "quote": got.get(i, {}).get("quote", "")} for i, kp in enumerate(kps, 1)]
@@ -98,8 +118,7 @@ def grade(llm: LLM, item: dict, answer: str, temporal_facts: list[str] | None = 
 def grounding(llm: LLM, answer: str, context: list[dict], question: str = "") -> dict:
     ctx = "\n\n".join(c["text"] for c in context)
     user = (f"[질문]\n{question}\n\n" if question else "") + GROUND_USER.format(context=ctx, answer=answer)
-    text, usage = llm.chat([{"role": "system", "content": GROUND_SYSTEM}, {"role": "user", "content": user}],
-                           max_tokens=1200, json_mode=True)
-    claims = [c for c in _parse(text).get("claims", []) if isinstance(c, dict) and c.get("claim")]
+    out, usage = _chat_json(llm, [{"role": "system", "content": GROUND_SYSTEM}, {"role": "user", "content": user}], 1200)
+    claims = [c for c in out.get("claims", []) if isinstance(c, dict) and c.get("claim")]
     return {"claims": claims, "n_claims": len(claims), "n_unsupported": sum(not c.get("supported") for c in claims),
             "judge_version": JUDGE_VERSION, "cached": bool(usage.get("cached"))}

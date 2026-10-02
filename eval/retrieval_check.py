@@ -10,7 +10,7 @@ from datetime import date
 from app.ingest.parse import ROOT
 from app.rag import Options, build_blocks
 
-GOLD = ROOT / "eval" / "gold" / "gold_v1.jsonl"
+GOLD = ROOT / "eval" / "gold" / "gold_v1_1.jsonl"
 
 
 def check(item: dict, opt: Options) -> dict:

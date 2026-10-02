@@ -54,5 +54,10 @@
  "l5b03": "dev",
  "l5b04": "test",
  "l5b05": "test",
- "l5b06": "dev"
+ "l5b06": "dev",
+ "s01": "dev",
+ "s02": "test",
+ "s03": "test",
+ "s04": "dev",
+ "s05": "test"
 }

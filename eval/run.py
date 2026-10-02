@@ -24,7 +24,7 @@ from app.ingest.provision import status_at
 from eval import judge as J
 from eval.metrics import aggregate, by_group, item_scores
 
-GOLD = ROOT / "eval" / "gold" / "gold_v1.jsonl"
+GOLD = ROOT / "eval" / "gold" / "gold_v1_1.jsonl"
 SPLITS = ROOT / "eval" / "gold" / "splits.json"
 CACHE = ROOT / "data" / "cache" / "llm"
 METRIC_KEYS = ["M1_recall_any", "M1_recall_all", "M1_mrr", "M2_oos_refusal", "M2_l5b_no_assertion", "M2_over_refusal", "M3_citation_precision", "M3_citation_recall", "M4_kp_coverage", "M4_all_kp",
@@ -51,8 +51,11 @@ def run_item(item: dict, opt: Options, gen: LLM, jdg: LLM | None) -> tuple[dict,
     if jdg is None or pred["status"] != "answered":
         return pred, None
     facts = temporal_facts(item) if item["level"] == "L4" else None
-    j = {"id": item["id"], "grade": J.grade(jdg, item, pred["answer"], facts),
-         "grounding": J.grounding(jdg, pred["answer"], pred["meta"]["context"] or [], item["question"])}
+    try:
+        j = {"id": item["id"], "grade": J.grade(jdg, item, pred["answer"], facts),
+             "grounding": J.grounding(jdg, pred["answer"], pred["meta"]["context"] or [], item["question"])}
+    except J.JudgeParseError as e:  # record and move on instead of aborting the whole run
+        j = {"id": item["id"], "judge_error": str(e), "grade": {}, "grounding": {}}
     return pred, j
 
 
