@@ -15,6 +15,7 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT))
 from app.ingest.parse import load_corpus  # noqa: E402
+from app.ingest.precedent import load_precedents  # noqa: E402
 from app.ingest.provision import status_at  # noqa: E402
 
 DEFAULT = ROOT / "eval/gold/gold_v2.jsonl"
@@ -49,6 +50,7 @@ def main(path: Path) -> int:
     corpus = {f"{a.law}#{a.article_key}": a for a in load_corpus("현행")}
     graph = json.loads(GRAPH.read_text())["nodes"]
     corpus_norm = [(aid, norm(a.render())) for aid, a in corpus.items()]
+    precedents = load_precedents()
 
     global_errors = []
     ids = Counter(i.get("id") for i in items)
@@ -71,7 +73,9 @@ def main(path: Path) -> int:
         if it.get("as_of") != AS_OF:
             errs.append("as_of")
 
-        if lvl in ("L5a", "L5b"):
+        # v2.1+: L5b is answered by citing the linked precedent; v1/v1.1 keep the old refusal-expected rule.
+        l5b_cites = lvl == "L5b" and path.name not in ("gold_v1.jsonl", "gold_v1_1.jsonl")
+        if lvl in ("L5a", "L5b") and not l5b_cites:
             case_no = it.get("case", {}).get("case_no", "")
             if not any(CASES.glob(case_no.split(",")[0].strip() + "*.xml")):
                 errs.append(f"precedent XML missing for {case_no}")
@@ -95,6 +99,15 @@ def main(path: Path) -> int:
         else:
             if it.get("expected_status") != "answered":
                 errs.append("expected_status should be answered")
+            if l5b_cites:
+                case_no = it.get("case", {}).get("case_no", "")
+                if not any(CASES.glob(case_no.split(",")[0].strip() + "*.xml")):
+                    errs.append(f"precedent XML missing for {case_no}")
+                if not any(aid.startswith("판례#") for aid in ev):
+                    errs.append("L5b needs a 판례# evidence id")
+                if not any(aid in corpus for aid in ev):
+                    errs.append("L5b needs a statute evidence id")
+                info.append(f"case {case_no}")
             if not ev:
                 errs.append("empty gold_evidence")
             if lvl in ("L3",) and len(ev) < 2:
@@ -105,6 +118,11 @@ def main(path: Path) -> int:
             for aid in ev:
                 if aid in corpus:
                     hay.append(norm(corpus[aid].render()))
+                elif aid.startswith("판례#"):
+                    if aid in precedents:
+                        hay.append(norm(precedents[aid].render()))
+                    else:
+                        errs.append(f"unknown precedent id {aid}")
                 elif aid not in graph:
                     errs.append(f"unknown evidence id {aid}")
                 if lvl == "L4" and aid in graph:
