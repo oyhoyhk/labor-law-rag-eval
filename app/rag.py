@@ -16,7 +16,8 @@ from app.index import INDEX_DIR, Retriever
 from app.ingest.provision import GRAPH, status_at
 from app.llm import LLM, cost_of
 
-PROMPT_VERSION = "gen-v1"
+PROMPT_VERSION = "gen-v1"  # default generation prompt
+PROMPT_VERSION_PARTIAL = "gen-v2-partial"  # adds a partial-answer mode between full answer and refusal
 TAU = 0.50  # top-1 cosine below this → refuse without calling the LLM (calibrated in H3)
 MAX_LINKED = 3
 REFUSAL = "[정보 부족]"
@@ -30,6 +31,18 @@ SYSTEM = """당신은 한국 노동법령 질의응답 도우미입니다. 아�
 4. 근거 블록으로 답할 수 없으면 첫 줄을 정확히 "[정보 부족]"으로 쓰고, 무엇이 없는지만 한 문장으로 쓴다.
 5. 간결하게 답한다."""
 
+SYSTEM_PARTIAL = """당신은 한국 노동법령 질의응답 도우미입니다. 아래 [근거] 블록만 사용해 답하세요.
+규칙:
+1. 근거 블록에 없는 내용은 쓰지 않는다. 일반 지식, 판례, 행정해석으로 보충하지 않는다.
+2. 사실을 말하는 모든 문장 끝에 근거 블록 번호를 [S1]처럼 붙인다.
+3. 근거 블록의 '시행 상태'에 효력 상실이나 시행 예정이 적혀 있으면, 답변에 그 사실과 날짜를 밝힌다. 기준일은 {as_of}이다.
+4. 근거 블록 문언에 질문의 사실을 대입해 반드시 따라 나오는 결론은 근거 블록으로 답할 수 있는 내용이다. 이 결론은 유보하지 말고 인용과 함께 쓴다.
+5. 근거 블록이 질문의 일부에만 답하면, 답할 수 있는 부분을 먼저 인용과 함께 쓰고, 판단할 수 없는 부분은 "근거 블록만으로는 ~을 판단할 수 없다"고 한 문장으로 밝힌다. 판단할 수 없는 부분의 결론은 추측하지 않는다.
+6. 질문이 묻는 쟁점에 답하는 내용이 근거 블록에 하나도 없으면, 주변 조문으로 답을 채우지 말고 첫 줄을 정확히 "[정보 부족]"으로 쓰고, 무엇이 없는지만 한 문장으로 쓴다. 근거 블록으로 답할 수 있는 내용이 있으면 "[정보 부족]"을 쓰지 않는다.
+7. 질문에 답하는 데 쓰지 않는 조문은 소개하지 않는다. 간결하게 답한다."""
+
+SYSTEMS = {PROMPT_VERSION: SYSTEM, PROMPT_VERSION_PARTIAL: SYSTEM_PARTIAL}
+
 
 @dataclass
 class Options:
@@ -38,6 +51,7 @@ class Options:
     inject_status: bool = True  # H4 switch
     expand_links: bool = True
     tau: float = TAU
+    prompt: str = PROMPT_VERSION  # key of SYSTEMS
 
 
 @dataclass
@@ -113,9 +127,10 @@ def build_blocks(question: str, opt: Options, as_of: str) -> list[Block]:
     return blocks
 
 
-def messages(question: str, blocks: list[Block], as_of: str, inject: bool) -> list[dict]:
+def messages(question: str, blocks: list[Block], as_of: str, inject: bool,
+             prompt: str = PROMPT_VERSION) -> list[dict]:
     context = "\n\n".join(_render(b, as_of, inject) for b in blocks)
-    return [{"role": "system", "content": SYSTEM.format(as_of=as_of)},
+    return [{"role": "system", "content": SYSTEMS[prompt].format(as_of=as_of)},
             {"role": "user", "content": f"[근거]\n{context}\n\n[질문]\n{question}"}]
 
 
@@ -176,14 +191,14 @@ def answer(question: str, opt: Options | None = None, as_of: date | None = None,
     blocks = build_blocks(question, opt, as_of_s)
     retrieval = [{"rank": i + 1, "chunk_id": b.chunk_id, "article_ids": b.article_ids, "score": round(b.score, 4),
                   "linked": b.linked} for i, b in enumerate(blocks)]
-    base_meta = {"prompt_version": PROMPT_VERSION, "strategy": opt.strategy, "as_of": as_of_s}
+    base_meta = {"prompt_version": opt.prompt, "strategy": opt.strategy, "as_of": as_of_s}
 
     if not blocks or blocks[0].score < opt.tau:
         return {"status": "insufficient_context", "answer": None, "citations": [], "retrieval": retrieval,
                 "meta": {**base_meta, "model": None, "latency_ms": int((time.time() - t0) * 1000),
                          "usage": None, "cost_krw": 0.0, "refusal_reason": "retrieval_below_tau"}}
 
-    text, usage = llm.chat(messages(question, blocks, as_of_s, opt.inject_status), max_tokens=800)
+    text, usage = llm.chat(messages(question, blocks, as_of_s, opt.inject_status, opt.prompt), max_tokens=800)
     status, citations, reason = finalize(text, blocks)
     context = [{"source": b.source, "chunk_id": b.chunk_id, "article_ids": b.article_ids,
                 "text": _render(b, as_of_s, opt.inject_status)} for b in blocks] if include_context else None
