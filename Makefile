@@ -1,3 +1,9 @@
+ingest:
+	uv run python -m app.ingest.provision
+	uv run python -m app.index build --strategy article
+	uv run python -m app.index build --strategy fixed
+	uv run python -m app.index build --strategy precedent
+
 eval:
 	uv run python -m eval.run --name $(or $(NAME),baseline) $(ARGS)
 
@@ -10,7 +16,7 @@ test:
 verify-gold:
 	uv run python scripts/verify_gold.py
 
-.PHONY: eval retrieval test verify-gold
+.PHONY: ingest eval retrieval test verify-gold
 
 calibrate:
 	uv run python -m eval.calibrate $(ARGS)

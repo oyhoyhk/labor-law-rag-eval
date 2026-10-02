@@ -49,6 +49,7 @@ cp .env.example .env   # LAW_OC, ELICE_API_KEY, ELICE_BASE_URL 입력
 uv run python scripts/fetch_laws.py          # 법령 현행 + 시행예정 버전
 uv run python scripts/fetch_precedents.py search 해고예고 --since 20150101
 uv run python scripts/fetch_precedents.py fetch <판례일련번호>
+uv run python scripts/fetch_precedents.py bulk --max 400   # 코퍼스 법률별 대법원 판례 일괄 수집
 ```
 
 - `LAW_OC`: [국가법령정보 공동활용](https://open.law.go.kr) OPEN API 활용신청 후 발급
@@ -56,9 +57,11 @@ uv run python scripts/fetch_precedents.py fetch <판례일련번호>
 ### 3. 인제스트 (Provision Graph + 인덱스)
 
 ```bash
-uv run python -m app.ingest.provision            # 시행 상태 그래프
+make ingest   # 아래 4단계 일괄 실행
+uv run python -m app.ingest.provision                 # 시행 상태 그래프 + 조문-판례 연결
 uv run python -m app.index build --strategy article
-uv run python -m app.index build --strategy fixed  # H1 비교용
+uv run python -m app.index build --strategy fixed     # H1 비교용
+uv run python -m app.index build --strategy precedent # 판례 임베딩(연결 판례 정렬용)
 uv run pytest -q
 ```
 

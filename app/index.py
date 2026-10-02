@@ -1,6 +1,9 @@
 """Build and query a FAISS index per chunking strategy.
 
-Usage: uv run python -m app.index build --strategy article|fixed
+Usage: uv run python -m app.index build --strategy article|fixed|precedent
+
+The precedent index embeds Precedent.render() and is used only to rank precedents that are already linked to a
+retrieved article (never searched on its own).
 """
 
 import argparse
@@ -16,6 +19,7 @@ from sentence_transformers import SentenceTransformer
 
 from app.ingest.chunk import Chunk, article_chunks, fixed_chunks
 from app.ingest.parse import ROOT, load_corpus, parse_file
+from app.ingest.precedent import load_precedents
 from app.ingest.provision import GRAPH, build as build_graph
 
 EMBED_MODEL = "nlpai-lab/KURE-v1"
@@ -70,6 +74,38 @@ def build(strategy: str) -> None:
     print(json.dumps(meta, ensure_ascii=False))
 
 
+def build_precedents() -> None:
+    precs = list(load_precedents().values())
+    t0 = time.time()
+    emb = embedder().encode([p.render() for p in precs], batch_size=8, normalize_embeddings=True,
+                            show_progress_bar=True, convert_to_numpy=True).astype("float32")
+    index = faiss.IndexFlatIP(emb.shape[1])
+    index.add(emb)
+    out = INDEX_DIR / "precedent"
+    out.mkdir(parents=True, exist_ok=True)
+    faiss.write_index(index, str(out / "faiss.index"))
+    (out / "ids.json").write_text(json.dumps([p.id for p in precs], ensure_ascii=False) + "\n")
+    meta = {"strategy": "precedent", "embed_model": EMBED_MODEL, "embed_revision": EMBED_REVISION,
+            "precedents": len(precs), "dim": int(emb.shape[1]), "built_at": date.today().isoformat(),
+            "encode_seconds": round(time.time() - t0, 1)}
+    (out / "meta.json").write_text(json.dumps(meta, ensure_ascii=False, indent=2) + "\n")
+    print(json.dumps(meta, ensure_ascii=False))
+
+
+class PrecedentScorer:
+    """Cosine similarity between a query and given precedents (no search over the whole set)."""
+
+    def __init__(self):
+        d = INDEX_DIR / "precedent"
+        index = faiss.read_index(str(d / "faiss.index"))
+        ids = json.loads((d / "ids.json").read_text())
+        self.vectors = {pid: index.reconstruct(i) for i, pid in enumerate(ids)}
+
+    def scores(self, query: str, ids: list[str]) -> dict[str, float]:
+        q = embedder().encode([query], normalize_embeddings=True, convert_to_numpy=True).astype("float32")[0]
+        return {pid: float(self.vectors[pid] @ q) for pid in ids if pid in self.vectors}
+
+
 class Retriever:
     def __init__(self, strategy: str = "article"):
         d = INDEX_DIR / strategy
@@ -88,6 +124,6 @@ if __name__ == "__main__":
     ap = argparse.ArgumentParser()
     sub = ap.add_subparsers(dest="cmd", required=True)
     b = sub.add_parser("build")
-    b.add_argument("--strategy", choices=["article", "fixed"], default="article")
+    b.add_argument("--strategy", choices=["article", "fixed", "precedent"], default="article")
     args = ap.parse_args()
-    build(args.strategy)
+    build_precedents() if args.strategy == "precedent" else build(args.strategy)
