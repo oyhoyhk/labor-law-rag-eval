@@ -12,7 +12,7 @@
 - **결과** (GT v2.2)
   - 최종 구성(조 전체 색인 + 판례 연결): 완전 정답 0.707 → **0.772**, 판례형 0 → **0.444(유의)**, 과잉 거절 0.098 → **0.065(유의)**, 인용 정밀도 0.708 → 0.573(유의 악화)
   - 평가 체계 개선: 1차(61문항)에서 판정 불가였던 실험 대상 유형(예외·분할)을 GT 확충으로 판정 가능하게 전환, 전체 최소 검출 효과 0.105 → 0.062
-- **비용**: 엘리스 크레딧 약 4,100원 사용(5만원 중), 임베딩은 로컬
+- **비용**: 엘리스 크레딧 약 6,000원 사용(5만원 중), 임베딩은 로컬
 
 ## Corpus: 노동 관계 법령 24건 + 대법원 판례 400건
 
@@ -105,7 +105,7 @@ make eval NAME=legacy ARGS="--strategy article --no-siblings --no-precedents"   
 make eval NAME=h4-off ARGS="--strategy article --no-precedents --no-inject"     # 실험 플래그 예
 make eval NAME=noise-2 ARGS="--no-cache"                      # 노이즈 측정: 캐시 없이 재실행
 make retrieval ARGS="--strategy article"                      # 검색 지표만(LLM 호출 없음)
-make compare ARGS="diff eval/results/v2/baseline-v2 runs/<실행>"   # 전체 + 유형별 부분집합 판정
+make compare ARGS="diff eval/results/v2/baseline-v2 runs/<실행> --base-runs eval/results/v2/noise-v2-2 eval/results/v2/noise-v2-3"   # 전체·유형별·dev/test 판정, 기준선은 3회 평균
 uv run python -m eval.mde --gold eval/gold/gold_v2.jsonl runs/a runs/b runs/c   # 유형별 최소 검출 효과
 make calibrate                                                # Judge vs 사람 판정 일치도(κ)
 ```
@@ -332,6 +332,19 @@ make calibrate                                                # Judge vs 사람 
 - 판례 관련도 기준 강화: 코사인 절대값 대신 재정렬(reranker) 또는 "판례가 필요한 질문인가" 분류 → 인용 정밀도·비용 개선
 - 판례 도달 경로 보강: 판례 직접 검색을 보조 경로로 추가하되 조문 근거 필수 규칙 유지(l5b03 유형)
 - 판례형 Judge 일치도 측정: 판례 인용형 답변에 대한 사람 판정 표본 추가
+
+### 과적합 vs 일반화 검증 (사전 등록, `docs/findings/2026-10-03-overfit-vs-generalize.md`)
+
+- 목적: 이 평가 체계가 "GT에 맞춘 점수 상승"과 "실제 성능 상승"을 구별하는지 확인, 두 방법 모두 dev 44문항만 보고 제작
+- 기준선: 최종 구성 3회 문항별 평균 (`compare diff --base-runs`)
+
+| 방법 | 내용 | 전체 | dev | test | 판정 |
+|---|---|---|---|---|---|
+| ① 과적합 | 질의와 비슷한 dev 문항 3개의 질문·참고 답안을 예시로 주입(dev는 자기 정답 열람) | 완전 정답 **+0.058(유의)**, 인용 정밀도 +0.077(유의) | 정답 포인트 **+0.066(유의)** | +0.022(노이즈 내) | 집계로는 "개선", 분할로 보면 누수 → **분할 비교로 탐지** |
+| ② 일반화 후보 | 의미 검색 + 문자 2-gram BM25(RRF), dev 검색 지표로만 조정 | 인용 정밀도 −0.056(유의 악화) | 개선 없음 | 정답 포인트 −0.049(노이즈 내) | 예측 실패, dev 조정 단계에서 이미 이득 없음 → 미채택 |
+
+- 발견한 평가 결함: 단일 기준선 실행과 비교하면 흔들림 문항(n19·n24·n25)이 평균 회귀로 "개선"처럼 보임 → 두 실험 모두 dev에서 가짜 유의 개선 → 다회 기준선 평균 비교로 수정
+- 교훈: 평가셋을 프롬프트·예시에 쓰면 집계 점수만으로는 탐지 불가, dev/test 분할 비교와 다회 기준선이 함께 필요
 
 ### 실험에서 드러난 평가 체계의 한계
 - **과잉 거절 지표**는 "오답 → 거절" 전환(g013, k=10)도 악화로 셈 → 완전 정답과 함께 보고

@@ -1,0 +1,339 @@
+{
+ "runs": [
+  "eval/results/v2/v2-final",
+  "eval/results/v2/final-noise-2",
+  "eval/results/v2/final-noise-3"
+ ],
+ "metrics": {
+  "M1_recall_any": {
+   "values": [
+    0.924,
+    0.924,
+    0.924
+   ],
+   "mean": 0.924,
+   "min": 0.924,
+   "max": 0.924,
+   "range": 0.0,
+   "std": 0.0
+  },
+  "M1_recall_all": {
+   "values": [
+    0.696,
+    0.696,
+    0.696
+   ],
+   "mean": 0.696,
+   "min": 0.696,
+   "max": 0.696,
+   "range": 0.0,
+   "std": 0.0
+  },
+  "M1_mrr": {
+   "values": [
+    0.801,
+    0.801,
+    0.801
+   ],
+   "mean": 0.801,
+   "min": 0.801,
+   "max": 0.801,
+   "range": 0.0,
+   "std": 0.0
+  },
+  "M2_oos_refusal": {
+   "values": [
+    1.0,
+    0.75,
+    0.875
+   ],
+   "mean": 0.875,
+   "min": 0.75,
+   "max": 1.0,
+   "range": 0.25,
+   "std": 0.1021
+  },
+  "M2_over_refusal": {
+   "values": [
+    0.065,
+    0.065,
+    0.065
+   ],
+   "mean": 0.065,
+   "min": 0.065,
+   "max": 0.065,
+   "range": 0.0,
+   "std": 0.0
+  },
+  "M3_citation_precision": {
+   "values": [
+    0.573,
+    0.593,
+    0.582
+   ],
+   "mean": 0.5827,
+   "min": 0.573,
+   "max": 0.593,
+   "range": 0.02,
+   "std": 0.0082
+  },
+  "M3_citation_recall": {
+   "values": [
+    0.872,
+    0.885,
+    0.895
+   ],
+   "mean": 0.884,
+   "min": 0.872,
+   "max": 0.895,
+   "range": 0.023,
+   "std": 0.0094
+  },
+  "M4_kp_coverage": {
+   "values": [
+    0.91,
+    0.9,
+    0.91
+   ],
+   "mean": 0.9067,
+   "min": 0.9,
+   "max": 0.91,
+   "range": 0.01,
+   "std": 0.0047
+  },
+  "M4_all_kp": {
+   "values": [
+    0.826,
+    0.814,
+    0.826
+   ],
+   "mean": 0.822,
+   "min": 0.814,
+   "max": 0.826,
+   "range": 0.012,
+   "std": 0.0057
+  },
+  "M4_complete": {
+   "values": [
+    0.772,
+    0.761,
+    0.772
+   ],
+   "mean": 0.7683,
+   "min": 0.761,
+   "max": 0.772,
+   "range": 0.011,
+   "std": 0.0052
+  },
+  "M5_unsupported_rate": {
+   "values": [
+    0.042,
+    0.05,
+    0.056
+   ],
+   "mean": 0.0493,
+   "min": 0.042,
+   "max": 0.056,
+   "range": 0.014,
+   "std": 0.0057
+  },
+  "M6_temporal_error": {
+   "values": [
+    0.0,
+    0.0,
+    0.0
+   ],
+   "mean": 0.0,
+   "min": 0.0,
+   "max": 0.0,
+   "range": 0.0,
+   "std": 0.0
+  }
+ },
+ "subsets": {
+  "exception:complete": {
+   "values": [
+    0.75,
+    0.75,
+    0.75
+   ],
+   "range": 0.0
+  },
+  "exception:m4_kp_coverage": {
+   "values": [
+    0.8636,
+    0.8636,
+    0.8636
+   ],
+   "range": 0.0
+  },
+  "exception:m1_recall_all": {
+   "values": [
+    0.6667,
+    0.6667,
+    0.6667
+   ],
+   "range": 0.0
+  },
+  "split:complete": {
+   "values": [
+    0.9167,
+    0.8333,
+    0.8333
+   ],
+   "range": 0.0834
+  },
+  "split:m4_kp_coverage": {
+   "values": [
+    0.9833,
+    0.9556,
+    0.9556
+   ],
+   "range": 0.0277
+  },
+  "split:m1_recall_all": {
+   "values": [
+    0.9167,
+    0.9167,
+    0.9167
+   ],
+   "range": 0.0
+  },
+  "temporal:complete": {
+   "values": [
+    0.68,
+    0.64,
+    0.72
+   ],
+   "range": 0.08
+  },
+  "temporal:m4_kp_coverage": {
+   "values": [
+    0.8576,
+    0.8197,
+    0.8803
+   ],
+   "range": 0.0606
+  },
+  "temporal:m1_recall_all": {
+   "values": [
+    0.6,
+    0.6,
+    0.6
+   ],
+   "range": 0.0
+  },
+  "delegation:complete": {
+   "values": [
+    0.9231,
+    0.8462,
+    0.7692
+   ],
+   "range": 0.1539
+  },
+  "delegation:m4_kp_coverage": {
+   "values": [
+    0.9744,
+    0.9487,
+    0.9103
+   ],
+   "range": 0.0641
+  },
+  "delegation:m1_recall_all": {
+   "values": [
+    0.7692,
+    0.7692,
+    0.7692
+   ],
+   "range": 0.0
+  },
+  "precedent:complete": {
+   "values": [
+    0.4444,
+    0.4444,
+    0.4444
+   ],
+   "range": 0.0
+  },
+  "precedent:m4_kp_coverage": {
+   "values": [
+    0.9333,
+    0.9333,
+    0.9333
+   ],
+   "range": 0.0
+  },
+  "precedent:m1_recall_all": {
+   "values": [
+    0.0,
+    0.0,
+    0.0
+   ],
+   "range": 0.0
+  },
+  "split:dev:complete": {
+   "values": [
+    0.675,
+    0.75,
+    0.75
+   ],
+   "range": 0.075
+  },
+  "split:dev:m4_kp_coverage": {
+   "values": [
+    0.8553,
+    0.886,
+    0.886
+   ],
+   "range": 0.0307
+  },
+  "split:dev:m1_recall_all": {
+   "values": [
+    0.675,
+    0.675,
+    0.675
+   ],
+   "range": 0.0
+  },
+  "split:test:complete": {
+   "values": [
+    0.8462,
+    0.7692,
+    0.7885
+   ],
+   "range": 0.077
+  },
+  "split:test:m4_kp_coverage": {
+   "values": [
+    0.9531,
+    0.9115,
+    0.9288
+   ],
+   "range": 0.0416
+  },
+  "split:test:m1_recall_all": {
+   "values": [
+    0.7115,
+    0.7115,
+    0.7115
+   ],
+   "range": 0.0
+  }
+ },
+ "unstable_items": [
+  "g018",
+  "g020",
+  "g021",
+  "g023",
+  "g024",
+  "g027",
+  "g028",
+  "g036",
+  "g039",
+  "g041",
+  "n19",
+  "n21",
+  "n24",
+  "n25"
+ ]
+}

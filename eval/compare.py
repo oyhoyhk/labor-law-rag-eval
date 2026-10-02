@@ -1,7 +1,7 @@
 """Compare evaluation runs.
 
   noise RUN RUN [RUN...]   identical-config repeats → per-metric spread (the noise floor)
-  diff BASE EXP            metric deltas, judged against the noise floor and a paired bootstrap CI,
+  diff BASE EXP [--base-runs R ...]   metric deltas (baseline = per-item mean of BASE and R… when given), judged against the noise floor and a paired bootstrap CI,
                            overall, per structural tag (eval/tags.py) and per split (split:dev, split:test)
   --noise PATH             noise-floor file written by `noise` / read by `diff` (default eval/results/noise_floor.json)
 
@@ -61,7 +61,24 @@ def subset_value(rows: list[dict], ids: set[str], field: str):
     return (round(mean(vals), 4), len(vals)) if vals else (None, 0)
 
 
+def averaged_scores(runs: list[Path]) -> list[dict]:
+    """Per-item mean over identical-config runs, so a comparison is not anchored on one lucky/unlucky baseline run
+    (items that flip between repeats otherwise read as regression to the mean)."""
+    per = [{x["id"]: x for x in scores(r)} for r in runs]
+    out = []
+    for i, first in per[0].items():
+        rec = {"id": i, "expected": first["expected"], "_avg": True}
+        for f in [*ITEM_FIELD.values(), *SUBSET_FIELDS]:
+            vals = [subset_field(p[i], f) for p in per]
+            vals = [float(v) for v in vals if v is not None]
+            rec[f] = mean(vals) if vals else None
+        out.append(rec)
+    return out
+
+
 def subset_field(r: dict, field: str):
+    if r.get("_avg"):
+        return r.get(field)
     if field == "complete":  # recomputed so older scores.jsonl without m4_complete still compare
         return (r["status"] == "answered" and r.get("m4_all_kp") is True) if r["expected"] == "answered" else None
     return r.get(field)
@@ -115,10 +132,13 @@ def bootstrap_ci(a: list[dict], b: list[dict], field: str, n: int = 2000, seed: 
     return round(deltas[int(0.025 * n)], 4), round(deltas[int(0.975 * n)], 4), len(pairs)
 
 
-def cmd_diff(base: Path, exp: Path, path: Path = NOISE) -> None:
+def cmd_diff(base: Path, exp: Path, path: Path = NOISE, base_runs: list[Path] | None = None) -> None:
     noise = json.loads(path.read_text())["metrics"] if path.exists() else {}
-    a, b = overall(base), overall(exp)
-    sa, sb = scores(base), scores(exp)
+    bases = [base, *(base_runs or [])]
+    per = [overall(r) for r in bases]
+    a = {k: (mean(v for v in vals) if (vals := [p[k] for p in per if p[k] is not None]) else None) for k in METRICS}
+    b = overall(exp)
+    sa, sb = (averaged_scores(bases) if base_runs else scores(base)), scores(exp)
     print(f"base {base.name}\nexp  {exp.name}\n")
     print(f"{'metric':<24}{'base':>8}{'exp':>8}{'Δ':>8}{'noise':>8}  {'95% CI (paired)':<20} verdict")
     rows = []
@@ -154,7 +174,8 @@ def cmd_diff(base: Path, exp: Path, path: Path = NOISE) -> None:
                   f"{'—' if ci is None else f'[{ci[0]:+.3f}, {ci[1]:+.3f}]':<20} {verdict}")
     out = exp / "diff_vs_base.json"
     rel = lambda p: str(p.relative_to(ROOT)) if p.is_relative_to(ROOT) else p.name
-    out.write_text(json.dumps({"base": rel(base), "exp": rel(exp), "rows": rows, "subsets": subsets},
+    out.write_text(json.dumps({"base": rel(base), "base_runs": [rel(r) for r in bases], "exp": rel(exp),
+                               "rows": rows, "subsets": subsets},
                               ensure_ascii=False, indent=1))
     print(f"\n→ {out.relative_to(ROOT)}")
 
@@ -167,13 +188,15 @@ def main() -> None:
     d = sub.add_parser("diff")
     d.add_argument("base", type=Path)
     d.add_argument("exp", type=Path)
+    d.add_argument("--base-runs", nargs="*", type=Path, default=[],
+                   help="more identical-config baseline runs; the baseline becomes their per-item mean")
     for p in (n, d):
         p.add_argument("--noise", type=Path, default=NOISE, help="noise-floor JSON (output of noise, input of diff)")
     args = ap.parse_args()
     if args.cmd == "noise":
         cmd_noise([r.resolve() for r in args.runs], args.noise.resolve())
     else:
-        cmd_diff(args.base.resolve(), args.exp.resolve(), args.noise.resolve())
+        cmd_diff(args.base.resolve(), args.exp.resolve(), args.noise.resolve(), [r.resolve() for r in args.base_runs])
 
 
 if __name__ == "__main__":
