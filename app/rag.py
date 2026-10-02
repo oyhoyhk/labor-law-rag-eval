@@ -264,7 +264,7 @@ def _bigrams(s: str) -> set[str]:
 
 
 def _quote(block: Block, sentences: list[str]) -> str:
-    paras = [p for p in block.text.split("\n")[1:] if p.strip()] or [block.text]
+    paras = [p for p in block.text.split("\n")[1:] if p.strip() and not re.fullmatch(r"\[\w+\]", p.strip())] or [block.text]
     target = _bigrams(" ".join(sentences))
     return max(paras, key=lambda p: len(_bigrams(p) & target))[:300]
 
