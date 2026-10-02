@@ -1,43 +1,43 @@
 {
  "runs": [
-  "runs/20261002-001824_baseline-judge-v2",
-  "runs/20261002-003841_noise-2",
-  "runs/20261002-004057_noise-3"
+  "runs/20261002-233903_baseline-v2",
+  "runs/20261002-234101_noise-v2-2",
+  "runs/20261002-234103_noise-v2-3"
  ],
  "metrics": {
   "M1_recall_any": {
    "values": [
-    0.885,
-    0.885,
-    0.885
+    0.924,
+    0.924,
+    0.924
    ],
-   "mean": 0.885,
-   "min": 0.885,
-   "max": 0.885,
+   "mean": 0.924,
+   "min": 0.924,
+   "max": 0.924,
    "range": 0.0,
    "std": 0.0
   },
   "M1_recall_all": {
    "values": [
-    0.712,
-    0.712,
-    0.712
+    0.696,
+    0.696,
+    0.696
    ],
-   "mean": 0.712,
-   "min": 0.712,
-   "max": 0.712,
+   "mean": 0.696,
+   "min": 0.696,
+   "max": 0.696,
    "range": 0.0,
    "std": 0.0
   },
   "M1_mrr": {
    "values": [
-    0.791,
-    0.791,
-    0.791
+    0.799,
+    0.799,
+    0.799
    ],
-   "mean": 0.791,
-   "min": 0.791,
-   "max": 0.791,
+   "mean": 0.799,
+   "min": 0.799,
+   "max": 0.799,
    "range": 0.0,
    "std": 0.0
   },
@@ -53,114 +53,246 @@
    "range": 0.0,
    "std": 0.0
   },
-  "M2_l5b_no_assertion": {
-   "values": [
-    1.0,
-    1.0,
-    1.0
-   ],
-   "mean": 1.0,
-   "min": 1.0,
-   "max": 1.0,
-   "range": 0.0,
-   "std": 0.0
-  },
   "M2_over_refusal": {
    "values": [
-    0.043,
-    0.043,
-    0.043
+    0.098,
+    0.12,
+    0.098
    ],
-   "mean": 0.043,
-   "min": 0.043,
-   "max": 0.043,
-   "range": 0.0,
-   "std": 0.0
+   "mean": 0.1053,
+   "min": 0.098,
+   "max": 0.12,
+   "range": 0.022,
+   "std": 0.0104
   },
   "M3_citation_precision": {
    "values": [
-    0.759,
-    0.767,
-    0.745
+    0.708,
+    0.692,
+    0.699
    ],
-   "mean": 0.757,
-   "min": 0.745,
-   "max": 0.767,
-   "range": 0.022,
-   "std": 0.0091
+   "mean": 0.6997,
+   "min": 0.692,
+   "max": 0.708,
+   "range": 0.016,
+   "std": 0.0065
   },
   "M3_citation_recall": {
    "values": [
-    0.886,
-    0.894,
-    0.875
+    0.85,
+    0.87,
+    0.834
    ],
-   "mean": 0.885,
-   "min": 0.875,
-   "max": 0.894,
-   "range": 0.019,
-   "std": 0.0078
+   "mean": 0.8513,
+   "min": 0.834,
+   "max": 0.87,
+   "range": 0.036,
+   "std": 0.0147
   },
   "M4_kp_coverage": {
    "values": [
-    0.919,
-    0.892,
-    0.884
+    0.877,
+    0.865,
+    0.864
    ],
-   "mean": 0.8983,
-   "min": 0.884,
-   "max": 0.919,
-   "range": 0.035,
-   "std": 0.015
+   "mean": 0.8687,
+   "min": 0.864,
+   "max": 0.877,
+   "range": 0.013,
+   "std": 0.0059
   },
   "M4_all_kp": {
    "values": [
-    0.818,
-    0.773,
-    0.75
+    0.747,
+    0.741,
+    0.747
    ],
-   "mean": 0.7803,
-   "min": 0.75,
-   "max": 0.818,
-   "range": 0.068,
-   "std": 0.0282
+   "mean": 0.745,
+   "min": 0.741,
+   "max": 0.747,
+   "range": 0.006,
+   "std": 0.0028
+  },
+  "M4_complete": {
+   "values": [
+    0.674,
+    0.652,
+    0.674
+   ],
+   "mean": 0.6667,
+   "min": 0.652,
+   "max": 0.674,
+   "range": 0.022,
+   "std": 0.0104
   },
   "M5_unsupported_rate": {
    "values": [
-    0.032,
-    0.013,
-    0.036
+    0.026,
+    0.009,
+    0.023
    ],
-   "mean": 0.027,
-   "min": 0.013,
-   "max": 0.036,
-   "range": 0.023,
-   "std": 0.01
+   "mean": 0.0193,
+   "min": 0.009,
+   "max": 0.026,
+   "range": 0.017,
+   "std": 0.0074
   },
   "M6_temporal_error": {
+   "values": [
+    0.071,
+    0.0,
+    0.0
+   ],
+   "mean": 0.0237,
+   "min": 0.0,
+   "max": 0.071,
+   "range": 0.071,
+   "std": 0.0335
+  }
+ },
+ "subsets": {
+  "exception:complete": {
+   "values": [
+    0.5,
+    0.5,
+    0.5833
+   ],
+   "range": 0.0833
+  },
+  "exception:m4_kp_coverage": {
+   "values": [
+    0.8,
+    0.7727,
+    0.85
+   ],
+   "range": 0.0773
+  },
+  "exception:m1_recall_all": {
+   "values": [
+    0.6667,
+    0.6667,
+    0.6667
+   ],
+   "range": 0.0
+  },
+  "split:complete": {
+   "values": [
+    0.6667,
+    0.75,
+    0.75
+   ],
+   "range": 0.0833
+  },
+  "split:m4_kp_coverage": {
+   "values": [
+    0.8792,
+    0.9,
+    0.8722
+   ],
+   "range": 0.0278
+  },
+  "split:m1_recall_all": {
+   "values": [
+    0.9167,
+    0.9167,
+    0.9167
+   ],
+   "range": 0.0
+  },
+  "temporal:complete": {
+   "values": [
+    0.6,
+    0.56,
+    0.56
+   ],
+   "range": 0.04
+  },
+  "temporal:m4_kp_coverage": {
+   "values": [
+    0.8468,
+    0.8553,
+    0.8151
+   ],
+   "range": 0.0402
+  },
+  "temporal:m1_recall_all": {
+   "values": [
+    0.6,
+    0.6,
+    0.6
+   ],
+   "range": 0.0
+  },
+  "delegation:complete": {
+   "values": [
+    0.8462,
+    0.7692,
+    0.7692
+   ],
+   "range": 0.077
+  },
+  "delegation:m4_kp_coverage": {
+   "values": [
+    0.9231,
+    0.8846,
+    0.8974
+   ],
+   "range": 0.0385
+  },
+  "delegation:m1_recall_all": {
+   "values": [
+    0.7692,
+    0.7692,
+    0.7692
+   ],
+   "range": 0.0
+  },
+  "precedent:complete": {
    "values": [
     0.0,
     0.0,
     0.0
    ],
-   "mean": 0.0,
-   "min": 0.0,
-   "max": 0.0,
-   "range": 0.0,
-   "std": 0.0
+   "range": 0.0
+  },
+  "precedent:m4_kp_coverage": {
+   "values": [
+    0.3333,
+    0.1667,
+    0.2222
+   ],
+   "range": 0.1666
+  },
+  "precedent:m1_recall_all": {
+   "values": [
+    0.0,
+    0.0,
+    0.0
+   ],
+   "range": 0.0
   }
  },
  "unstable_items": [
-  "g003",
+  "g012",
+  "g013",
   "g018",
   "g019",
   "g020",
   "g024",
-  "g027",
+  "g029",
   "g030",
+  "g033",
   "g036",
-  "l5a03",
-  "l5a08",
-  "l5b05"
+  "l5a05",
+  "l5b05",
+  "l5b06",
+  "s03",
+  "n01",
+  "n02",
+  "n08",
+  "n23",
+  "n24",
+  "s07",
+  "s08"
  ]
 }

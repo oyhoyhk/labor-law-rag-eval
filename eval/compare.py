@@ -143,7 +143,8 @@ def cmd_diff(base: Path, exp: Path) -> None:
             print(f"{t + ':' + f:<28}{n:>4}{va:>8.3f}{vb:>8.3f}{d:>+8.3f}{'—' if band is None else f'{band:.3f}':>8}  "
                   f"{'—' if ci is None else f'[{ci[0]:+.3f}, {ci[1]:+.3f}]':<20} {verdict}")
     out = exp / "diff_vs_base.json"
-    out.write_text(json.dumps({"base": str(base), "exp": str(exp), "rows": rows, "subsets": subsets},
+    rel = lambda p: str(p.relative_to(ROOT)) if p.is_relative_to(ROOT) else p.name
+    out.write_text(json.dumps({"base": rel(base), "exp": rel(exp), "rows": rows, "subsets": subsets},
                               ensure_ascii=False, indent=1))
     print(f"\n→ {out.relative_to(ROOT)}")
 

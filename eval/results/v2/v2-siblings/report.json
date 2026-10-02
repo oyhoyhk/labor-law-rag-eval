@@ -1,0 +1,677 @@
+{
+ "overall": {
+  "n": 100,
+  "M1_recall_any": [
+   0.924,
+   92
+  ],
+  "M1_recall_all": [
+   0.696,
+   92
+  ],
+  "M1_mrr": [
+   0.799,
+   92
+  ],
+  "M1_with_links_any": [
+   0.946,
+   92
+  ],
+  "M2_oos_refusal": [
+   1.0,
+   8
+  ],
+  "M2_l5b_no_assertion": [
+   null,
+   0
+  ],
+  "M2_over_refusal": [
+   0.12,
+   92
+  ],
+  "M3_citation_precision": [
+   0.704,
+   81
+  ],
+  "M3_citation_recall": [
+   0.855,
+   81
+  ],
+  "M4_kp_coverage": [
+   0.883,
+   81
+  ],
+  "M4_all_kp": [
+   0.778,
+   81
+  ],
+  "M4_complete": [
+   0.685,
+   92
+  ],
+  "M5_unsupported_rate": [
+   0.032,
+   81
+  ],
+  "M6_temporal_error": [
+   0.083,
+   12
+  ],
+  "cost_krw": 35.91,
+  "latency_ms_p50": 334
+ },
+ "by_level": {
+  "L1": {
+   "n": 10,
+   "M1_recall_any": [
+    1.0,
+    10
+   ],
+   "M1_recall_all": [
+    1.0,
+    10
+   ],
+   "M1_mrr": [
+    0.95,
+    10
+   ],
+   "M1_with_links_any": [
+    1.0,
+    10
+   ],
+   "M2_oos_refusal": [
+    null,
+    0
+   ],
+   "M2_l5b_no_assertion": [
+    null,
+    0
+   ],
+   "M2_over_refusal": [
+    0.0,
+    10
+   ],
+   "M3_citation_precision": [
+    0.775,
+    10
+   ],
+   "M3_citation_recall": [
+    1.0,
+    10
+   ],
+   "M4_kp_coverage": [
+    1.0,
+    10
+   ],
+   "M4_all_kp": [
+    1.0,
+    10
+   ],
+   "M4_complete": [
+    1.0,
+    10
+   ],
+   "M5_unsupported_rate": [
+    0.0,
+    10
+   ],
+   "M6_temporal_error": [
+    null,
+    0
+   ],
+   "cost_krw": 0,
+   "latency_ms_p50": 324
+  },
+  "L2": {
+   "n": 19,
+   "M1_recall_any": [
+    0.947,
+    19
+   ],
+   "M1_recall_all": [
+    0.842,
+    19
+   ],
+   "M1_mrr": [
+    0.73,
+    19
+   ],
+   "M1_with_links_any": [
+    1.0,
+    19
+   ],
+   "M2_oos_refusal": [
+    null,
+    0
+   ],
+   "M2_l5b_no_assertion": [
+    null,
+    0
+   ],
+   "M2_over_refusal": [
+    0.0,
+    19
+   ],
+   "M3_citation_precision": [
+    0.75,
+    19
+   ],
+   "M3_citation_recall": [
+    0.974,
+    19
+   ],
+   "M4_kp_coverage": [
+    0.912,
+    19
+   ],
+   "M4_all_kp": [
+    0.895,
+    19
+   ],
+   "M4_complete": [
+    0.895,
+    19
+   ],
+   "M5_unsupported_rate": [
+    0.033,
+    19
+   ],
+   "M6_temporal_error": [
+    null,
+    0
+   ],
+   "cost_krw": 9.28,
+   "latency_ms_p50": 328
+  },
+  "L3": {
+   "n": 23,
+   "M1_recall_any": [
+    1.0,
+    23
+   ],
+   "M1_recall_all": [
+    0.87,
+    23
+   ],
+   "M1_mrr": [
+    0.946,
+    23
+   ],
+   "M1_with_links_any": [
+    1.0,
+    23
+   ],
+   "M2_oos_refusal": [
+    null,
+    0
+   ],
+   "M2_l5b_no_assertion": [
+    null,
+    0
+   ],
+   "M2_over_refusal": [
+    0.043,
+    23
+   ],
+   "M3_citation_precision": [
+    0.784,
+    22
+   ],
+   "M3_citation_recall": [
+    0.826,
+    22
+   ],
+   "M4_kp_coverage": [
+    0.955,
+    22
+   ],
+   "M4_all_kp": [
+    0.864,
+    22
+   ],
+   "M4_complete": [
+    0.826,
+    23
+   ],
+   "M5_unsupported_rate": [
+    0.016,
+    22
+   ],
+   "M6_temporal_error": [
+    null,
+    0
+   ],
+   "cost_krw": 13.33,
+   "latency_ms_p50": 372
+  },
+  "L4": {
+   "n": 15,
+   "M1_recall_any": [
+    0.933,
+    15
+   ],
+   "M1_recall_all": [
+    0.867,
+    15
+   ],
+   "M1_mrr": [
+    0.769,
+    15
+   ],
+   "M1_with_links_any": [
+    0.933,
+    15
+   ],
+   "M2_oos_refusal": [
+    null,
+    0
+   ],
+   "M2_l5b_no_assertion": [
+    null,
+    0
+   ],
+   "M2_over_refusal": [
+    0.2,
+    15
+   ],
+   "M3_citation_precision": [
+    0.785,
+    12
+   ],
+   "M3_citation_recall": [
+    1.0,
+    12
+   ],
+   "M4_kp_coverage": [
+    0.889,
+    12
+   ],
+   "M4_all_kp": [
+    0.833,
+    12
+   ],
+   "M4_complete": [
+    0.667,
+    15
+   ],
+   "M5_unsupported_rate": [
+    0.043,
+    12
+   ],
+   "M6_temporal_error": [
+    0.083,
+    12
+   ],
+   "cost_krw": 7.48,
+   "latency_ms_p50": 311
+  },
+  "L5a": {
+   "n": 8,
+   "M1_recall_any": [
+    0.75,
+    8
+   ],
+   "M1_recall_all": [
+    0.125,
+    8
+   ],
+   "M1_mrr": [
+    0.75,
+    8
+   ],
+   "M1_with_links_any": [
+    0.875,
+    8
+   ],
+   "M2_oos_refusal": [
+    null,
+    0
+   ],
+   "M2_l5b_no_assertion": [
+    null,
+    0
+   ],
+   "M2_over_refusal": [
+    0.125,
+    8
+   ],
+   "M3_citation_precision": [
+    0.512,
+    7
+   ],
+   "M3_citation_recall": [
+    0.533,
+    7
+   ],
+   "M4_kp_coverage": [
+    0.821,
+    7
+   ],
+   "M4_all_kp": [
+    0.429,
+    7
+   ],
+   "M4_complete": [
+    0.375,
+    8
+   ],
+   "M5_unsupported_rate": [
+    0.126,
+    7
+   ],
+   "M6_temporal_error": [
+    null,
+    0
+   ],
+   "cost_krw": 0,
+   "latency_ms_p50": 438
+  },
+  "L5b": {
+   "n": 9,
+   "M1_recall_any": [
+    0.667,
+    9
+   ],
+   "M1_recall_all": [
+    0.0,
+    9
+   ],
+   "M1_mrr": [
+    0.463,
+    9
+   ],
+   "M1_with_links_any": [
+    0.667,
+    9
+   ],
+   "M2_oos_refusal": [
+    null,
+    0
+   ],
+   "M2_l5b_no_assertion": [
+    null,
+    0
+   ],
+   "M2_over_refusal": [
+    0.667,
+    9
+   ],
+   "M3_citation_precision": [
+    0.611,
+    3
+   ],
+   "M3_citation_recall": [
+    0.417,
+    3
+   ],
+   "M4_kp_coverage": [
+    0.222,
+    3
+   ],
+   "M4_all_kp": [
+    0.0,
+    3
+   ],
+   "M4_complete": [
+    0.0,
+    9
+   ],
+   "M5_unsupported_rate": [
+    0.056,
+    3
+   ],
+   "M6_temporal_error": [
+    null,
+    0
+   ],
+   "cost_krw": 1.86,
+   "latency_ms_p50": 362
+  },
+  "OOS": {
+   "n": 8,
+   "M1_recall_any": [
+    null,
+    0
+   ],
+   "M1_recall_all": [
+    null,
+    0
+   ],
+   "M1_mrr": [
+    null,
+    0
+   ],
+   "M1_with_links_any": [
+    null,
+    0
+   ],
+   "M2_oos_refusal": [
+    1.0,
+    8
+   ],
+   "M2_l5b_no_assertion": [
+    null,
+    0
+   ],
+   "M2_over_refusal": [
+    null,
+    0
+   ],
+   "M3_citation_precision": [
+    null,
+    0
+   ],
+   "M3_citation_recall": [
+    null,
+    0
+   ],
+   "M4_kp_coverage": [
+    null,
+    0
+   ],
+   "M4_all_kp": [
+    null,
+    0
+   ],
+   "M4_complete": [
+    null,
+    0
+   ],
+   "M5_unsupported_rate": [
+    null,
+    0
+   ],
+   "M6_temporal_error": [
+    null,
+    0
+   ],
+   "cost_krw": 2.41,
+   "latency_ms_p50": 363
+  },
+  "SUM": {
+   "n": 8,
+   "M1_recall_any": [
+    1.0,
+    8
+   ],
+   "M1_recall_all": [
+    0.5,
+    8
+   ],
+   "M1_mrr": [
+    0.838,
+    8
+   ],
+   "M1_with_links_any": [
+    1.0,
+    8
+   ],
+   "M2_oos_refusal": [
+    null,
+    0
+   ],
+   "M2_l5b_no_assertion": [
+    null,
+    0
+   ],
+   "M2_over_refusal": [
+    0.0,
+    8
+   ],
+   "M3_citation_precision": [
+    0.372,
+    8
+   ],
+   "M3_citation_recall": [
+    0.698,
+    8
+   ],
+   "M4_kp_coverage": [
+    0.76,
+    8
+   ],
+   "M4_all_kp": [
+    0.5,
+    8
+   ],
+   "M4_complete": [
+    0.5,
+    8
+   ],
+   "M5_unsupported_rate": [
+    0.0,
+    8
+   ],
+   "M6_temporal_error": [
+    null,
+    0
+   ],
+   "cost_krw": 1.55,
+   "latency_ms_p50": 316
+  }
+ },
+ "by_split": {
+  "dev": {
+   "n": 44,
+   "M1_recall_any": [
+    0.95,
+    40
+   ],
+   "M1_recall_all": [
+    0.675,
+    40
+   ],
+   "M1_mrr": [
+    0.824,
+    40
+   ],
+   "M1_with_links_any": [
+    0.95,
+    40
+   ],
+   "M2_oos_refusal": [
+    1.0,
+    4
+   ],
+   "M2_l5b_no_assertion": [
+    null,
+    0
+   ],
+   "M2_over_refusal": [
+    0.15,
+    40
+   ],
+   "M3_citation_precision": [
+    0.661,
+    34
+   ],
+   "M3_citation_recall": [
+    0.843,
+    34
+   ],
+   "M4_kp_coverage": [
+    0.836,
+    34
+   ],
+   "M4_all_kp": [
+    0.706,
+    34
+   ],
+   "M4_complete": [
+    0.6,
+    40
+   ],
+   "M5_unsupported_rate": [
+    0.03,
+    34
+   ],
+   "M6_temporal_error": [
+    0.0,
+    5
+   ],
+   "cost_krw": 20.69,
+   "latency_ms_p50": 341
+  },
+  "test": {
+   "n": 56,
+   "M1_recall_any": [
+    0.904,
+    52
+   ],
+   "M1_recall_all": [
+    0.712,
+    52
+   ],
+   "M1_mrr": [
+    0.78,
+    52
+   ],
+   "M1_with_links_any": [
+    0.942,
+    52
+   ],
+   "M2_oos_refusal": [
+    1.0,
+    4
+   ],
+   "M2_l5b_no_assertion": [
+    null,
+    0
+   ],
+   "M2_over_refusal": [
+    0.096,
+    52
+   ],
+   "M3_citation_precision": [
+    0.736,
+    47
+   ],
+   "M3_citation_recall": [
+    0.863,
+    47
+   ],
+   "M4_kp_coverage": [
+    0.917,
+    47
+   ],
+   "M4_all_kp": [
+    0.83,
+    47
+   ],
+   "M4_complete": [
+    0.75,
+    52
+   ],
+   "M5_unsupported_rate": [
+    0.032,
+    47
+   ],
+   "M6_temporal_error": [
+    0.143,
+    7
+   ],
+   "cost_krw": 15.22,
+   "latency_ms_p50": 331
+  }
+ }
+}
