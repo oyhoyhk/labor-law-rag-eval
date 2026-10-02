@@ -1,0 +1,150 @@
+{
+ "base": "/Users/owen/projects/elice-rag-eval/eval/results/baseline_v1_1",
+ "exp": "/Users/owen/projects/elice-rag-eval/runs/20261002-110445_exp-h1-fixed",
+ "rows": [
+  {
+   "metric": "M1_recall_any",
+   "base": 0.895,
+   "exp": 0.895,
+   "delta": 0.0,
+   "noise_range": 0.0,
+   "ci95": [
+    -0.0702,
+    0.0702,
+    57
+   ],
+   "verdict": "유의하지 않음"
+  },
+  {
+   "metric": "M1_recall_all",
+   "base": 0.702,
+   "exp": 0.684,
+   "delta": -0.018,
+   "noise_range": 0.0,
+   "ci95": [
+    -0.0877,
+    0.0351,
+    57
+   ],
+   "verdict": "유의하지 않음"
+  },
+  {
+   "metric": "M1_mrr",
+   "base": 0.786,
+   "exp": 0.796,
+   "delta": 0.01,
+   "noise_range": 0.0,
+   "ci95": [
+    -0.0547,
+    0.0728,
+    57
+   ],
+   "verdict": "유의하지 않음"
+  },
+  {
+   "metric": "M2_oos_refusal",
+   "base": 1.0,
+   "exp": 1.0,
+   "delta": 0.0,
+   "noise_range": 0.0,
+   "ci95": null,
+   "verdict": "유의하지 않음"
+  },
+  {
+   "metric": "M2_l5b_no_assertion",
+   "base": 1.0,
+   "exp": 1.0,
+   "delta": 0.0,
+   "noise_range": 0.0,
+   "ci95": null,
+   "verdict": "유의하지 않음"
+  },
+  {
+   "metric": "M2_over_refusal",
+   "base": 0.039,
+   "exp": 0.157,
+   "delta": 0.118,
+   "noise_range": 0.0,
+   "ci95": null,
+   "verdict": "악화"
+  },
+  {
+   "metric": "M3_citation_precision",
+   "base": 0.716,
+   "exp": 0.342,
+   "delta": -0.374,
+   "noise_range": 0.022,
+   "ci95": [
+    -0.4458,
+    -0.2826,
+    45
+   ],
+   "verdict": "악화"
+  },
+  {
+   "metric": "M3_citation_recall",
+   "base": 0.874,
+   "exp": 0.905,
+   "delta": 0.031,
+   "noise_range": 0.019,
+   "ci95": [
+    -0.0333,
+    0.0333,
+    45
+   ],
+   "verdict": "유의하지 않음"
+  },
+  {
+   "metric": "M4_kp_coverage",
+   "base": 0.904,
+   "exp": 0.916,
+   "delta": 0.012,
+   "noise_range": 0.035,
+   "ci95": [
+    -0.062,
+    0.0446,
+    43
+   ],
+   "verdict": "유의하지 않음"
+  },
+  {
+   "metric": "M4_all_kp",
+   "base": 0.776,
+   "exp": 0.767,
+   "delta": -0.009,
+   "noise_range": 0.068,
+   "ci95": [
+    -0.1395,
+    0.093,
+    43
+   ],
+   "verdict": "유의하지 않음"
+  },
+  {
+   "metric": "M5_unsupported_rate",
+   "base": 0.029,
+   "exp": 0.05,
+   "delta": 0.021,
+   "noise_range": 0.023,
+   "ci95": [
+    -0.0009,
+    0.056,
+    45
+   ],
+   "verdict": "유의하지 않음"
+  },
+  {
+   "metric": "M6_temporal_error",
+   "base": 0.0,
+   "exp": 0.333,
+   "delta": 0.333,
+   "noise_range": 0.0,
+   "ci95": [
+    0.0,
+    0.6667,
+    6
+   ],
+   "verdict": "유의하지 않음"
+  }
+ ]
+}

@@ -1,0 +1,42 @@
+{
+ "name": "exp-h1-fixed",
+ "started_at": "2026-10-02T11:04:45",
+ "finished_at": "2026-10-02T11:08:17",
+ "git_sha": "d84a500",
+ "git_dirty": false,
+ "config": {
+  "name": "exp-h1-fixed",
+  "strategy": "fixed",
+  "k": 5,
+  "tau": 0.5,
+  "no_inject": false,
+  "no_links": false,
+  "split": "all",
+  "ids": "",
+  "no_judge": false,
+  "no_cache": false,
+  "judge_no_cache": false,
+  "budget": 300.0
+ },
+ "model": "openai/gpt-5.6-luna",
+ "seed": 42,
+ "temperature": 0,
+ "prompt_version": "gen-v1",
+ "judge_version": "judge-v2",
+ "embedding": "nlpai-lab/KURE-v1@8b418a58",
+ "gold_sha256": "c1b3458cf2ea",
+ "splits_sha256": "8c37d5aa79af",
+ "corpus_manifest_sha256": "e1e80175747a",
+ "usage": {
+  "input": 649161,
+  "cached_input": 5349,
+  "output": 30036,
+  "reasoning": 0,
+  "calls": 149,
+  "cache_hits": 2
+ },
+ "cost_krw": 250.76,
+ "items_planned": 61,
+ "items_done": 61,
+ "aborted": null
+}
