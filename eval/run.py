@@ -19,7 +19,7 @@ from datetime import date, datetime
 from app.index import INDEX_DIR
 from app.ingest.parse import ROOT
 from app.llm import LLM, SEED, TEMPERATURE, BudgetExceeded
-from app.rag import PROMPT_VERSION, Options, answer, graph, retriever
+from app.rag import SYSTEMS, Options, answer, graph, retriever
 from app.ingest.provision import status_at
 from eval import judge as J
 from eval.metrics import aggregate, by_group, item_scores
@@ -100,6 +100,7 @@ def main() -> None:
     ap.add_argument("--siblings", action="store_true", help="add the other chunks of a retrieved split article")
     ap.add_argument("--reverse-refs", action="store_true",
                     help="add articles that reference a top hit with an exception/준용 cue")
+    ap.add_argument("--prompt", default=Options.prompt, choices=list(SYSTEMS), help="generation prompt version")
     ap.add_argument("--split", default="all", choices=["all", "dev", "test"])
     ap.add_argument("--ids", default="")
     ap.add_argument("--no-judge", action="store_true")
@@ -121,7 +122,7 @@ def main() -> None:
 
     opt = Options(strategy=args.strategy, top_k=args.k, inject_status=not args.no_inject,
                   expand_links=not args.no_links, tau=args.tau,
-                  include_siblings=args.siblings, expand_reverse_refs=args.reverse_refs)
+                  include_siblings=args.siblings, expand_reverse_refs=args.reverse_refs, prompt=args.prompt)
     cache = None if args.no_cache else CACHE
     gen = LLM(budget_krw=args.budget, cache_dir=cache)
     jdg = None if args.no_judge else LLM(budget_krw=args.budget,
@@ -163,7 +164,7 @@ def main() -> None:
         "git_sha": git("rev-parse", "--short", "HEAD"), "git_dirty": bool(git("status", "--porcelain", "--", "app", "eval")),
         "config": {k: v for k, v in vars(args).items() if k not in ("workers",)},
         "model": gen.model, "seed": SEED, "temperature": TEMPERATURE,
-        "prompt_version": PROMPT_VERSION, "judge_version": J.JUDGE_VERSION,
+        "prompt_version": opt.prompt, "judge_version": J.JUDGE_VERSION,
         "embedding": json.loads((INDEX_DIR / args.strategy / "meta.json").read_text()),
         "gold_sha256": sha(GOLD), "splits_sha256": sha(SPLITS),
         "corpus_manifest_sha256": sha(ROOT / "data" / "manifest.json"),
