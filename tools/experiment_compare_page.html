@@ -1,0 +1,321 @@
+<title>Part C 실험 비교</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+KR:wght@400;500;700&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+/* Layout: lab notebook. Verdict matrix first (summary), then one experiment in depth, then cost. */
+:root {
+  --bg: #f6f7f9; --surface: #ffffff; --line: #dfe3e8; --line-soft: #eceff3;
+  --fg: #18202b; --fg2: #4a5563; --muted: #7a8594;
+  --accent: #2b59c3;
+  --good: #1f7a4d; --good-bg: #e3f3ea; --bad: #b8322a; --bad-bg: #fbe6e4; --flat-bg: #f0f2f5;
+  --band: #e6eaf0; --ci: #8a95a5;
+  --font-body: "IBM Plex Sans KR", "Apple SD Gothic Neo", "Malgun Gothic", system-ui, sans-serif;
+  --font-mono: "IBM Plex Mono", ui-monospace, Menlo, monospace;
+}
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) {
+  --bg: #12161c; --surface: #1a2028; --line: #2d3540; --line-soft: #232a33;
+  --fg: #e6ebf1; --fg2: #b3bdc9; --muted: #8592a2; --accent: #7fa4f5;
+  --good: #5cc98d; --good-bg: #173326; --bad: #f07a70; --bad-bg: #3a1d1b; --flat-bg: #212831;
+  --band: #26303b; --ci: #7d8898; color-scheme: dark } }
+:root[data-theme="dark"] {
+  --bg: #12161c; --surface: #1a2028; --line: #2d3540; --line-soft: #232a33;
+  --fg: #e6ebf1; --fg2: #b3bdc9; --muted: #8592a2; --accent: #7fa4f5;
+  --good: #5cc98d; --good-bg: #173326; --bad: #f07a70; --bad-bg: #3a1d1b; --flat-bg: #212831;
+  --band: #26303b; --ci: #7d8898; color-scheme: dark }
+* { box-sizing: border-box }
+body { background: var(--bg); color: var(--fg); font: 14px/1.6 var(--font-body); }
+.wrap > * { min-width: 0 }
+.wrap { max-width: 1120px; margin: 0 auto; padding-inline: 20px; padding-block: 32px 64px; display: grid; gap: 40px; }
+h1 { font-size: 26px; margin: 0; letter-spacing: -0.01em; text-wrap: balance }
+h2 { font-size: 18px; margin: 0 0 4px; text-wrap: balance }
+.lede { color: var(--fg2); margin: 6px 0 0; max-width: 72ch }
+.sub { color: var(--muted); font-size: 13px; margin: 0 0 14px; max-width: 80ch }
+.mono, .num { font-family: var(--font-mono); font-variant-numeric: tabular-nums }
+.rule { display: flex; flex-wrap: wrap; gap: 8px 18px; margin-top: 14px; font-size: 13px; color: var(--fg2) }
+.rule b { color: var(--fg) }
+.legend { display: flex; gap: 14px; flex-wrap: wrap; font-size: 12px; color: var(--fg2); margin-bottom: 10px }
+.chip { display: inline-flex; align-items: center; gap: 4px; padding: 1px 8px; border-radius: 999px; font-size: 12px; font-weight: 500; white-space: nowrap }
+.chip.good { background: var(--good-bg); color: var(--good) }
+.chip.bad { background: var(--bad-bg); color: var(--bad) }
+.chip.flat { background: var(--flat-bg); color: var(--muted) }
+.scroll { overflow-x: auto; border: 1px solid var(--line); border-radius: 8px; background: var(--surface) }
+table { border-collapse: collapse; width: 100%; font-size: 13px }
+th, td { padding: 7px 10px; border-bottom: 1px solid var(--line-soft); text-align: right; white-space: nowrap }
+th:first-child, td:first-child { text-align: left; position: sticky; left: 0; background: var(--surface); z-index: 1 }
+thead th { font-weight: 500; color: var(--fg2); font-size: 12px; vertical-align: bottom; border-bottom: 1px solid var(--line) }
+tbody tr:last-child td { border-bottom: 0 }
+.group td { background: var(--bg) !important; color: var(--muted); font-size: 11px; letter-spacing: .06em; text-transform: uppercase; text-align: left; padding-block: 4px }
+.mname { display: flex; flex-direction: column; line-height: 1.3 }
+.mname small { color: var(--muted); font-size: 11px }
+.colbtn { all: unset; cursor: pointer; display: block; text-align: right; white-space: normal; max-width: 110px; margin-left: auto; line-height: 1.3; color: var(--fg2); border-bottom: 2px solid transparent; padding-bottom: 2px }
+.colbtn:hover { color: var(--fg) }
+.colbtn:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px }
+.colbtn[aria-pressed="true"] { color: var(--accent); border-color: var(--accent); font-weight: 500 }
+td.cell { cursor: default }
+td.cell.good { background: var(--good-bg) }
+td.cell.bad { background: var(--bad-bg) }
+td.cell .v { display: block; font-family: var(--font-mono); font-variant-numeric: tabular-nums }
+td.cell .d { display: block; font-family: var(--font-mono); font-size: 11px; color: var(--muted) }
+td.cell.good .d { color: var(--good) } td.cell.bad .d { color: var(--bad) }
+td.selcol { box-shadow: inset 2px 0 0 var(--accent), inset -2px 0 0 var(--accent) }
+td.base .v { color: var(--fg2) }
+.tabs { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 16px }
+.tab { all: unset; cursor: pointer; padding: 6px 12px; border: 1px solid var(--line); border-radius: 6px; background: var(--surface); font-size: 13px; color: var(--fg2) }
+.tab:hover { color: var(--fg) }
+.tab:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px }
+.tab[aria-selected="true"] { border-color: var(--accent); color: var(--accent); font-weight: 500 }
+.detail { display: grid; gap: 20px }
+.facts { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1px; background: var(--line); border: 1px solid var(--line); border-radius: 8px; overflow: hidden }
+.fact { background: var(--surface); padding: 12px 14px; min-width: 0 }
+.fact .k { font-size: 11px; color: var(--muted); letter-spacing: .04em }
+.fact .val { margin-top: 2px; font-weight: 500 }
+.panel { background: var(--surface); border: 1px solid var(--line); border-radius: 8px; padding: 16px; min-width: 0 }
+.panel h3 { font-size: 14px; margin: 0 0 2px }
+.panel .sub { margin-bottom: 10px }
+.svgbox { overflow-x: auto }
+svg text { fill: var(--fg2); font-family: var(--font-mono); font-size: 11px }
+svg .lbl { fill: var(--fg); font-family: var(--font-body); font-size: 12px }
+svg .axis { stroke: var(--line); stroke-width: 1 }
+svg .zero { stroke: var(--muted); stroke-width: 1 }
+svg .grid { stroke: var(--line-soft); stroke-width: 1 }
+.two { display: grid; grid-template-columns: 1fr 1fr; gap: 20px }
+@media (max-width: 760px) { .two { grid-template-columns: 1fr } }
+.changes td:nth-child(3) { text-align: left; white-space: normal; min-width: 260px; max-width: 420px; color: var(--fg2) }
+.empty { color: var(--muted); font-size: 13px; padding: 10px 0 }
+#tip { position: fixed; pointer-events: none; z-index: 10; background: var(--fg); color: var(--bg); padding: 8px 10px; border-radius: 6px; font-size: 12px; line-height: 1.5; max-width: 280px; box-shadow: 0 4px 14px rgba(0,0,0,.18) }
+#tip .t { font-weight: 500 }
+#tip .r { font-family: var(--font-mono); font-variant-numeric: tabular-nums }
+.foot { color: var(--muted); font-size: 12px; max-width: 80ch }
+@media (prefers-reduced-motion: no-preference) { .tab, .colbtn { transition: color .12s, border-color .12s } }
+</style>
+
+<div class="wrap">
+  <header>
+    <h1>Part C 실험 비교</h1>
+    <p class="lede">기준선 v1.1(조 단위 청킹 · top-5 · 시행 상태 주입 · 위임 확장 · τ 0.50) 대비 6개 실험의 지표 변화. 동일 골드셋 61문항, Luna 생성 · judge-v2 채점.</p>
+    <div class="rule">
+      <span><b>유의 판정</b> = |Δ| &gt; 노이즈 범위(동일 설정 3회 반복의 최대−최소) <b>그리고</b> 문항 대응 부트스트랩 95% CI가 0 제외</span>
+      <span>M5 judge는 κ 0.54로 보조 지표</span>
+    </div>
+  </header>
+
+  <section aria-labelledby="h-matrix">
+    <h2 id="h-matrix">지표별 판정 매트릭스</h2>
+    <p class="sub">셀 = 실험값과 기준선 대비 Δ. 색은 유의 판정만 표시하고, 노이즈 안의 변화는 회색으로 둠. 열 머리를 누르면 아래 상세가 그 실험으로 바뀜. 셀에 마우스를 올리면 노이즈 범위와 CI 확인 가능</p>
+    <div class="legend">
+      <span class="chip good">▲ 개선</span><span class="chip bad">▼ 악화</span><span class="chip flat">· 유의하지 않음</span>
+      <span>↓ = 낮을수록 좋음</span>
+    </div>
+    <div class="scroll"><table id="matrix"></table></div>
+  </section>
+
+  <section aria-labelledby="h-detail">
+    <h2 id="h-detail">실험 상세</h2>
+    <p class="sub">개선 방향으로 정렬한 Δ(오른쪽 = 좋아짐). 회색 띠는 노이즈 범위, 가는 선은 95% CI</p>
+    <div class="tabs" role="tablist" id="tabs"></div>
+    <div class="detail" id="detail"></div>
+  </section>
+
+  <section aria-labelledby="h-cost">
+    <h2 id="h-cost">비용과 입력 토큰</h2>
+    <p class="sub">실행 비용은 LLM 응답 캐시 적중분을 제외한 실제 청구액(생성+채점). 캐시 적중률이 실험마다 달라 비용끼리 단순 비교는 불가하고, 운영 부담은 입력 토큰으로 판단</p>
+    <div class="two">
+      <div class="panel"><h3>실행 비용(원)</h3><p class="sub">61문항 1회 실행, 생성+judge</p><div class="svgbox" id="cost"></div></div>
+      <div class="panel"><h3>생성 호출당 평균 입력 토큰</h3><p class="sub">점선 = 기준선 3,701토큰</p><div class="svgbox" id="tokens"></div></div>
+    </div>
+  </section>
+
+  <p class="foot">출처: eval/results/*/diff_vs_base.json · manifest.json · report.json · scores.jsonl, eval/results/noise_floor.json. 생성: tools/build_experiment_compare_page.py</p>
+</div>
+<div id="tip" hidden></div>
+
+<script>
+const DATA = __DATA__;
+const M = {
+  M1_recall_any: ["M1 Recall@k (any)", "검색", false], M1_recall_all: ["M1 Recall@k (all)", "검색", false], M1_mrr: ["M1 MRR", "검색", false],
+  M2_oos_refusal: ["M2 범위 밖 거절", "거절", false], M2_l5b_no_assertion: ["M2 L5b 단정 회피", "거절", false], M2_over_refusal: ["M2 과잉 거절", "거절", true],
+  M3_citation_precision: ["M3 인용 정밀도", "인용", false], M3_citation_recall: ["M3 인용 재현율", "인용", false],
+  M4_kp_coverage: ["M4 정답 포인트", "답변", false], M4_all_kp: ["M4 전 포인트 충족", "답변", false],
+  M5_unsupported_rate: ["M5 근거 없는 주장률", "답변", true], M6_temporal_error: ["M6 시점 오류", "답변", true],
+};
+const ORDER = Object.keys(M);
+const EX = DATA.experiments;
+const f3 = v => v == null ? "—" : v.toFixed(3);
+const sg = v => (v > 0 ? "+" : v < 0 ? "−" : "±") + Math.abs(v).toFixed(3);
+const cls = v => v === "개선" ? "good" : v === "악화" ? "bad" : "flat";
+const esc = s => String(s).replace(/[&<>"]/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+let sel = 0;
+try { const s = +localStorage.getItem("partc-sel"); if (s >= 0 && s < EX.length) sel = s; } catch (e) {}
+
+const tip = document.getElementById("tip");
+function showTip(ev, html) { tip.innerHTML = html; tip.hidden = false; moveTip(ev); }
+function moveTip(ev) {
+  const w = tip.offsetWidth, h = tip.offsetHeight;
+  let x = ev.clientX + 14, y = ev.clientY + 14;
+  if (x + w > innerWidth - 8) x = ev.clientX - w - 14;
+  if (y + h > innerHeight - 8) y = ev.clientY - h - 14;
+  tip.style.left = Math.max(8, x) + "px"; tip.style.top = Math.max(8, y) + "px";
+}
+function hideTip() { tip.hidden = true; }
+function bindTip(el, html) {
+  el.addEventListener("mouseenter", e => showTip(e, html));
+  el.addEventListener("mousemove", moveTip);
+  el.addEventListener("mouseleave", hideTip);
+}
+function rowTip(ex, r) {
+  const ci = r.ci95 ? `[${sg(r.ci95[0])}, ${sg(r.ci95[1])}] n=${r.ci95[2]}` : "산출 불가(문항 대응 없음)";
+  return `<div class="t">${esc(ex.name)} · ${M[r.metric][0]}</div>
+    <div class="r">기준 ${f3(r.base)} → ${f3(r.exp)} (Δ ${sg(r.delta)})</div>
+    <div class="r">노이즈 범위 ±${r.noise_range == null ? "—" : r.noise_range.toFixed(3)}</div>
+    <div class="r">95% CI ${ci}</div><div>판정: ${r.verdict}</div>`;
+}
+
+function renderMatrix() {
+  const t = document.getElementById("matrix");
+  let h = `<thead><tr><th>지표</th><th>기준선 v1.1</th>`;
+  EX.forEach((e, i) => h += `<th><button class="colbtn" data-i="${i}" aria-pressed="${i === sel}">${esc(e.name)}</button></th>`);
+  h += `</tr></thead><tbody>`;
+  let grp = "";
+  ORDER.forEach(k => {
+    if (M[k][1] !== grp) { grp = M[k][1]; h += `<tr class="group"><td colspan="${EX.length + 2}">${grp}</td></tr>`; }
+    const base = EX[0].rows.find(r => r.metric === k);
+    h += `<tr><td><span class="mname">${M[k][0]}${M[k][2] ? " ↓" : ""}<small>노이즈 ±${DATA.noise[k] == null ? "—" : DATA.noise[k].toFixed(3)}</small></span></td>`;
+    h += `<td class="cell base"><span class="v">${f3(base && base.base)}</span><span class="d">&nbsp;</span></td>`;
+    EX.forEach((e, i) => {
+      const r = e.rows.find(r => r.metric === k);
+      if (!r) { h += `<td class="cell">—</td>`; return; }
+      const c = cls(r.verdict), mark = c === "good" ? "▲ " : c === "bad" ? "▼ " : "";
+      h += `<td class="cell ${c === "flat" ? "" : c}${i === sel ? " selcol" : ""}" data-e="${i}" data-k="${k}"><span class="v">${f3(r.exp)}</span><span class="d">${mark}${sg(r.delta)}</span></td>`;
+    });
+    h += `</tr>`;
+  });
+  t.innerHTML = h + `</tbody>`;
+  t.querySelectorAll(".colbtn").forEach(b => b.addEventListener("click", () => select(+b.dataset.i)));
+  t.querySelectorAll("td[data-e]").forEach(td => {
+    const e = EX[+td.dataset.e];
+    bindTip(td, rowTip(e, e.rows.find(r => r.metric === td.dataset.k)));
+  });
+}
+
+function renderTabs() {
+  document.getElementById("tabs").innerHTML = EX.map((e, i) =>
+    `<button class="tab" role="tab" id="tab-${i}" aria-selected="${i === sel}" data-i="${i}">${esc(e.name)}</button>`).join("");
+  document.querySelectorAll(".tab").forEach(b => b.addEventListener("click", () => select(+b.dataset.i)));
+}
+
+function forest(ex) {
+  // Deltas oriented so that right = better (lower-is-better metrics are negated).
+  const rows = ORDER.map(k => ex.rows.find(r => r.metric === k)).filter(Boolean).map(r => {
+    const s = M[r.metric][2] ? -1 : 1;
+    const ci = r.ci95 ? [r.ci95[0] * s, r.ci95[1] * s].sort((a, b) => a - b) : null;
+    return { r, d: r.delta * s, ci, band: r.noise_range || 0 };
+  });
+  const ext = Math.max(0.1, ...rows.flatMap(o => [Math.abs(o.d), o.band, ...(o.ci ? o.ci.map(Math.abs) : [])]));
+  const lim = Math.ceil(ext * 10) / 10;
+  const W = 720, L = 170, R = 70, rowH = 26, top = 24, H = top + rows.length * rowH + 30;
+  const x = v => L + (v + lim) / (2 * lim) * (W - L - R);
+  let s = `<svg viewBox="0 0 ${W} ${H}" style="width:100%;max-width:820px;min-width:560px" role="img" aria-label="${esc(ex.name)} 지표별 개선 방향 Δ와 95% CI">`;
+  const ticks = []; for (let v = -lim; v <= lim + 1e-9; v += lim / 2) ticks.push(+v.toFixed(2));
+  ticks.forEach(v => s += `<line class="${v === 0 ? "zero" : "grid"}" x1="${x(v)}" x2="${x(v)}" y1="${top - 8}" y2="${H - 24}"/><text x="${x(v)}" y="${H - 8}" text-anchor="middle">${v > 0 ? "+" : ""}${v.toFixed(2)}</text>`);
+  s += `<text x="${x(-lim)}" y="12">← 나빠짐</text><text x="${x(lim)}" y="12" text-anchor="end">좋아짐 →</text>`;
+  rows.forEach((o, i) => {
+    const y = top + i * rowH + rowH / 2, c = cls(o.r.verdict);
+    const col = c === "good" ? "var(--good)" : c === "bad" ? "var(--bad)" : "var(--muted)";
+    s += `<text class="lbl" x="${L - 10}" y="${y + 4}" text-anchor="end">${M[o.r.metric][0]}</text>`;
+    if (o.band) s += `<rect x="${x(-o.band)}" y="${y - 8}" width="${x(o.band) - x(-o.band)}" height="16" rx="3" fill="var(--band)"/>`;
+    if (o.ci) s += `<line x1="${x(o.ci[0])}" x2="${x(o.ci[1])}" y1="${y}" y2="${y}" stroke="var(--ci)" stroke-width="2" stroke-linecap="round"/>`;
+    s += `<circle cx="${x(o.d)}" cy="${y}" r="5" fill="${col}" stroke="var(--surface)" stroke-width="2"/>`;
+    s += `<text x="${W - R + 8}" y="${y + 4}">${sg(o.r.delta)}</text>`;
+    s += `<rect class="hit" data-k="${o.r.metric}" x="0" y="${y - rowH / 2}" width="${W}" height="${rowH}" fill="transparent"/>`;
+  });
+  return s + `</svg>`;
+}
+
+function levelTable(ex) {
+  const lv = Object.keys(DATA.base_levels).filter(l => DATA.base_levels[l].M4_kp_coverage != null || DATA.base_levels[l].M1_recall_any != null);
+  const cols = [["M1_recall_any", "Recall@k"], ["M3_citation_precision", "인용 정밀도"], ["M4_kp_coverage", "정답 포인트"]];
+  let h = `<table><thead><tr><th>난이도</th><th>n</th>${cols.map(c => `<th>${c[1]}<br>기준 → 실험</th>`).join("")}</tr></thead><tbody>`;
+  lv.forEach(l => {
+    h += `<tr><td>${l}</td><td class="num">${DATA.level_n[l]}</td>`;
+    cols.forEach(([k]) => {
+      const b = DATA.base_levels[l][k], e = ex.levels[l][k];
+      const d = b != null && e != null ? e - b : null;
+      const tone = d == null || Math.abs(d) < 1e-9 ? "" : d > 0 ? "color:var(--good)" : "color:var(--bad)";
+      h += `<td class="num">${f3(b)} → <span style="${tone}">${f3(e)}</span></td>`;
+    });
+    h += `</tr>`;
+  });
+  return h + `</tbody></table>`;
+}
+
+function changesTable(ex) {
+  if (!ex.changes.length) return `<p class="empty">상태나 정답 포인트가 바뀐 문항 없음</p>`;
+  const st = s => s === "answered" ? "답변" : "거절";
+  let h = `<table class="changes"><thead><tr><th>문항</th><th>난이도</th><th>질문</th><th>상태</th><th>정답 포인트</th><th>시점 오류</th></tr></thead><tbody>`;
+  ex.changes.forEach(c => {
+    const d = c.base_kp != null && c.exp_kp != null ? c.exp_kp - c.base_kp : null;
+    const tone = d == null ? "" : d > 0 ? "good" : d < 0 ? "bad" : "flat";
+    const stTone = c.base_status === c.exp_status ? "" : c.exp_status === "answered" ? "good" : "bad";
+    const m6 = c.base_m6 === c.exp_m6 ? (c.exp_m6 == null ? "—" : c.exp_m6 ? "있음" : "없음") : `${c.base_m6 ? "있음" : "없음"} → <span class="chip ${c.exp_m6 ? "bad" : "good"}">${c.exp_m6 ? "있음" : "없음"}</span>`;
+    h += `<tr><td class="mono">${c.id}</td><td>${c.level}</td><td>${esc(c.q)}</td>
+      <td>${c.base_status === c.exp_status ? st(c.exp_status) : `${st(c.base_status)} → <span class="chip ${stTone}">${st(c.exp_status)}</span>`}</td>
+      <td class="num">${c.base_kp == null && c.exp_kp == null ? "—" : `${c.base_kp == null ? "—" : c.base_kp.toFixed(2)} → ${c.exp_kp == null ? "—" : `<span class="chip ${tone}">${c.exp_kp.toFixed(2)}</span>`}`}</td>
+      <td>${m6}</td></tr>`;
+  });
+  return h + `</tbody></table>`;
+}
+
+function renderDetail() {
+  const ex = EX[sel];
+  const sig = ex.rows.filter(r => r.verdict !== "유의하지 않음");
+  const tok = ex.tokens == null ? "미기록" : `${ex.tokens.toLocaleString()} (${ex.tokens >= DATA.base_tokens ? "+" : "−"}${Math.abs((ex.tokens / DATA.base_tokens - 1) * 100).toFixed(1)}%)`;
+  document.getElementById("detail").innerHTML = `
+    <div class="facts">
+      <div class="fact"><div class="k">플래그</div><div class="val mono">${esc(ex.flag)}</div></div>
+      <div class="fact"><div class="k">가설</div><div class="val">${esc(ex.hypothesis)}</div></div>
+      <div class="fact"><div class="k">결정</div><div class="val">${esc(ex.decision)}</div></div>
+      <div class="fact"><div class="k">유의한 변화</div><div class="val">${sig.length ? sig.map(r => `<span class="chip ${cls(r.verdict)}">${r.verdict === "개선" ? "▲" : "▼"} ${M[r.metric][0]}</span>`).join(" ") : `<span class="chip flat">없음, 전 지표 노이즈 내</span>`}</div></div>
+      <div class="fact"><div class="k">실행 비용 · 입력 토큰/호출</div><div class="val num">${ex.cost.toFixed(2)}원 · ${tok}</div></div>
+    </div>
+    <div class="panel"><h3>지표별 Δ (개선 방향)</h3><p class="sub">↓ 지표는 부호를 뒤집어 오른쪽이 항상 좋아짐을 뜻하게 함. 오른쪽 숫자는 원래 부호의 Δ</p><div class="svgbox">${forest(ex)}</div></div>
+    <div class="panel" style="padding:0"><div style="padding:16px 16px 0"><h3>바뀐 문항 ${ex.changes.length}건</h3><p class="sub">기준선 대비 답변/거절 상태 또는 정답 포인트(M4)가 달라진 문항, 하락 폭 큰 순</p></div><div class="scroll" style="border:0;border-top:1px solid var(--line);border-radius:0 0 8px 8px">${changesTable(ex)}</div></div>
+    <div class="panel" style="padding:0"><div style="padding:16px 16px 0"><h3>난이도별</h3><p class="sub">문항 수가 작은 칸(n ≤ 6)은 1건 차이로 크게 흔들림</p></div><div class="scroll" style="border:0;border-top:1px solid var(--line);border-radius:0 0 8px 8px">${levelTable(ex)}</div></div>`;
+  document.querySelectorAll("#detail .hit").forEach(el => bindTip(el, rowTip(ex, ex.rows.find(r => r.metric === el.dataset.k))));
+}
+
+function bars(id, items, unit, ref) {
+  const W = 480, L = 150, R = 76, rowH = 28, top = 8, H = top + items.length * rowH + 8;
+  const max = Math.max(...items.map(i => i.v || 0), ref || 0) * 1.05;
+  const x = v => L + v / max * (W - L - R);
+  let s = `<svg viewBox="0 0 ${W} ${H}" style="width:100%;max-width:560px;min-width:360px" role="img">`;
+  items.forEach((it, i) => {
+    const y = top + i * rowH;
+    s += `<text class="lbl" x="${L - 10}" y="${y + rowH / 2 + 4}" text-anchor="end">${esc(it.name)}</text>`;
+    if (it.v == null) { s += `<text x="${L + 4}" y="${y + rowH / 2 + 4}">미기록</text>`; return; }
+    const w = Math.max(2, x(it.v) - L);
+    s += `<rect x="${L}" y="${y + 6}" width="${w}" height="${rowH - 12}" rx="3" fill="${it.base ? "var(--ci)" : "var(--accent)"}"/>`;
+    s += `<text x="${L + w + 6}" y="${y + rowH / 2 + 4}">${it.v.toLocaleString()}${unit}</text>`;
+    s += `<rect class="hit" x="0" y="${y}" width="${W}" height="${rowH}" fill="transparent" data-i="${i}"/>`;
+  });
+  if (ref) s += `<line x1="${x(ref)}" x2="${x(ref)}" y1="${top}" y2="${H - 8}" stroke="var(--fg2)" stroke-dasharray="3 3"/>`;
+  const el = document.getElementById(id);
+  el.innerHTML = s + `</svg>`;
+  el.querySelectorAll(".hit").forEach(h => {
+    const it = items[+h.dataset.i];
+    bindTip(h, `<div class="t">${esc(it.name)}</div><div class="r">${it.v == null ? "미기록" : it.v.toLocaleString() + unit}${it.note ? "<br>" + it.note : ""}</div>`);
+  });
+}
+
+function renderCost() {
+  bars("cost", EX.map(e => ({ name: e.name, v: e.cost })), "원");
+  bars("tokens", [{ name: "기준선 v1.1", v: DATA.base_tokens, base: true }, ...EX.map(e => ({
+    name: e.name, v: e.tokens, note: e.tokens == null ? "" : `기준 대비 ${e.tokens >= DATA.base_tokens ? "+" : "−"}${Math.abs((e.tokens / DATA.base_tokens - 1) * 100).toFixed(1)}%` }))], "", DATA.base_tokens);
+}
+
+function select(i) {
+  sel = i;
+  try { localStorage.setItem("partc-sel", String(i)); } catch (e) {}
+  hideTip(); renderMatrix(); renderTabs(); renderDetail(); renderCost();
+}
+select(sel);
+</script>
