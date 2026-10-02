@@ -1,0 +1,144 @@
+{
+ "sample": "eval/gold/human_confirmed_sample_v1.json",
+ "judgments": "eval/results/baseline/judgments.jsonl",
+ "labels": "eval/gold/human_confirmed_labels_v1.jsonl",
+ "judge_version": "judge-v2",
+ "labeled_items": 46,
+ "incomplete": [],
+ "key_points": {
+  "n": 98,
+  "agreement": 0.9592,
+  "kappa": 0.7775,
+  "positive": "asserted",
+  "confusion": {
+   "both_pos": 86,
+   "judge_only": 3,
+   "human_only": 1,
+   "both_neg": 8
+  },
+  "judge_precision": 0.9663,
+  "judge_recall": 0.9885
+ },
+ "claims": {
+  "n": 237,
+  "agreement": 0.9789,
+  "kappa": 0.5369,
+  "positive": "unsupported",
+  "confusion": {
+   "both_pos": 3,
+   "judge_only": 5,
+   "human_only": 0,
+   "both_neg": 229
+  },
+  "judge_precision": 0.375,
+  "judge_recall": 1.0
+ },
+ "claim_decomposition_error_rate": 0.0084,
+ "temporal": {
+  "n": 6,
+  "agreement": 1.0,
+  "kappa": null,
+  "positive": "temporal_error",
+  "confusion": {
+   "both_pos": 0,
+   "judge_only": 0,
+   "human_only": 0,
+   "both_neg": 6
+  },
+  "judge_precision": null,
+  "judge_recall": null
+ },
+ "conclusion": {
+  "n": 2,
+  "agreement": 1.0,
+  "kappa": null,
+  "positive": "asserts_conclusion",
+  "confusion": {
+   "both_pos": 0,
+   "judge_only": 0,
+   "human_only": 0,
+   "both_neg": 2
+  },
+  "judge_precision": null,
+  "judge_recall": null
+ },
+ "adopt": {
+  "rule": "kappa >= 0.6",
+  "key_points": true,
+  "claims": false
+ },
+ "disagreements": [
+  {
+   "id": "g013",
+   "type": "claim",
+   "index": 7,
+   "human": "y",
+   "judge": "n",
+   "text": "해당 아르바이트생의 주휴일·연차휴가 적용 여부를 확정하려면 사업장의 상시근로자 수와 근로기간·출근율 등의 정보가 추가로 필요하다."
+  },
+  {
+   "id": "g019",
+   "type": "key_point",
+   "index": 1,
+   "human": true,
+   "judge": false,
+   "text": "육아기 근로시간 단축은 나누어 사용할 수 있음"
+  },
+  {
+   "id": "l5a03",
+   "type": "key_point",
+   "index": 1,
+   "human": false,
+   "judge": true,
+   "text": "사용자는 퇴직 시 지급사유 발생일부터 14일 이내에 퇴직금을 지급해야 함(근로자퇴직급여 보장법 제9조 제1항)"
+  },
+  {
+   "id": "l5a03",
+   "type": "claim",
+   "index": 3,
+   "human": "y",
+   "judge": "n",
+   "text": "합의한 연장기일까지도 지급하지 않았다면 그 이후에는 지급기일을 넘긴 상태이다."
+  },
+  {
+   "id": "l5a05",
+   "type": "key_point",
+   "index": 1,
+   "human": false,
+   "judge": true,
+   "text": "임금은 직접 근로자에게 그 전액을 지급해야 함(근로기준법 제43조 제1항)"
+  },
+  {
+   "id": "l5a05",
+   "type": "key_point",
+   "index": 2,
+   "human": false,
+   "judge": true,
+   "text": "연차휴가미사용수당도 근로의 대가로 지급하는 임금(제2조제1항제5호)이므로 지급기일에 전액 지급하지 않으면 제43조 위반"
+  },
+  {
+   "id": "l5a06",
+   "type": "claim",
+   "index": 11,
+   "human": "y",
+   "judge": "n",
+   "text": "회사의 협의회규정을 확인할 수 있다."
+  },
+  {
+   "id": "l5a08",
+   "type": "claim",
+   "index": 15,
+   "human": "y",
+   "judge": "n",
+   "text": "제시된 근거에는 위반 시 제재 내용이 없다."
+  },
+  {
+   "id": "l5b06",
+   "type": "claim",
+   "index": 4,
+   "human": "y",
+   "judge": "n",
+   "text": "제시된 사실만으로 위반 여부를 확정할 수 없다."
+  }
+ ]
+}

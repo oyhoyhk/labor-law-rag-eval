@@ -1,0 +1,30 @@
+{
+ "key_points": {
+  "n": 69,
+  "agreement": 0.8986,
+  "kappa": 0.6991,
+  "positive": "asserted",
+  "confusion": {
+   "both_pos": 51,
+   "judge_only": 0,
+   "human_only": 7,
+   "both_neg": 11
+  },
+  "judge_precision": 1.0,
+  "judge_recall": 0.8793
+ },
+ "claims": {
+  "n": 168,
+  "agreement": 0.9524,
+  "kappa": 0.315,
+  "positive": "unsupported",
+  "confusion": {
+   "both_pos": 2,
+   "judge_only": 7,
+   "human_only": 1,
+   "both_neg": 158
+  },
+  "judge_precision": 0.2222,
+  "judge_recall": 0.6667
+ }
+}

@@ -55,6 +55,19 @@ make calibrate                                   # Judge vs 사람 판정 일치
 - 실행 폴더: `predictions.jsonl`(답변·인용·검색 결과), `judgments.jsonl`(Judge 판정), `scores.jsonl`(문항별 지표), `report.md`, `manifest.json`(git·모델·seed·프롬프트·Corpus·GT 해시·비용)
 - 재현성: seed 42·temperature 0 고정, LLM 응답 캐시(`data/cache/llm`, 동일 요청 0원), 실행당 예산 상한(`--budget`)
 
+## Judge 신뢰성
+
+| 지표 | Judge | 사람 확인 판정과 일치 | 채택 |
+|---|---|---|---|
+| M4 정답 포인트 | Luna(judge-v2) | 96% · κ 0.78 (46건, 포인트 98개) | 채택 |
+| M5 근거 없는 주장 | Luna(judge-v2) | 98% · κ 0.54 (주장 237개), 정밀도 0.375 | 보류(judge-v3 예정) |
+| M6 시점 오류 · L5b 결론 단정 | Luna(judge-v2) | 전부 일치 (6건 · 2건) | 채택(표본 적음) |
+
+- 일관성: 같은 답변 3회 채점 시 정답 포인트 판정 98~99% 일치 (`docs/findings/2026-10-02-judge-consistency.md`)
+- 교차 검증: Claude Opus 교차 Judge는 사람보다 엄격, Luna는 관대 → 생성·채점 동일 모델의 관대 편향 확인 (`docs/findings/2026-10-02-cross-judge-opus.md`)
+- 사람 판정 절차: Claude가 조문·검색 결과를 대조해 근거를 붙여 채점 → 사람이 56건 전부 동의/이의 확인(블라인드 아님, 동조 편향 가능) (`docs/findings/2026-10-02-judge-calibration.md`)
+- 알려진 맹점: 주장 분해 단계에서 틀린 문장을 고쳐 적어 오류를 놓침(l5a01, l5b05)
+
 ## 설계 결정
 
 ### 검색 저장소: FAISS 인덱스 + 메타데이터 파일 (서버형 Vector DB 미사용)

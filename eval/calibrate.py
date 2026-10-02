@@ -45,9 +45,10 @@ def main() -> None:
     ap.add_argument("--labels", type=Path, default=LABELS)
     ap.add_argument("--judgments", type=Path, default=None, help="defaults to the sample's source run")
     ap.add_argument("--out", type=Path, default=OUT)
+    ap.add_argument("--sample", type=Path, default=SAMPLE)
     args = ap.parse_args()
 
-    sample = json.loads(SAMPLE.read_text())
+    sample = json.loads(args.sample.read_text())
     jpath = args.judgments or ROOT / "runs" / sample["source_run"] / "judgments.jsonl"
     judg = {json.loads(l)["id"]: json.loads(l) for l in jpath.open()}
     labels = {json.loads(l)["item"]: json.loads(l) for l in args.labels.open() if l.strip()}
@@ -92,7 +93,7 @@ def main() -> None:
     kp = binary_report(kp_h, kp_j, "asserted")
     cl = binary_report(cl_h, cl_j, "unsupported")
     out = {
-        "sample": str(SAMPLE.relative_to(ROOT)), "judgments": str(jpath.relative_to(ROOT)),
+        "sample": str(args.sample), "judgments": str(jpath),
         "labels": str(args.labels.resolve().relative_to(ROOT)) if args.labels.resolve().is_relative_to(ROOT) else str(args.labels),
         "judge_version": sample["judge_version"], "labeled_items": len(sample["items"]) - len(incomplete),
         "incomplete": incomplete, "key_points": kp, "claims": cl,
