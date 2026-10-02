@@ -1,6 +1,6 @@
 """Check whether retrieved chunks contain each gold item's evidence articles (M1, no LLM calls).
 
-Usage: uv run python -m eval.retrieval_check [--strategy article|fixed] [--k 5] [--ids g031,l5a01]
+Usage: uv run python -m eval.retrieval_check [--strategy article|whole|fixed] [--k 5] [--ids g031,l5a01]
 """
 
 import argparse
@@ -36,7 +36,7 @@ def check(item: dict, opt: Options) -> dict:
 
 def main() -> None:
     ap = argparse.ArgumentParser()
-    ap.add_argument("--strategy", default="article", choices=["article", "fixed"])
+    ap.add_argument("--strategy", default="whole", choices=["article", "whole", "fixed"])
     ap.add_argument("--k", type=int, default=5)
     ap.add_argument("--ids", default="")
     ap.add_argument("--no-links", action="store_true", help="disable delegation-link expansion")

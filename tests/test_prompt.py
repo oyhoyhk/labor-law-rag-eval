@@ -10,14 +10,14 @@ def _blocks() -> list[Block]:
     return [b]
 
 
-def test_default_prompt_is_unchanged():
-    assert Options().prompt == PROMPT_VERSION == "gen-v1"
+def test_legacy_prompt_is_unchanged():
+    assert Options(precedents=False).prompt == PROMPT_VERSION == "gen-v1"
     sys = messages("질문", [], "2026-10-01", inject=False)[0]["content"]
     assert sys == SYSTEM.format(as_of="2026-10-01")
 
 
 def test_partial_option_selects_partial_prompt():
-    opt = Options(prompt=PROMPT_VERSION_PARTIAL)
+    opt = Options(prompt=PROMPT_VERSION_PARTIAL, precedents=False)
     sys = messages("질문", [], "2026-10-01", inject=False, prompt=opt.prompt)[0]["content"]
     assert sys == SYSTEM_PARTIAL.format(as_of="2026-10-01")
     assert "판단할 수 없다" in sys and "[정보 부족]" in sys and "2026-10-01" in sys

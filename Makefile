@@ -1,6 +1,7 @@
 ingest:
 	uv run python -m app.ingest.provision
 	uv run python -m app.index build --strategy article
+	uv run python -m app.index build --strategy whole
 	uv run python -m app.index build --strategy fixed
 	uv run python -m app.index build --strategy precedent
 

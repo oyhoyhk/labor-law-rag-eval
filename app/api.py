@@ -13,7 +13,7 @@ from app.rag import Options, build_blocks, finalize, messages, retriever
 from app.rag import answer as rag_answer
 from app.schemas import QueryRequest, QueryResponse
 
-STRATEGY = os.environ.get("INDEX_STRATEGY", "article")
+STRATEGY = os.environ.get("INDEX_STRATEGY", "whole")
 app = FastAPI(title="노동법령 RAG QA", version="0.1.0")
 llm = LLM(budget_krw=float(os.environ.get("SERVER_BUDGET_KRW", "3000")))
 

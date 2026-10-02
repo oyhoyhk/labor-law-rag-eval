@@ -70,15 +70,15 @@ SYSTEMS = {PROMPT_VERSION: SYSTEM, PROMPT_VERSION_PARTIAL: SYSTEM_PARTIAL, PROMP
 
 @dataclass
 class Options:
-    strategy: str = "article"
+    strategy: str = "whole"  # one chunk per 조 (adopted 2026-10-03; "article" splits long 조 at 항·호)
     top_k: int = 5
     inject_status: bool = True  # H4 switch
     expand_links: bool = True
     tau: float = TAU
-    include_siblings: bool = False  # add the other chunks of a split article when one is retrieved
+    include_siblings: bool = True  # add the other chunks of a split article (no-op for "whole", which never splits)
     expand_reverse_refs: bool = False
     prompt: str = PROMPT_VERSION  # key of SYSTEMS
-    precedents: bool = False  # add linked Supreme Court precedents; switches the prompt to gen-v3-precedent
+    precedents: bool = True  # add linked Supreme Court precedents; switches the prompt to gen-v3-precedent
 
     def __post_init__(self):
         if self.precedents:

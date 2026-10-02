@@ -1,6 +1,6 @@
 """Build and query a FAISS index per chunking strategy.
 
-Usage: uv run python -m app.index build --strategy article|fixed|precedent
+Usage: uv run python -m app.index build --strategy article|whole|fixed|precedent
 
 The precedent index embeds Precedent.render() and is used only to rank precedents that are already linked to a
 retrieved article (never searched on its own).
@@ -51,8 +51,11 @@ def build(strategy: str) -> None:
     graph = json.loads(GRAPH.read_text()) if GRAPH.exists() else build_graph()
     articles = load_corpus("현행") + _future_only_articles(graph)
     model = embedder()
-    chunker = article_chunks if strategy == "article" else fixed_chunks
-    chunks: list[Chunk] = chunker(articles, model.tokenizer)
+    if strategy == "whole":  # one vector per 조, no 항·호 split (longest 조 ≈ 2.5k tokens, model limit 8,192)
+        chunks: list[Chunk] = article_chunks(articles, model.tokenizer, max_tokens=model.max_seq_length)
+    else:
+        chunker = article_chunks if strategy == "article" else fixed_chunks
+        chunks = chunker(articles, model.tokenizer)
 
     t0 = time.time()
     emb = model.encode([c.text for c in chunks], batch_size=16, normalize_embeddings=True,
@@ -124,6 +127,6 @@ if __name__ == "__main__":
     ap = argparse.ArgumentParser()
     sub = ap.add_subparsers(dest="cmd", required=True)
     b = sub.add_parser("build")
-    b.add_argument("--strategy", choices=["article", "fixed", "precedent"], default="article")
+    b.add_argument("--strategy", choices=["article", "whole", "fixed", "precedent"], default="article")
     args = ap.parse_args()
     build_precedents() if args.strategy == "precedent" else build(args.strategy)

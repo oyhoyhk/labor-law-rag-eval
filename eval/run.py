@@ -92,16 +92,17 @@ def report_md(name: str, overall: dict, levels: dict, splits: dict, scores: list
 def main() -> None:
     ap = argparse.ArgumentParser()
     ap.add_argument("--name", required=True)
-    ap.add_argument("--strategy", default="article", choices=["article", "fixed"])
+    ap.add_argument("--strategy", default=Options.strategy, choices=["article", "whole", "fixed"])
     ap.add_argument("--k", type=int, default=5)
     ap.add_argument("--tau", type=float, default=Options.tau)
     ap.add_argument("--no-inject", action="store_true", help="H4 ablation: no effectivity headers")
     ap.add_argument("--no-links", action="store_true", help="disable delegation-link expansion")
-    ap.add_argument("--siblings", action="store_true", help="add the other chunks of a retrieved split article")
+    ap.add_argument("--siblings", action=argparse.BooleanOptionalAction, default=Options.include_siblings,
+                    help="add the other chunks of a retrieved split article (only matters with --strategy article)")
     ap.add_argument("--reverse-refs", action="store_true",
                     help="add articles that reference a top hit with an exception/준용 cue")
     ap.add_argument("--prompt", default=Options.prompt, choices=list(SYSTEMS), help="generation prompt version")
-    ap.add_argument("--precedents", action="store_true",
+    ap.add_argument("--precedents", action=argparse.BooleanOptionalAction, default=Options.precedents,
                     help="add Supreme Court precedents linked to retrieved articles (forces gen-v3-precedent)")
     ap.add_argument("--split", default="all", choices=["all", "dev", "test"])
     ap.add_argument("--ids", default="")

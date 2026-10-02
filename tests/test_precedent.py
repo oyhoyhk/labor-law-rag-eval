@@ -33,8 +33,8 @@ def test_ref_article_ids(ref, expected):
 def test_legacy_prompts_unchanged():
     assert hashlib.sha256(SYSTEM.encode()).hexdigest()[:16] == "a410814ef12c4f72"
     assert hashlib.sha256(SYSTEM_PARTIAL.encode()).hexdigest()[:16] == "be8436aaccf9eff0"
-    assert Options().prompt == PROMPT_VERSION and not Options().precedents
-    assert Options(precedents=True).prompt == PROMPT_VERSION_PRECEDENT
+    assert Options(precedents=False).prompt == PROMPT_VERSION
+    assert Options().precedents and Options().prompt == PROMPT_VERSION_PRECEDENT  # default since 2026-10-03
 
 
 class FakeScorer:
@@ -106,7 +106,7 @@ def test_precedent_render_and_citation(fake):
     assert "근로자에 해당한다" in prec["quote"]
 
 
-def test_expansion_off_by_default(monkeypatch):
+def test_expansion_off_when_disabled(monkeypatch):
     monkeypatch.setattr(rag, "retriever", lambda s: type("R", (), {"search": lambda self, q, k: []})())
     monkeypatch.setattr(rag, "precedent_scorer", lambda: pytest.fail("precedent index touched with the flag off"))
-    assert rag.build_blocks("질문", Options(), "2026-10-01") == []
+    assert rag.build_blocks("질문", Options(precedents=False), "2026-10-01") == []

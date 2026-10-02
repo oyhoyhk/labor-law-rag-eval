@@ -11,7 +11,7 @@ AS_OF = "2026-10-01"
 
 @pytest.fixture(scope="module")
 def blocks():
-    return {on: build_blocks(G021, Options(include_siblings=on), AS_OF) for on in (False, True)}
+    return {on: build_blocks(G021, Options(strategy="article", include_siblings=on, precedents=False), AS_OF) for on in (False, True)}
 
 
 def test_g021_part2_only_with_siblings(blocks):
