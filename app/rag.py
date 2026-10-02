@@ -21,6 +21,8 @@ from app.llm import LLM, cost_of
 PROMPT_VERSION = "gen-v1"  # default generation prompt
 PROMPT_VERSION_PARTIAL = "gen-v2-partial"  # adds a partial-answer mode between full answer and refusal
 PROMPT_VERSION_PRECEDENT = "gen-v3-precedent"  # statute first, then linked Supreme Court holdings; set by --precedents
+# Suffix for --fewshot-dev (app/fewshot.py, deliberate eval-set leakage demo): base prompt + nearest dev examples.
+FEWSHOT_SUFFIX = "+fewshot-dev"
 TAU = 0.50  # top-1 cosine below this → refuse without calling the LLM (calibrated in H3)
 MAX_LINKED = 3
 MAX_SIBLINGS = 4  # sibling-chunk cap → at most top_k + MAX_SIBLINGS + MAX_LINKED blocks
@@ -80,11 +82,14 @@ class Options:
     expand_reverse_refs: bool = False
     prompt: str = PROMPT_VERSION  # key of SYSTEMS
     precedents: bool = True  # add linked Supreme Court precedents; switches the prompt to gen-v3-precedent
+    fewshot_dev: bool = False  # OVERFITTING DEMO ONLY (app/fewshot.py): never enable in production
     hybrid: bool = False  # dense + character-bigram BM25 fused by RRF (app/hybrid.py)
 
     def __post_init__(self):
         if self.precedents:
             self.prompt = PROMPT_VERSION_PRECEDENT
+        if self.fewshot_dev and not self.prompt.endswith(FEWSHOT_SUFFIX):
+            self.prompt += FEWSHOT_SUFFIX
 
 
 @dataclass
@@ -259,7 +264,11 @@ def _reverse_ref_blocks(blocks: list[Block], start: int) -> list[Block]:
 def messages(question: str, blocks: list[Block], as_of: str, inject: bool,
              prompt: str = PROMPT_VERSION) -> list[dict]:
     context = "\n\n".join(_render(b, as_of, inject) for b in blocks)
-    return [{"role": "system", "content": SYSTEMS[prompt].format(as_of=as_of)},
+    system = SYSTEMS[prompt.removesuffix(FEWSHOT_SUFFIX)].format(as_of=as_of)
+    if prompt.endswith(FEWSHOT_SUFFIX):
+        from app import fewshot  # imported only when the leakage demo is on
+        system += "\n" + fewshot.section(question)
+    return [{"role": "system", "content": system},
             {"role": "user", "content": f"[근거]\n{context}\n\n[질문]\n{question}"}]
 
 

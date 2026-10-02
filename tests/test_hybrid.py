@@ -1,7 +1,7 @@
 """BM25 bigram tokenization/scoring, RRF ordering, and flag-off invariance — no model, no index."""
 
 from app.hybrid import BM25, rrf, tokenize
-from app.rag import PROMPT_VERSION_PRECEDENT, SYSTEM_PRECEDENT, Block, Options, messages
+from app.rag import (FEWSHOT_SUFFIX, PROMPT_VERSION_PRECEDENT, SYSTEM_PRECEDENT, SYSTEMS, Block, Options, messages)
 
 
 def test_tokenize_bigrams_per_token():
@@ -39,8 +39,15 @@ def test_rrf_ordering_and_weights():
 
 def test_flags_off_keep_prompt_and_messages():
     opt = Options()
-    assert not opt.hybrid and opt.prompt == PROMPT_VERSION_PRECEDENT
+    assert not opt.fewshot_dev and not opt.hybrid and opt.prompt == PROMPT_VERSION_PRECEDENT
     b = Block("S1", "art:근로기준법#50", ["근로기준법#50"], "제50조(근로시간)\n③ 대기시간 등은 근로시간으로 본다.", 0.7)
     b.status = {"status": "in_force", "notes": []}
     msgs = messages("질문", [b], "2026-10-01", inject=True, prompt=opt.prompt)
     assert msgs[0]["content"] == SYSTEM_PRECEDENT.format(as_of="2026-10-01")
+    assert "참고 예시" not in msgs[0]["content"] + msgs[1]["content"]
+
+
+def test_fewshot_flag_uses_distinct_prompt_version():
+    assert Options(fewshot_dev=True).prompt == "gen-v3-precedent+fewshot-dev"
+    assert Options(fewshot_dev=True, precedents=False).prompt == "gen-v1" + FEWSHOT_SUFFIX
+    assert all(not k.endswith(FEWSHOT_SUFFIX) for k in SYSTEMS)  # never a selectable base prompt
