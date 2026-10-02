@@ -129,14 +129,78 @@ def _delegations(current: dict[str, Article]) -> dict[str, list[str]]:
     return out
 
 
+# Same-law references. Each "제N조" either continues the enumeration before it ("제7조, 제9조, 제20조부터
+# 제22조까지") and inherits its law, or starts a new one whose law is named by the preceding word: 「…」, 법, 영,
+# 시행령, 징수법, 같은 법 … mean another (or the parent) law — except "이 법/영/규칙", which is this one.
+REF = re.compile(r"제(\d+)조(?:의(\d+))?")
+CONTINUATION = re.compile(r"(?:\s|[,ㆍ·]|및|또는|와|과|부터|까지|제\d+(?:항|호)|의\d+|[가-하]목|본문|단서|전단|후단"
+                          r"|같은 조|같은 항|각 호 외의 부분|\([^()]*\))*")
+OTHER_LAW_PREFIX = re.compile(r"(」|법|영|시행령|규칙|」\s*\(이하[^()]*\))$")  # incl. 「…」(이하 "…법"이라 한다)
+SAME_LAW_PREFIX = re.compile(r"이\s+(법|영|규칙)$")
+# Cue strength: an exception/exclusion or an extension (준용) of the referenced article, else plain.
+CUES = [("exception", re.compile(r"적용하지\s*(아니|않)|에도\s*불구하고|제외(한|하)|예외로\s*한다")),
+        ("mutatis", re.compile(r"준용(한다|하며|하고|된다)"))]
+CUE_RANK = {"exception": 0, "mutatis": 1, "plain": 2}
+
+
+def _cue(sentence: str) -> str:
+    return next((name for name, rx in CUES if rx.search(sentence)), "plain")
+
+
+def _sentences(a: Article) -> list[str]:
+    """Paragraph sentences; an item (호) is read together with its paragraph's lead text, which carries its cue."""
+    out = []
+    for p in a.paragraphs:
+        out += re.split(r"(?<=다\.)\s+", p.text)
+        out += [p.text + " " + i for i in p.items]
+    return out
+
+
+def _same_law_refs(sentence: str) -> list[str]:
+    """Article keys of this law referenced in one sentence; "제55조부터 제57조까지" expands to 55·56·57."""
+    keys, prev, same = [], None, False
+    for m in REF.finditer(sentence):
+        between = sentence[prev.end():m.start()] if prev else None
+        if between is None or not CONTINUATION.fullmatch(between):
+            before = sentence[:m.start()].rstrip()
+            same = not OTHER_LAW_PREFIX.search(before) or bool(SAME_LAW_PREFIX.search(before))
+        elif same and "부터" in between and not prev.group(2) and not m.group(2):
+            keys += [str(n) for n in range(int(prev.group(1)) + 1, int(m.group(1))) if int(m.group(1)) - int(prev.group(1)) <= 10]
+        if same:
+            keys.append(m.group(1) + (f"의{m.group(2)}" if m.group(2) else ""))
+        prev = m
+    return keys
+
+
+def _references(current: dict[str, Article]) -> dict[str, dict[str, str]]:
+    """article -> {referenced same-law article: strongest cue}. Delegation (법/영 제N조) and 「other law」 refs excluded."""
+    out: dict[str, dict[str, str]] = {}
+    for aid, a in current.items():
+        for sent in _sentences(a):
+            cue = _cue(sent)
+            for key in _same_law_refs(sent):
+                tid = article_id(a.law, key)
+                if tid == aid or tid not in current:
+                    continue
+                refs = out.setdefault(aid, {})
+                if tid not in refs or CUE_RANK[cue] < CUE_RANK[refs[tid]]:
+                    refs[tid] = cue
+    return out
+
+
 def build() -> dict:
     manifest = json.loads((ROOT / "data" / "manifest.json").read_text())["documents"]
     current = {article_id(a.law, a.article_key): a for a in load_corpus("현행")}
     pending, sunsets, delegates = _pending(current, manifest), _sunsets(current, manifest), _delegations(current)
+    references = _references(current)
     implementing_provisions: dict[str, list[str]] = {}
     for child, parents in delegates.items():
         for p in parents:
             implementing_provisions.setdefault(p, []).append(child)
+    referenced_by: dict[str, dict[str, str]] = {}
+    for src, targets in references.items():
+        for tid, cue in targets.items():
+            referenced_by.setdefault(tid, {})[src] = cue
     nodes = {}
     for aid in set(current) | set(pending):
         a = current.get(aid)
@@ -149,6 +213,11 @@ def build() -> dict:
             "sunsets": sunsets.get(aid, []),
             "parent_provisions": delegates.get(aid, []),
             "implementing_provisions": sorted(implementing_provisions.get(aid, [])),
+            # Same-law article references; *_cues hold the strongest cue (exception | mutatis | plain) per edge.
+            "references": sorted(references.get(aid, {})),
+            "reference_cues": dict(sorted(references.get(aid, {}).items())),
+            "referenced_by": sorted(referenced_by.get(aid, {})),
+            "referenced_by_cues": dict(sorted(referenced_by.get(aid, {}).items())),
         }
     graph = {"built_at": date.today().isoformat(), "nodes": nodes}
     GRAPH.parent.mkdir(parents=True, exist_ok=True)
@@ -181,3 +250,7 @@ if __name__ == "__main__":
     n_sunset = sum(bool(n["sunsets"]) for n in g.values())
     n_impl = sum(bool(n["parent_provisions"]) for n in g.values())
     print(f"{len(g)} nodes · {n_pending} with scheduled changes · {n_sunset} with sunsets · {n_impl} implementing a parent provision")
+    cues = [c for n in g.values() for c in n["reference_cues"].values()]
+    print(f"{len(cues)} same-law reference edges ({sum(c == 'exception' for c in cues)} exception · "
+          f"{sum(c == 'mutatis' for c in cues)} 준용 · {sum(c == 'plain' for c in cues)} plain) "
+          f"from {sum(bool(n['references']) for n in g.values())} articles")

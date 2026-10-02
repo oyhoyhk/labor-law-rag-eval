@@ -20,6 +20,11 @@ PROMPT_VERSION = "gen-v1"
 TAU = 0.50  # top-1 cosine below this → refuse without calling the LLM (calibrated in H3)
 MAX_LINKED = 3
 MAX_SIBLINGS = 4  # sibling-chunk cap → at most top_k + MAX_SIBLINGS + MAX_LINKED blocks
+# Reverse-reference expansion: articles that reference a top-3 hit with an exception/준용 cue
+# ("…제55조와 제60조를 적용하지 아니한다"). Ranked by how many top hits they reference, then cue
+# (exception before 준용), then the best rank of the hit they reference; plain references are never added.
+MAX_REVERSE = 2
+REVERSE_CUES = ("exception", "mutatis")
 REFUSAL = "[정보 부족]"
 MARKER = re.compile(r"\[S(\d+)\]")
 
@@ -40,6 +45,7 @@ class Options:
     expand_links: bool = True
     tau: float = TAU
     include_siblings: bool = False  # add the other chunks of a split article when one is retrieved
+    expand_reverse_refs: bool = False
 
 
 @dataclass
@@ -50,8 +56,9 @@ class Block:
     text: str
     score: float
     linked: bool = False  # not a search hit (excluded from M1)
-    via: str = "search"  # search | sibling | link
+    via: str = "search"  # search | sibling | link | reverse
     status: dict = field(default_factory=dict)
+    referenced: list[str] = field(default_factory=list)  # reverse-ref blocks: the hits this article refers to
 
 
 @lru_cache(maxsize=2)
@@ -95,7 +102,10 @@ def _status(article_ids: list[str], as_of: str) -> dict:
 
 
 def _render(b: Block, as_of: str, inject: bool) -> str:
-    note = {"link": " (위임 관계로 연결된 조문)", "sibling": " (검색된 조문의 나머지 부분)"}.get(b.via, "")
+    if b.referenced:
+        note = f" ({'·'.join(_label(a) for a in b.referenced)}의 예외·준용을 정한 조문)"
+    else:
+        note = {"link": " (위임 관계로 연결된 조문)", "sibling": " (검색된 조문의 나머지 부분)"}.get(b.via, "")
     lines = [f"[{b.source}]" + note]
     if inject:
         label = {"in_force": "시행 중", "amendment_pending": "시행 중(개정 예정 있음)", "partially_expired": "일부 효력 상실",
@@ -132,9 +142,28 @@ def build_blocks(question: str, opt: Options, as_of: str) -> list[Block]:
                         seen.add(linked)
                         blocks.append(Block(f"S{len(blocks) + 1}", f"art:{linked}", [linked],
                                             article_texts()[linked], 0.0, linked=True, via="link"))
+    if opt.expand_reverse_refs:
+        blocks += _reverse_ref_blocks(blocks, len(blocks))
     for b in blocks:
         b.status = _status(b.article_ids, as_of)
     return blocks
+
+
+def _reverse_ref_blocks(blocks: list[Block], start: int) -> list[Block]:
+    seen = {a for b in blocks for a in b.article_ids}
+    cands: dict[str, dict] = {}
+    for rank, b in enumerate([b for b in blocks if not b.linked][:3]):
+        for aid in b.article_ids:
+            for src, cue in graph().get(aid, {}).get("referenced_by_cues", {}).items():
+                if cue not in REVERSE_CUES or src in seen or src not in article_texts():
+                    continue
+                c = cands.setdefault(src, {"targets": [], "cue": cue, "rank": rank})
+                if aid not in c["targets"]:
+                    c["targets"].append(aid)
+                c["cue"] = min(c["cue"], cue, key=REVERSE_CUES.index)
+    order = sorted(cands, key=lambda s: (-len(cands[s]["targets"]), REVERSE_CUES.index(cands[s]["cue"]), cands[s]["rank"], s))
+    return [Block(f"S{start + i + 1}", f"art:{src}", [src], article_texts()[src], 0.0, linked=True,
+                  via="reverse", referenced=cands[src]["targets"]) for i, src in enumerate(order[:MAX_REVERSE])]
 
 
 def messages(question: str, blocks: list[Block], as_of: str, inject: bool) -> list[dict]:
