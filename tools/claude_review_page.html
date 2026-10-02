@@ -1,0 +1,241 @@
+<title>Luna 답변 채점 확인판</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+KR:wght@400;500;600&family=Nanum+Myeongjo:wght@800&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+/* Layout: an examiner's verdict sheet — tally strip on top, one sheet per question, the grader's reasoning beside the evidence, a single agree/object control at the foot. */
+:root {
+  --paper: #f2f4f3; --sheet: #ffffff; --ink: #1b2430; --muted: #5c6773; --rule: #d7dcd8;
+  --accent: #2d5a62; --accent-soft: #e0ecee;
+  --yes: #2f6b3f; --yes-soft: #e3efe4; --no: #9b2f2a; --no-soft: #f5e1df; --warn: #8a5a12; --warn-soft: #f6ead3;
+  --code: #f1f3f1;
+  --f-display: "Nanum Myeongjo", "AppleMyungjo", serif;
+  --f-body: "IBM Plex Sans KR", "Apple SD Gothic Neo", "Malgun Gothic", system-ui, sans-serif;
+  --f-mono: "IBM Plex Mono", ui-monospace, Menlo, monospace;
+}
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) {
+  --paper: #12171c; --sheet: #1a2128; --ink: #e2e7eb; --muted: #98a4ae; --rule: #2e3943;
+  --accent: #82c0c8; --accent-soft: #1f3236;
+  --yes: #8fcf9c; --yes-soft: #1d3324; --no: #ec8f87; --no-soft: #3d2221; --warn: #e2b46a; --warn-soft: #3a2e19;
+  --code: #151b21; color-scheme: dark } }
+:root[data-theme="dark"] {
+  --paper: #12171c; --sheet: #1a2128; --ink: #e2e7eb; --muted: #98a4ae; --rule: #2e3943;
+  --accent: #82c0c8; --accent-soft: #1f3236;
+  --yes: #8fcf9c; --yes-soft: #1d3324; --no: #ec8f87; --no-soft: #3d2221; --warn: #e2b46a; --warn-soft: #3a2e19;
+  --code: #151b21; color-scheme: dark }
+* { box-sizing: border-box }
+body { background: var(--paper); color: var(--ink); font-family: var(--f-body); font-size: 15px; line-height: 1.65; margin: 0 }
+.wrap { max-width: 960px; margin: 0 auto; padding-inline: 16px; padding-block: 28px 80px }
+h1 { font-family: var(--f-display); font-weight: 800; font-size: 1.85rem; margin: 0; text-wrap: balance }
+.lede { color: var(--muted); margin: .4rem 0 0; max-width: 68ch }
+.summary { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 10px; margin-top: 16px }
+.stat { background: var(--sheet); border: 1px solid var(--rule); border-radius: 8px; padding: 10px 12px; font-variant-numeric: tabular-nums }
+.stat b { display: block; font-size: 1.35rem; font-family: var(--f-display) }
+.stat span { font-size: .8rem; color: var(--muted) }
+.ledger { position: sticky; top: env(safe-area-inset-top, 0px); z-index: 5; background: var(--paper); border-bottom: 1px solid var(--rule); margin-top: 16px; padding-block: 10px }
+.tallies { display: flex; flex-wrap: wrap; gap: 6px 18px; font-size: .86rem; font-variant-numeric: tabular-nums }
+.bar { height: 4px; background: var(--rule); border-radius: 2px; margin-top: 8px; overflow: hidden }
+.bar i { display: block; height: 100%; background: var(--accent); width: 0; transition: width .3s }
+.filters { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 8px }
+.filters button { font: inherit; font-size: .82rem; border: 1px solid var(--rule); background: var(--sheet); color: var(--ink); border-radius: 999px; padding: 3px 11px; cursor: pointer }
+.filters button[aria-pressed="true"] { background: var(--ink); color: var(--paper); border-color: var(--ink) }
+.notice { margin-top: 8px; font-size: .84rem; padding: 7px 12px; border-radius: 6px; background: var(--warn-soft); color: var(--warn) }
+.list { display: grid; gap: 16px; margin-top: 18px }
+.sheet { background: var(--sheet); border: 1px solid var(--rule); border-radius: 8px; padding: 18px 20px; min-width: 0 }
+.sheet[data-ok="agree"] { border-left: 4px solid var(--yes) }
+.sheet[data-ok="object"] { border-left: 4px solid var(--no) }
+.meta { display: flex; flex-wrap: wrap; gap: 6px; align-items: center; font-size: .78rem }
+.id { font-family: var(--f-mono); color: var(--muted) }
+.chip { border-radius: 4px; padding: 1px 7px; font-weight: 500; background: var(--accent-soft); color: var(--accent) }
+.v { border-radius: 4px; padding: 1px 8px; font-weight: 600; font-size: .8rem }
+.v.good { background: var(--yes-soft); color: var(--yes) }
+.v.mid { background: var(--warn-soft); color: var(--warn) }
+.v.bad { background: var(--no-soft); color: var(--no) }
+.q { font-size: 1.04rem; font-weight: 600; margin: 8px 0 4px; text-wrap: pretty }
+.label { font-size: .74rem; letter-spacing: .06em; color: var(--muted); margin-top: 14px; text-transform: uppercase }
+.answer { background: var(--code); border-radius: 6px; padding: 10px 12px; margin-top: 4px; white-space: pre-wrap; overflow-wrap: anywhere; font-size: .92rem }
+.verdict { margin-top: 14px; border: 1px solid var(--rule); border-radius: 8px; padding: 12px 14px; background: var(--paper) }
+.verdict p { margin: 4px 0 0 }
+.why { font-size: .94rem }
+.gt { margin-top: 8px; font-size: .86rem; padding: 6px 10px; border-radius: 6px; background: var(--warn-soft); color: var(--warn) }
+ul.marks { list-style: none; margin: 6px 0 0; padding: 0; display: grid; gap: 4px }
+ul.marks li { display: grid; grid-template-columns: auto minmax(0, 1fr); gap: 8px; font-size: .88rem }
+.m { font-family: var(--f-mono); font-size: .76rem; border-radius: 4px; padding: 0 6px; height: fit-content; white-space: nowrap }
+.m.y { background: var(--yes-soft); color: var(--yes) } .m.n { background: var(--no-soft); color: var(--no) } .m.x { background: var(--warn-soft); color: var(--warn) }
+.note { color: var(--muted); font-size: .82rem; display: block }
+details { margin-top: 10px }
+summary { cursor: pointer; font-size: .86rem; color: var(--accent); font-weight: 500 }
+.tbl { overflow-x: auto; margin-top: 4px }
+table.ret { border-collapse: collapse; width: 100%; font-size: .82rem; font-variant-numeric: tabular-nums }
+table.ret th, table.ret td { text-align: left; padding: 4px 8px; border-bottom: 1px solid var(--rule); white-space: nowrap }
+table.ret th { color: var(--muted); font-weight: 500 }
+table.ret td.cid { font-family: var(--f-mono); font-size: .78rem; white-space: normal; overflow-wrap: anywhere; min-width: 14em }
+table.ret tr.cited td { background: var(--accent-soft) }
+.tag { border-radius: 4px; padding: 0 6px; font-size: .74rem }
+.tag.on { background: var(--yes-soft); color: var(--yes) } .tag.gold { background: var(--warn-soft); color: var(--warn) } .tag.link { background: var(--accent-soft); color: var(--accent) }
+pre.ctx { background: var(--code); border-radius: 6px; padding: 10px 12px; margin: 6px 0 0; white-space: pre-wrap; overflow-wrap: anywhere; font-family: var(--f-body); font-size: .84rem; max-height: 480px; overflow: auto }
+.decide { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 14px; align-items: center }
+.decide button { font: inherit; font-size: .9rem; padding: 6px 16px; border-radius: 6px; border: 1px solid var(--rule); background: var(--sheet); color: var(--ink); cursor: pointer }
+.decide button[aria-pressed="true"].agree { background: var(--yes); border-color: var(--yes); color: var(--sheet) }
+.decide button[aria-pressed="true"].object { background: var(--no); border-color: var(--no); color: var(--sheet) }
+.saved { font-size: .78rem; color: var(--muted) }
+textarea { width: 100%; margin-top: 8px; font: inherit; font-size: .88rem; border: 1px solid var(--rule); border-radius: 6px; padding: 8px 10px; background: var(--sheet); color: var(--ink); min-height: 2.4em; resize: vertical }
+button:focus-visible, textarea:focus-visible, summary:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px }
+@media (prefers-reduced-motion: reduce) { .bar i { transition: none } }
+</style>
+
+<div class="wrap">
+  <h1>Luna 답변 채점 확인판</h1>
+  <p class="lede">기준선 실행에서 Luna가 낸 56건의 응답을 Claude가 조문 원문과 검색 결과를 직접 대조해 채점했습니다. 판정과 근거 설명을 읽고 동의하면 "동의", 다르면 "이의"와 메모를 남겨 주세요. Luna Judge와 Opus 교차 Judge의 판정은 이 페이지에 표시하지 않습니다.</p>
+  <div class="summary" id="summary"></div>
+  <div class="ledger">
+    <div class="tallies" id="tallies"></div>
+    <div class="bar"><i id="bar"></i></div>
+    <div class="filters" id="filters" role="group" aria-label="보기 필터"></div>
+    <div class="notice" id="notice" hidden></div>
+  </div>
+  <div class="list" id="list"></div>
+</div>
+
+<script type="application/json" id="items">__ITEMS__</script>
+<script>
+const ITEMS = JSON.parse(document.getElementById("items").textContent);
+const decisions = {};
+let db = null, filter = "todo";
+const LEVEL = { L1: "L1 단일 사실", L2: "L2 조건·단서", L3: "L3 다중 조문", L4: "L4 시점", OOS: "Corpus 밖", L5a: "L5a 판례·조문 도출", L5b: "L5b 판례·해석 의존" };
+const TONE = { "정답": "good", "정당한 거절": "good", "부분 정답": "mid", "오답": "bad", "과잉 거절": "bad", "거절했어야 함": "bad" };
+const CAUSE = { none: "문제 없음", retrieval_miss: "검색 실패", link_gap: "조문 연결 누락", generation_error: "생성 오류", over_hedging: "과도한 유보", gt_issue: "GT 문제" };
+const MARK = { y: "근거 있음", n: "근거 없음", x: "분해 오류" };
+
+function el(tag, attrs = {}, ...kids) {
+  const e = document.createElement(tag);
+  for (const [k, v] of Object.entries(attrs)) {
+    if (k === "class") e.className = v; else if (k === "text") e.textContent = v; else if (v != null) e.setAttribute(k, v);
+  }
+  for (const k of kids) if (k) e.append(k);
+  return e;
+}
+function sheet(it) {
+  const r = it.review, d = decisions[it.id] || {};
+  const s = el("article", { class: "sheet", "data-ok": d.decision || "", id: "s-" + it.id });
+  s.append(el("div", { class: "meta" }, el("span", { class: "id", text: it.id }), el("span", { class: "chip", text: LEVEL[it.level] || it.level }),
+    el("span", { class: "chip", text: it.expected_status === "answered" ? "기대: 답변" : "기대: 근거 불충분" }),
+    el("span", { class: "v " + (TONE[r.overall] || "mid"), text: "Claude 판정: " + r.overall }),
+    r.root_cause && r.root_cause !== "none" ? el("span", { class: "chip", text: "원인: " + (CAUSE[r.root_cause] || r.root_cause) }) : null));
+  s.append(el("p", { class: "q", text: it.question }));
+  s.append(el("div", { class: "label", text: "Luna 응답" + (it.system_status === "answered" ? "" : " (거절)") }), el("div", { class: "answer", text: it.system_answer }));
+
+  const v = el("div", { class: "verdict" }, el("div", { class: "label", text: "Claude 채점 근거" }), el("p", { class: "why", text: r.explanation_ko }));
+  if (r.kp && r.kp.length) {
+    v.append(el("div", { class: "label", text: "정답 포인트" }));
+    v.append(el("ul", { class: "marks" }, ...it.key_points.map((kp, i) => el("li", {},
+      el("span", { class: "m " + (r.kp[i] ? "y" : "n"), text: r.kp[i] ? "주장함" : "아님" }),
+      el("span", {}, document.createTextNode(kp), el("span", { class: "note", text: (r.kp_reasons || [])[i] || "" }))))));
+  }
+  if (r.claims && r.claims.length) {
+    const bad = r.claims.map((c, i) => [c, i]).filter(([c]) => c !== "y");
+    v.append(el("div", { class: "label", text: `답변 속 주장 ${r.claims.length}개 중 근거 없음·분해 오류 ${bad.length}개` }));
+    if (bad.length) v.append(el("ul", { class: "marks" }, ...bad.map(([c, i]) => el("li", {},
+      el("span", { class: "m " + c, text: MARK[c] }),
+      el("span", {}, document.createTextNode(it.claims[i]), el("span", { class: "note", text: (r.claim_notes || {})[String(i + 1)] || "" }))))));
+    const all = el("details", {}, el("summary", { text: "주장 전체 판정 보기" }));
+    all.append(el("ul", { class: "marks" }, ...r.claims.map((c, i) => el("li", {}, el("span", { class: "m " + c, text: MARK[c] }), el("span", { text: it.claims[i] })))));
+    v.append(all);
+  }
+  if (r.temporal != null) v.append(el("p", { text: "시점 오류: " + (r.temporal ? "있음" : "없음") }));
+  if (r.conclusion != null) v.append(el("p", { text: "결론 단정: " + (r.conclusion ? "단정함" : "단정 안 함") }));
+  const rc = r.retrieval_check || {};
+  if ((rc.gold_missing || []).length) v.append(el("p", { class: "note", text: "검색 누락 정답 조문: " + rc.gold_missing.map(a => `${a} (상위 100위 중 ${(rc.missing_rank_top100 || {})[a] ?? "없음"}위)`).join(", ") }));
+  if (r.gt_issue) v.append(el("div", { class: "gt", text: "GT 점검 의견: " + r.gt_issue }));
+  s.append(v);
+
+  if (it.key_points.length && !(r.kp && r.kp.length)) {
+    s.append(el("div", { class: "label", text: "정답 포인트 (참고)" }), el("ul", { class: "marks" }, ...it.key_points.map(k => el("li", {}, el("span", { class: "m", text: "—" }), el("span", { text: k })))));
+  }
+  s.append(el("div", { class: "label", text: "참고 답안" }), el("p", { class: "note", text: it.reference_answer }));
+  if (it.retrieval.length) {
+    const det = el("details", {}, el("summary", { text: `벡터 DB 검색 결과 ${it.retrieval.length}개와 근거 본문 펼치기` }));
+    const tb = el("tbody");
+    for (const x of it.retrieval) tb.append(el("tr", { class: x.cited ? "cited" : "" },
+      el("td", { text: x.block }), el("td", { class: "cid", text: x.chunk_id }), el("td", { text: x.path === "위임 확장" ? "—" : x.score.toFixed(3) }),
+      el("td", {}, el("span", { class: "tag" + (x.path === "위임 확장" ? " link" : ""), text: x.path })),
+      el("td", {}, x.cited ? el("span", { class: "tag on", text: "인용" }) : null), el("td", {}, x.gold ? el("span", { class: "tag gold", text: "GT 근거" }) : null)));
+    det.append(el("div", { class: "tbl" }, el("table", { class: "ret" }, el("thead", {}, el("tr", {}, ...["블록", "청크 ID", "유사도", "경로", "인용", "정답 조문"].map(h => el("th", { text: h })))), tb)));
+    it.context.forEach(t => det.append(el("pre", { class: "ctx", text: t })));
+    s.append(det);
+  }
+  const row = el("div", { class: "decide", role: "group", "aria-label": "확인" });
+  for (const [val, label] of [["agree", "동의"], ["object", "이의"]]) {
+    const b = el("button", { type: "button", class: val, "aria-pressed": String(d.decision === val), text: label });
+    b.addEventListener("click", () => save(it, { decision: d.decision === val ? null : val }));
+    row.append(b);
+  }
+  row.append(el("span", { class: "saved", id: "st-" + it.id, text: d.at ? "저장됨" : "" }));
+  s.append(row);
+  const ta = el("textarea", { id: "note-" + it.id, placeholder: "이의가 있으면 어느 판정이 왜 다른지 적어 주세요", "aria-label": it.id + " 메모" });
+  ta.value = d.note || "";
+  let t; ta.addEventListener("input", () => { clearTimeout(t); t = setTimeout(() => save(it, { note: ta.value }, true), 900); });
+  s.append(ta);
+  return s;
+}
+function visible(it) {
+  const d = decisions[it.id];
+  if (filter === "all") return true;
+  if (filter === "todo") return !d || !d.decision;
+  if (filter === "issue") return it.review.overall !== "정답" && it.review.overall !== "정당한 거절";
+  if (filter === "gt") return !!it.review.gt_issue;
+  if (filter === "object") return d && d.decision === "object";
+  return true;
+}
+function renderList() {
+  const shown = ITEMS.filter(visible);
+  document.getElementById("list").replaceChildren(...(shown.length ? shown.map(sheet)
+    : [el("p", { class: "saved", text: filter === "todo" ? "모든 문항을 확인했습니다. Claude에게 알려주세요." : "해당 문항이 없습니다." })]));
+}
+function renderSummary() {
+  const c = {}; ITEMS.forEach(it => c[it.review.overall] = (c[it.review.overall] || 0) + 1);
+  const order = ["정답", "부분 정답", "오답", "정당한 거절", "과잉 거절", "거절했어야 함"];
+  document.getElementById("summary").replaceChildren(...order.filter(k => c[k]).map(k => el("div", { class: "stat" }, el("b", { text: String(c[k]) }), el("span", { text: k }))));
+}
+function renderLedger() {
+  const done = ITEMS.filter(it => (decisions[it.id] || {}).decision).length;
+  const ag = ITEMS.filter(it => (decisions[it.id] || {}).decision === "agree").length;
+  document.getElementById("tallies").replaceChildren(el("span", { text: `확인 ${done}/${ITEMS.length}` }), el("span", { text: `동의 ${ag} · 이의 ${done - ag}` }));
+  document.getElementById("bar").style.width = (100 * done / ITEMS.length) + "%";
+}
+function renderFilters() {
+  document.getElementById("filters").replaceChildren(...[["todo", "미확인"], ["issue", "정답 아닌 문항"], ["gt", "GT 점검 의견"], ["object", "이의"], ["all", "전체"]].map(([v, label]) => {
+    const b = el("button", { type: "button", "aria-pressed": String(filter === v), text: label });
+    b.addEventListener("click", () => { filter = v; renderFilters(); renderList(); });
+    return b;
+  }));
+}
+function notice(t) { const n = document.getElementById("notice"); n.hidden = !t; n.textContent = t || ""; }
+async function save(it, patch, quiet) {
+  const next = { ...(decisions[it.id] || {}), ...patch, item: it.id, at: new Date().toISOString() };
+  decisions[it.id] = next;
+  if (db) {
+    try { await db.collection("review_confirm_v1").doc(it.id).set({ ...next }); } catch { notice("저장하지 못했습니다. 잠시 후 다시 눌러 주세요."); }
+  } else { try { localStorage.setItem("claude-review-v1", JSON.stringify(decisions)); } catch {} }
+  if (!quiet) { const node = document.getElementById("s-" + it.id); if (node) node.replaceWith(sheet(it)); if (!visible(it)) renderList(); }
+  const st = document.getElementById("st-" + it.id); if (st) st.textContent = "저장됨";
+  renderLedger();
+}
+renderSummary(); renderFilters(); renderLedger(); renderList();
+(async () => {
+  db = window.claude ? await window.claude.use("db") : null;
+  if (!db) {
+    try { Object.assign(decisions, JSON.parse(localStorage.getItem("claude-review-v1") || "{}")); } catch {}
+    notice("확인 결과가 이 브라우저에만 저장됩니다. Claude가 읽으려면 claude.ai에서 이 페이지를 열어 주세요.");
+    renderLedger(); renderList(); return;
+  }
+  db.collection("review_confirm_v1").onSnapshot(snap => {
+    for (const ch of snap.docChanges()) {
+      const d = ch.doc.data() || {};
+      if (ch.type === "removed") { delete decisions[ch.doc.id]; continue; }
+      if (!decisions[ch.doc.id] || decisions[ch.doc.id].at !== d.at) decisions[ch.doc.id] = { ...d };
+    }
+    renderLedger();
+    if (!(document.activeElement && document.activeElement.tagName === "TEXTAREA")) renderList();
+  }, () => notice("저장소 연결이 끊겼습니다. 페이지를 새로 고쳐 주세요."));
+})();
+</script>

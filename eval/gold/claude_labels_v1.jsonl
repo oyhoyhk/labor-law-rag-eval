@@ -1,0 +1,56 @@
+{"item": "g001", "rater": "claude-review", "kp": [true], "claims": ["y", "y", "y", "y"]}
+{"item": "g002", "rater": "claude-review", "kp": [true, true], "claims": ["y"]}
+{"item": "g003", "rater": "claude-review", "kp": [true, true], "claims": ["y", "y", "y", "y", "y", "y", "y", "y"]}
+{"item": "g004", "rater": "claude-review", "kp": [true], "claims": ["y", "y"]}
+{"item": "g005", "rater": "claude-review", "kp": [true], "claims": ["y", "y", "y", "y", "y", "y"]}
+{"item": "g006", "rater": "claude-review", "kp": [true], "claims": ["y", "y", "y", "y", "y"]}
+{"item": "g007", "rater": "claude-review", "kp": [true], "claims": ["y"]}
+{"item": "g008", "rater": "claude-review", "kp": [true, true], "claims": ["y", "y", "y", "y", "y", "y", "y"]}
+{"item": "g009", "rater": "claude-review", "kp": [true, true], "claims": ["y", "y", "y"]}
+{"item": "g010", "rater": "claude-review", "kp": [true], "claims": ["y", "y"]}
+{"item": "g011", "rater": "claude-review", "kp": [true], "claims": ["y", "y", "y", "y", "y"]}
+{"item": "g012", "rater": "claude-review", "kp": [true, true], "claims": ["y", "y", "y"]}
+{"item": "g013", "rater": "claude-review", "kp": [false], "claims": ["y", "y", "y", "y", "y", "n", "y"]}
+{"item": "g014", "rater": "claude-review", "kp": [true], "claims": ["y", "y", "y", "y", "y"]}
+{"item": "g015", "rater": "claude-review", "kp": [true, true], "claims": ["y", "y", "y"]}
+{"item": "g016", "rater": "claude-review", "kp": [true, true], "claims": ["y", "y"]}
+{"item": "g017", "rater": "claude-review", "kp": [true, true], "claims": ["y", "y"]}
+{"item": "g018", "rater": "claude-review", "kp": [true, true, true], "claims": ["y", "y", "y", "y", "y", "y", "y", "y", "y"]}
+{"item": "g019", "rater": "claude-review", "kp": [true, true, true], "claims": ["y", "y"]}
+{"item": "g020", "rater": "claude-review", "kp": [true, true, true], "claims": ["y", "y", "y", "y", "y", "y", "y", "y"]}
+{"item": "g042", "rater": "claude-review", "kp": [true], "claims": ["y", "y", "y", "y", "y"]}
+{"item": "g021", "rater": "claude-review", "kp": [false, true, false], "claims": ["y", "y", "y", "y", "y", "y", "y", "y"]}
+{"item": "g022", "rater": "claude-review", "kp": [true, true], "claims": ["y", "y", "y"]}
+{"item": "g023", "rater": "claude-review", "kp": [true, true], "claims": ["y", "y", "y"]}
+{"item": "g024", "rater": "claude-review", "kp": [true, true, true], "claims": ["y", "y", "y"]}
+{"item": "g025", "rater": "claude-review", "kp": [true, true], "claims": ["y", "y"]}
+{"item": "g026", "rater": "claude-review", "kp": [true, true, true], "claims": ["y", "y", "y", "y", "y", "y"]}
+{"item": "g027", "rater": "claude-review", "kp": [true, true, true], "claims": ["y", "y", "y", "y", "y", "y"]}
+{"item": "g028", "rater": "claude-review", "kp": [true, true, true], "claims": ["y", "y", "y", "y", "y", "y"]}
+{"item": "g029", "rater": "claude-review", "kp": [true, true], "claims": ["y", "y", "y", "y", "y"]}
+{"item": "g030", "rater": "claude-review", "kp": [true, true, false], "claims": ["y", "y", "y", "y", "y", "y", "y", "y", "y"]}
+{"item": "g031", "rater": "claude-review", "kp": [], "claims": []}
+{"item": "g032", "rater": "claude-review", "kp": [true, true, true], "claims": ["y", "y", "y"], "temporal": false}
+{"item": "g033", "rater": "claude-review", "kp": [true, true], "claims": ["y", "y", "y", "y"], "temporal": false}
+{"item": "g034", "rater": "claude-review", "kp": [true, true, true], "claims": ["y", "y", "y", "y", "y", "y", "y", "y", "y"], "temporal": false}
+{"item": "g035", "rater": "claude-review", "kp": [true, true, true], "claims": ["y", "y", "y", "y"], "temporal": false}
+{"item": "g036", "rater": "claude-review", "kp": [false, true, true], "claims": ["y", "y"], "temporal": false}
+{"item": "g037", "rater": "claude-review", "kp": [true, true, true], "claims": ["y", "n", "y"], "temporal": false}
+{"item": "g038", "rater": "claude-review", "kp": [], "claims": []}
+{"item": "g039", "rater": "claude-review", "kp": [], "claims": []}
+{"item": "g040", "rater": "claude-review", "kp": [], "claims": []}
+{"item": "g041", "rater": "claude-review", "kp": [], "claims": []}
+{"item": "l5a01", "rater": "claude-review", "kp": [true, true, true], "claims": ["y", "y", "y", "x", "y", "y", "y", "y"]}
+{"item": "l5a02", "rater": "claude-review", "kp": [true, true, true, false], "claims": ["y", "y", "y", "y", "y", "y", "y", "y"]}
+{"item": "l5a03", "rater": "claude-review", "kp": [false, true, false], "claims": ["y", "y", "y", "n", "y"]}
+{"item": "l5a04", "rater": "claude-review", "kp": [], "claims": []}
+{"item": "l5a05", "rater": "claude-review", "kp": [false, false, false], "claims": ["y", "y", "y", "y", "y", "y"]}
+{"item": "l5a06", "rater": "claude-review", "kp": [true, true, false], "claims": ["y", "y", "y", "y", "y", "y", "y", "y", "y", "y", "y"]}
+{"item": "l5a07", "rater": "claude-review", "kp": [true, true], "claims": ["y", "y", "y", "y", "y"]}
+{"item": "l5a08", "rater": "claude-review", "kp": [true, true, false], "claims": ["y", "y", "y", "y", "y", "y", "y", "y", "y", "y", "y", "y", "y", "y", "y"]}
+{"item": "l5b01", "rater": "claude-review", "kp": [], "claims": []}
+{"item": "l5b02", "rater": "claude-review", "kp": [], "claims": []}
+{"item": "l5b03", "rater": "claude-review", "kp": [], "claims": [], "conclusion": false}
+{"item": "l5b04", "rater": "claude-review", "kp": [], "claims": []}
+{"item": "l5b05", "rater": "claude-review", "kp": [], "claims": ["x", "y", "y", "y", "y", "y", "y", "y", "y"], "conclusion": false}
+{"item": "l5b06", "rater": "claude-review", "kp": [], "claims": ["y", "y", "y", "y", "y", "y"], "conclusion": false}
