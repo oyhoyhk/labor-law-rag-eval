@@ -35,12 +35,15 @@ def item_scores(item: dict, pred: dict, judgment: dict | None) -> dict:
         "m3_citation_recall": (len(cited & gold) / len(gold)) if answered and gold else None,
         "cost_krw": pred["meta"].get("cost_krw", 0.0), "latency_ms": pred["meta"].get("latency_ms"),
     }
+    # End to end: an answerable item answered with every key point. A refusal counts as a miss.
+    s["m4_complete"] = None if not expected_answer else False
     if judgment and answered:
         g, gr = judgment.get("grade", {}), judgment.get("grounding", {})
         kps = g.get("key_points", [])
         if kps and expected_answer:
             s["m4_kp_coverage"] = mean(k["asserted"] for k in kps)
             s["m4_all_kp"] = all(k["asserted"] for k in kps)
+            s["m4_complete"] = s["m4_all_kp"]
         if gr.get("n_claims"):
             s["m5_unsupported_rate"] = gr["n_unsupported"] / gr["n_claims"]
         if "temporal_error" in g:
@@ -71,6 +74,7 @@ def aggregate(rows: list[dict]) -> dict:
         "M3_citation_precision": _avg(rows, "m3_citation_precision"),
         "M3_citation_recall": _avg(rows, "m3_citation_recall"),
         "M4_kp_coverage": _avg(rows, "m4_kp_coverage"), "M4_all_kp": _avg(rows, "m4_all_kp"),
+        "M4_complete": _avg(rows, "m4_complete"),
         "M5_unsupported_rate": _avg(rows, "m5_unsupported_rate"),
         "M6_temporal_error": _avg(rows, "m6_temporal_error"),
         "cost_krw": round(sum(r["cost_krw"] or 0 for r in rows), 2),
