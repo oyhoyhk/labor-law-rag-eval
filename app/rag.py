@@ -19,6 +19,7 @@ from app.llm import LLM, cost_of
 PROMPT_VERSION = "gen-v1"
 TAU = 0.50  # top-1 cosine below this → refuse without calling the LLM (calibrated in H3)
 MAX_LINKED = 3
+MAX_SIBLINGS = 4  # sibling-chunk cap → at most top_k + MAX_SIBLINGS + MAX_LINKED blocks
 REFUSAL = "[정보 부족]"
 MARKER = re.compile(r"\[S(\d+)\]")
 
@@ -38,6 +39,7 @@ class Options:
     inject_status: bool = True  # H4 switch
     expand_links: bool = True
     tau: float = TAU
+    include_siblings: bool = False  # add the other chunks of a split article when one is retrieved
 
 
 @dataclass
@@ -47,7 +49,8 @@ class Block:
     article_ids: list[str]
     text: str
     score: float
-    linked: bool = False
+    linked: bool = False  # not a search hit (excluded from M1)
+    via: str = "search"  # search | sibling | link
     status: dict = field(default_factory=dict)
 
 
@@ -72,6 +75,16 @@ def article_texts() -> dict[str, str]:
     return out
 
 
+@lru_cache(maxsize=2)
+def siblings(strategy: str) -> dict[str, list[dict]]:
+    """chunk_id -> the other chunks of the same split article, in part order (article strategy only)."""
+    parts: dict[str, list[dict]] = {}
+    for c in retriever(strategy).chunks:
+        if c.get("meta", {}).get("parts", 1) > 1:
+            parts.setdefault(c["article_ids"][0], []).append(c)
+    return {c["chunk_id"]: [o for o in group if o is not c] for group in parts.values() for c in group}
+
+
 def _status(article_ids: list[str], as_of: str) -> dict:
     """Worst status across the articles in a block, with all notes."""
     order = ["expired", "partially_expired", "unknown", "amendment_pending", "pending", "in_force"]
@@ -82,7 +95,8 @@ def _status(article_ids: list[str], as_of: str) -> dict:
 
 
 def _render(b: Block, as_of: str, inject: bool) -> str:
-    lines = [f"[{b.source}]" + (" (위임 관계로 연결된 조문)" if b.linked else "")]
+    note = {"link": " (위임 관계로 연결된 조문)", "sibling": " (검색된 조문의 나머지 부분)"}.get(b.via, "")
+    lines = [f"[{b.source}]" + note]
     if inject:
         label = {"in_force": "시행 중", "amendment_pending": "시행 중(개정 예정 있음)", "partially_expired": "일부 효력 상실",
                  "expired": "효력 상실", "pending": "아직 시행 전", "unknown": "확인 필요"}[b.status["status"]]
@@ -98,16 +112,26 @@ def _render(b: Block, as_of: str, inject: bool) -> str:
 def build_blocks(question: str, opt: Options, as_of: str) -> list[Block]:
     hits = retriever(opt.strategy).search(question, opt.top_k)
     blocks = [Block(f"S{i + 1}", h["chunk_id"], h["article_ids"], h["text"], h["score"]) for i, h in enumerate(hits)]
+    n_sib = 0
+    if opt.include_siblings:
+        have = {b.chunk_id for b in blocks}
+        for h in hits:  # in retrieval order, so higher-ranked articles get siblings first
+            for c in siblings(opt.strategy).get(h["chunk_id"], []):
+                if c["chunk_id"] not in have and n_sib < MAX_SIBLINGS:
+                    have.add(c["chunk_id"])
+                    n_sib += 1
+                    blocks.append(Block(f"S{len(blocks) + 1}", c["chunk_id"], c["article_ids"], c["text"], 0.0,
+                                        linked=True, via="sibling"))
     if opt.expand_links:
         seen = {a for b in blocks for a in b.article_ids}
         for b in list(blocks[:3]):
             for aid in b.article_ids:
                 node = graph().get(aid, {})
                 for linked in node.get("parent_provisions", []) + node.get("implementing_provisions", []):
-                    if linked not in seen and linked in article_texts() and len(blocks) < opt.top_k + MAX_LINKED:
+                    if linked not in seen and linked in article_texts() and len(blocks) < opt.top_k + n_sib + MAX_LINKED:
                         seen.add(linked)
                         blocks.append(Block(f"S{len(blocks) + 1}", f"art:{linked}", [linked],
-                                            article_texts()[linked], 0.0, linked=True))
+                                            article_texts()[linked], 0.0, linked=True, via="link"))
     for b in blocks:
         b.status = _status(b.article_ids, as_of)
     return blocks
@@ -175,7 +199,7 @@ def answer(question: str, opt: Options | None = None, as_of: date | None = None,
     llm = llm or LLM()
     blocks = build_blocks(question, opt, as_of_s)
     retrieval = [{"rank": i + 1, "chunk_id": b.chunk_id, "article_ids": b.article_ids, "score": round(b.score, 4),
-                  "linked": b.linked} for i, b in enumerate(blocks)]
+                  "linked": b.linked, "via": b.via} for i, b in enumerate(blocks)]
     base_meta = {"prompt_version": PROMPT_VERSION, "strategy": opt.strategy, "as_of": as_of_s}
 
     if not blocks or blocks[0].score < opt.tau:
