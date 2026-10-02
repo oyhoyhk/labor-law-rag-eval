@@ -2,7 +2,8 @@
 
   noise RUN RUN [RUN...]   identical-config repeats → per-metric spread (the noise floor)
   diff BASE EXP            metric deltas, judged against the noise floor and a paired bootstrap CI,
-                           overall and per structural tag (eval/tags.py)
+                           overall, per structural tag (eval/tags.py) and per split (split:dev, split:test)
+  --noise PATH             noise-floor file written by `noise` / read by `diff` (default eval/results/noise_floor.json)
 
 Usage:
   uv run python -m eval.compare noise runs/a runs/b runs/c
@@ -30,6 +31,7 @@ ITEM_FIELD = {"M1_recall_any": "m1_recall_any", "M1_recall_all": "m1_recall_all"
               "M5_unsupported_rate": "m5_unsupported_rate", "M6_temporal_error": "m6_temporal_error"}
 LOWER_IS_BETTER = {"M2_over_refusal", "M5_unsupported_rate", "M6_temporal_error"}
 GOLD = ROOT / "eval" / "gold" / "gold_v2.jsonl"
+SPLITS = ROOT / "eval" / "gold" / "splits.json"
 # Per-tag subset metrics. `complete` = answerable item answered with every key point (refusal counts as a miss).
 SUBSET_FIELDS = ["complete", "m4_kp_coverage", "m1_recall_all"]
 
@@ -42,6 +44,15 @@ def tag_ids() -> dict[str, set[str]]:
     gold = [json.loads(l) for l in GOLD.open() if l.strip()]
     tagged = {g["id"]: item_tags(g) for g in gold}
     return {t: {i for i, ts in tagged.items() if t in ts} for t in TAGS}
+
+
+def split_ids() -> dict[str, set[str]]:
+    splits = json.loads(SPLITS.read_text())
+    return {f"split:{s}": {i for i, v in splits.items() if v == s} for s in ("dev", "test")}
+
+
+def subset_ids() -> dict[str, set[str]]:
+    return tag_ids() | split_ids()
 
 
 def subset_value(rows: list[dict], ids: set[str], field: str):
@@ -60,7 +71,7 @@ def overall(run: Path) -> dict:
     return {k: v[0] for k, v in aggregate(scores(run)).items() if k in METRICS}
 
 
-def cmd_noise(runs: list[Path]) -> None:
+def cmd_noise(runs: list[Path], path: Path = NOISE) -> None:
     per = [overall(r) for r in runs]
     out = {"runs": [str(r.relative_to(ROOT)) for r in runs], "metrics": {}}
     for k in METRICS:
@@ -68,9 +79,8 @@ def cmd_noise(runs: list[Path]) -> None:
         if vals:
             out["metrics"][k] = {"values": vals, "mean": round(mean(vals), 4), "min": min(vals), "max": max(vals),
                                  "range": round(max(vals) - min(vals), 4), "std": round(pstdev(vals), 4)}
-    tags = tag_ids()
     out["subsets"] = {}
-    for t, ids in tags.items():
+    for t, ids in subset_ids().items():
         for f in SUBSET_FIELDS:
             vals = [subset_value(scores(r), ids, f)[0] for r in runs]
             vals = [v for v in vals if v is not None]
@@ -84,11 +94,11 @@ def cmd_noise(runs: list[Path]) -> None:
         if len(sigs) > 1:
             unstable.append(i)
     out["unstable_items"] = unstable
-    NOISE.write_text(json.dumps(out, ensure_ascii=False, indent=1))
+    path.write_text(json.dumps(out, ensure_ascii=False, indent=1))
     print(f"{'metric':<24}{'values':<30}{'range':>8}")
     for k, m in out["metrics"].items():
         print(f"{k:<24}{' / '.join(f'{v:.3f}' for v in m['values']):<30}{m['range']:>8.3f}")
-    print(f"unstable items ({len(unstable)}): {unstable}\n→ {NOISE.relative_to(ROOT)}")
+    print(f"unstable items ({len(unstable)}): {unstable}\n→ {path}")
 
 
 def bootstrap_ci(a: list[dict], b: list[dict], field: str, n: int = 2000, seed: int = 0, ids: set | None = None):
@@ -105,8 +115,8 @@ def bootstrap_ci(a: list[dict], b: list[dict], field: str, n: int = 2000, seed: 
     return round(deltas[int(0.025 * n)], 4), round(deltas[int(0.975 * n)], 4), len(pairs)
 
 
-def cmd_diff(base: Path, exp: Path) -> None:
-    noise = json.loads(NOISE.read_text())["metrics"] if NOISE.exists() else {}
+def cmd_diff(base: Path, exp: Path, path: Path = NOISE) -> None:
+    noise = json.loads(path.read_text())["metrics"] if path.exists() else {}
     a, b = overall(base), overall(exp)
     sa, sb = scores(base), scores(exp)
     print(f"base {base.name}\nexp  {exp.name}\n")
@@ -126,10 +136,10 @@ def cmd_diff(base: Path, exp: Path) -> None:
                      "ci95": ci, "verdict": verdict})
         print(f"{k:<24}{a[k]:>8.3f}{b[k]:>8.3f}{d:>+8.3f}{'—' if band is None else f'{band:.3f}':>8}  "
               f"{'—' if ci is None else f'[{ci[0]:+.3f}, {ci[1]:+.3f}] n={ci[2]}':<20} {verdict}")
-    noise_sub = json.loads(NOISE.read_text()).get("subsets", {}) if NOISE.exists() else {}
+    noise_sub = json.loads(path.read_text()).get("subsets", {}) if path.exists() else {}
     subsets = []
     print(f"\n{'tag:field':<28}{'n':>4}{'base':>8}{'exp':>8}{'Δ':>8}{'noise':>8}  {'95% CI (paired)':<20} verdict")
-    for t, ids in tag_ids().items():
+    for t, ids in subset_ids().items():
         for f in SUBSET_FIELDS:
             (va, n), (vb, _) = subset_value(sa, ids, f), subset_value(sb, ids, f)
             if va is None or vb is None:
@@ -157,11 +167,13 @@ def main() -> None:
     d = sub.add_parser("diff")
     d.add_argument("base", type=Path)
     d.add_argument("exp", type=Path)
+    for p in (n, d):
+        p.add_argument("--noise", type=Path, default=NOISE, help="noise-floor JSON (output of noise, input of diff)")
     args = ap.parse_args()
     if args.cmd == "noise":
-        cmd_noise([r.resolve() for r in args.runs])
+        cmd_noise([r.resolve() for r in args.runs], args.noise.resolve())
     else:
-        cmd_diff(args.base.resolve(), args.exp.resolve())
+        cmd_diff(args.base.resolve(), args.exp.resolve(), args.noise.resolve())
 
 
 if __name__ == "__main__":
