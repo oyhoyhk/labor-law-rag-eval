@@ -29,7 +29,7 @@ ITEM_FIELD = {"M1_recall_any": "m1_recall_any", "M1_recall_all": "m1_recall_all"
               "M4_kp_coverage": "m4_kp_coverage", "M4_all_kp": "m4_all_kp",
               "M5_unsupported_rate": "m5_unsupported_rate", "M6_temporal_error": "m6_temporal_error"}
 LOWER_IS_BETTER = {"M2_over_refusal", "M5_unsupported_rate", "M6_temporal_error"}
-GOLD = ROOT / "eval" / "gold" / "gold_v1_1.jsonl"
+GOLD = ROOT / "eval" / "gold" / "gold_v2.jsonl"
 # Per-tag subset metrics. `complete` = answerable item answered with every key point (refusal counts as a miss).
 SUBSET_FIELDS = ["complete", "m4_kp_coverage", "m1_recall_all"]
 
