@@ -87,10 +87,10 @@
   },
   {
    "metric": "M4_kp_coverage",
-   "base": 0.877,
-   "exp": 0.875,
-   "delta": -0.002,
-   "noise_range": 0.013,
+   "base": 0.888,
+   "exp": 0.878,
+   "delta": -0.01,
+   "noise_range": 0.017,
    "ci95": [
     -0.0647,
     0.0377,
@@ -100,10 +100,10 @@
   },
   {
    "metric": "M4_all_kp",
-   "base": 0.747,
-   "exp": 0.727,
-   "delta": -0.02,
-   "noise_range": 0.006,
+   "base": 0.783,
+   "exp": 0.74,
+   "delta": -0.043,
+   "noise_range": 0.018,
    "ci95": [
     -0.1316,
     0.0526,
@@ -113,13 +113,13 @@
   },
   {
    "metric": "M4_complete",
-   "base": 0.674,
-   "exp": 0.609,
-   "delta": -0.065,
-   "noise_range": 0.022,
+   "base": 0.707,
+   "exp": 0.62,
+   "delta": -0.087,
+   "noise_range": 0.033,
    "ci95": [
-    -0.1522,
-    0.0326,
+    -0.1848,
+    0.0109,
     92
    ],
    "verdict": "유의하지 않음"
@@ -246,13 +246,13 @@
    "tag": "temporal",
    "field": "complete",
    "n": 25,
-   "base": 0.6,
-   "exp": 0.52,
-   "delta": -0.08,
-   "noise_range": 0.04,
+   "base": 0.72,
+   "exp": 0.56,
+   "delta": -0.16,
+   "noise_range": 0.08,
    "ci95": [
-    -0.24,
-    0.08,
+    -0.36,
+    0.0,
     25
    ],
    "verdict": "유의하지 않음"
@@ -261,10 +261,10 @@
    "tag": "temporal",
    "field": "m4_kp_coverage",
    "n": 21,
-   "base": 0.8468,
-   "exp": 0.875,
-   "delta": 0.0282,
-   "noise_range": 0.0402,
+   "base": 0.8905,
+   "exp": 0.8889,
+   "delta": -0.0016,
+   "noise_range": 0.0518,
    "ci95": [
     -0.1111,
     0.15,

@@ -1,18 +1,18 @@
 {
  "gold": "eval/gold/gold_v2.jsonl",
  "runs": [
-  "20261002-233903_baseline-v2",
-  "20261002-234101_noise-v2-2",
-  "20261002-234103_noise-v2-3"
+  "baseline-v2",
+  "noise-v2-2",
+  "noise-v2-3"
  ],
  "field": "complete",
  "subsets": {
   "all": {
    "n": 92,
-   "range": 0.0217,
-   "null_ci_halfwidth": 0.0598,
-   "mde": 0.0598,
-   "mde_items": 5.5
+   "range": 0.0326,
+   "null_ci_halfwidth": 0.0616,
+   "mde": 0.0616,
+   "mde_items": 5.7
   },
   "exception": {
    "n": 12,
@@ -30,10 +30,10 @@
   },
   "temporal": {
    "n": 25,
-   "range": 0.04,
-   "null_ci_halfwidth": 0.1,
-   "mde": 0.1,
-   "mde_items": 2.5
+   "range": 0.08,
+   "null_ci_halfwidth": 0.1267,
+   "mde": 0.1267,
+   "mde_items": 3.2
   },
   "delegation": {
    "n": 13,

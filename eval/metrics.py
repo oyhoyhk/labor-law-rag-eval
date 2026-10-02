@@ -40,6 +40,9 @@ def item_scores(item: dict, pred: dict, judgment: dict | None) -> dict:
     if judgment and answered:
         g, gr = judgment.get("grade", {}), judgment.get("grounding", {})
         kps = g.get("key_points", [])
+        # A key point later removed from the gold set (CHANGELOG) no longer counts; matched by its text.
+        if any(k.get("key_point") in item["key_points"] for k in kps):
+            kps = [k for k in kps if k.get("key_point") in item["key_points"]]
         if kps and expected_answer:
             s["m4_kp_coverage"] = mean(k["asserted"] for k in kps)
             s["m4_all_kp"] = all(k["asserted"] for k in kps)

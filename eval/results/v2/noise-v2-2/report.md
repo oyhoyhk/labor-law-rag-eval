@@ -17,9 +17,9 @@
 | M2_over_refusal | 0.120 (n=92) |
 | M3_citation_precision | 0.692 (n=81) |
 | M3_citation_recall | 0.870 (n=81) |
-| M4_kp_coverage | 0.865 (n=81) |
-| M4_all_kp | 0.741 (n=81) |
-| M4_complete | 0.652 (n=92) |
+| M4_kp_coverage | 0.874 (n=81) |
+| M4_all_kp | 0.765 (n=81) |
+| M4_complete | 0.674 (n=92) |
 | M5_unsupported_rate | 0.009 (n=81) |
 | M6_temporal_error | 0.000 (n=13) |
 
@@ -35,9 +35,9 @@
 | M2_over_refusal | 0.00 | 0.00 | 0.00 | 0.13 | 0.12 | 0.78 | — | 0.12 |
 | M3_citation_precision | 0.71 | 0.75 | 0.75 | 0.74 | 0.51 | 0.75 | — | 0.41 |
 | M3_citation_recall | 1.00 | 0.97 | 0.90 | 0.89 | 0.53 | 0.38 | — | 0.76 |
-| M4_kp_coverage | 1.00 | 0.90 | 0.88 | 0.86 | 0.77 | 0.17 | — | 0.81 |
-| M4_all_kp | 1.00 | 0.84 | 0.74 | 0.77 | 0.43 | 0.00 | — | 0.57 |
-| M4_complete | 1.00 | 0.84 | 0.74 | 0.67 | 0.38 | 0.00 | — | 0.50 |
+| M4_kp_coverage | 1.00 | 0.90 | 0.88 | 0.89 | 0.83 | 0.17 | — | 0.81 |
+| M4_all_kp | 1.00 | 0.84 | 0.74 | 0.85 | 0.57 | 0.00 | — | 0.57 |
+| M4_complete | 1.00 | 0.84 | 0.74 | 0.73 | 0.50 | 0.00 | — | 0.50 |
 | M5_unsupported_rate | 0.00 | 0.01 | 0.01 | 0.02 | 0.01 | 0.00 | — | 0.00 |
 | M6_temporal_error | — | — | — | 0.00 | — | — | — | — |
 
@@ -53,13 +53,13 @@
 | M2_over_refusal | 0.12 | 0.12 |
 | M3_citation_precision | 0.66 | 0.72 |
 | M3_citation_recall | 0.88 | 0.86 |
-| M4_kp_coverage | 0.84 | 0.88 |
-| M4_all_kp | 0.69 | 0.78 |
-| M4_complete | 0.60 | 0.69 |
+| M4_kp_coverage | 0.86 | 0.88 |
+| M4_all_kp | 0.74 | 0.78 |
+| M4_complete | 0.65 | 0.69 |
 | M5_unsupported_rate | 0.01 | 0.01 |
 | M6_temporal_error | 0.00 | 0.00 |
 
-## 확인이 필요한 문항 (36)
+## 확인이 필요한 문항 (34)
 
 | id | 단계 | 기대→실제 | 검색 | 정답 포인트 | 근거 없는 주장 | 시점 오류 |
 |---|---|---|---|---|---|---|
@@ -73,10 +73,9 @@
 | g031 | L4 | ans→ins(model_declined) | X | — | — | — |
 | g036 | L4 | ans→ans | O | 0.50 | 0.00 | O |
 | l5a01 | L5a | ans→ans | O | 1.00 | 0.10 | — |
-| l5a02 | L5a | ans→ans | O | 0.75 | 0.00 | — |
 | l5a03 | L5a | ans→ans | O | 0.67 | 0.00 | — |
 | l5a04 | L5a | ans→ins(model_declined) | X | — | — | — |
-| l5a05 | L5a | ans→ans | X | 0.33 | 0.00 | — |
+| l5a05 | L5a | ans→ans | X | 0.50 | 0.00 | — |
 | l5a06 | L5a | ans→ans | O | 0.67 | 0.00 | — |
 | l5b01 | L5b | ans→ins(model_declined) | X | — | — | — |
 | l5b02 | L5b | ans→ins(retrieval_below_tau) | O | — | — | — |
@@ -89,7 +88,6 @@
 | n01 | L3 | ans→ans | O | 0.50 | 0.11 | — |
 | n02 | L3 | ans→ans | O | 0.67 | 0.00 | — |
 | n08 | L3 | ans→ans | O | 0.67 | 0.00 | — |
-| n17 | L4 | ans→ans | O | 0.67 | 0.00 | O |
 | n20 | L4 | ans→ans | O | 1.00 | 0.25 | O |
 | n23 | L4 | ans→ans | O | 0.00 | 0.00 | O |
 | n24 | L4 | ans→ins(model_declined) | O | — | — | — |

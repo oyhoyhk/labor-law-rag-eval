@@ -1,8 +1,8 @@
 {
  "runs": [
-  "runs/20261002-233903_baseline-v2",
-  "runs/20261002-234101_noise-v2-2",
-  "runs/20261002-234103_noise-v2-3"
+  "eval/results/v2/baseline-v2",
+  "eval/results/v2/noise-v2-2",
+  "eval/results/v2/noise-v2-3"
  ],
  "metrics": {
   "M1_recall_any": {
@@ -91,39 +91,39 @@
   },
   "M4_kp_coverage": {
    "values": [
-    0.877,
-    0.865,
-    0.864
+    0.888,
+    0.874,
+    0.871
    ],
-   "mean": 0.8687,
-   "min": 0.864,
-   "max": 0.877,
-   "range": 0.013,
-   "std": 0.0059
+   "mean": 0.8777,
+   "min": 0.871,
+   "max": 0.888,
+   "range": 0.017,
+   "std": 0.0074
   },
   "M4_all_kp": {
    "values": [
-    0.747,
-    0.741,
-    0.747
+    0.783,
+    0.765,
+    0.771
    ],
-   "mean": 0.745,
-   "min": 0.741,
-   "max": 0.747,
-   "range": 0.006,
-   "std": 0.0028
+   "mean": 0.773,
+   "min": 0.765,
+   "max": 0.783,
+   "range": 0.018,
+   "std": 0.0075
   },
   "M4_complete": {
    "values": [
+    0.707,
     0.674,
-    0.652,
-    0.674
+    0.696
    ],
-   "mean": 0.6667,
-   "min": 0.652,
-   "max": 0.674,
-   "range": 0.022,
-   "std": 0.0104
+   "mean": 0.6923,
+   "min": 0.674,
+   "max": 0.707,
+   "range": 0.033,
+   "std": 0.0137
   },
   "M5_unsupported_rate": {
    "values": [
@@ -201,19 +201,19 @@
   },
   "temporal:complete": {
    "values": [
-    0.6,
-    0.56,
-    0.56
+    0.72,
+    0.64,
+    0.64
    ],
-   "range": 0.04
+   "range": 0.08
   },
   "temporal:m4_kp_coverage": {
    "values": [
-    0.8468,
-    0.8553,
-    0.8151
+    0.8905,
+    0.8947,
+    0.8429
    ],
-   "range": 0.0402
+   "range": 0.0518
   },
   "temporal:m1_recall_all": {
    "values": [

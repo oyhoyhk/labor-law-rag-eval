@@ -17,9 +17,9 @@
 | M2_over_refusal | 0.152 (n=92) |
 | M3_citation_precision | 0.669 (n=78) |
 | M3_citation_recall | 0.885 (n=78) |
-| M4_kp_coverage | 0.818 (n=78) |
-| M4_all_kp | 0.654 (n=78) |
-| M4_complete | 0.554 (n=92) |
+| M4_kp_coverage | 0.824 (n=78) |
+| M4_all_kp | 0.667 (n=78) |
+| M4_complete | 0.565 (n=92) |
 | M5_unsupported_rate | 0.020 (n=78) |
 | M6_temporal_error | 0.273 (n=11) |
 
@@ -35,9 +35,9 @@
 | M2_over_refusal | 0.00 | 0.05 | 0.04 | 0.27 | 0.12 | 0.78 | — | 0.00 |
 | M3_citation_precision | 0.72 | 0.73 | 0.77 | 0.69 | 0.38 | 0.75 | — | 0.40 |
 | M3_citation_recall | 1.00 | 1.00 | 0.91 | 1.00 | 0.53 | 0.38 | — | 0.70 |
-| M4_kp_coverage | 1.00 | 0.98 | 0.88 | 0.46 | 0.73 | 0.33 | — | 0.76 |
-| M4_all_kp | 1.00 | 0.94 | 0.73 | 0.09 | 0.43 | 0.00 | — | 0.50 |
-| M4_complete | 1.00 | 0.90 | 0.70 | 0.07 | 0.38 | 0.00 | — | 0.50 |
+| M4_kp_coverage | 1.00 | 0.98 | 0.88 | 0.47 | 0.76 | 0.33 | — | 0.76 |
+| M4_all_kp | 1.00 | 0.94 | 0.73 | 0.09 | 0.57 | 0.00 | — | 0.50 |
+| M4_complete | 1.00 | 0.90 | 0.70 | 0.07 | 0.50 | 0.00 | — | 0.50 |
 | M5_unsupported_rate | 0.00 | 0.00 | 0.00 | 0.08 | 0.08 | 0.00 | — | 0.02 |
 | M6_temporal_error | — | — | — | 0.27 | — | — | — | — |
 
@@ -53,13 +53,13 @@
 | M2_over_refusal | 0.17 | 0.14 |
 | M3_citation_precision | 0.65 | 0.69 |
 | M3_citation_recall | 0.88 | 0.89 |
-| M4_kp_coverage | 0.82 | 0.82 |
-| M4_all_kp | 0.61 | 0.69 |
-| M4_complete | 0.50 | 0.60 |
+| M4_kp_coverage | 0.83 | 0.82 |
+| M4_all_kp | 0.64 | 0.69 |
+| M4_complete | 0.53 | 0.60 |
 | M5_unsupported_rate | 0.00 | 0.03 |
 | M6_temporal_error | 0.40 | 0.17 |
 
-## 확인이 필요한 문항 (46)
+## 확인이 필요한 문항 (45)
 
 | id | 단계 | 기대→실제 | 검색 | 정답 포인트 | 근거 없는 주장 | 시점 오류 |
 |---|---|---|---|---|---|---|
@@ -78,7 +78,6 @@
 | g036 | L4 | ans→ans | O | 0.50 | 0.00 | X |
 | g037 | L4 | ans→ans | O | 0.33 | 0.00 | O |
 | l5a01 | L5a | ans→ans | O | 1.00 | 0.22 | — |
-| l5a02 | L5a | ans→ans | O | 0.75 | 0.00 | — |
 | l5a03 | L5a | ans→ans | O | 0.67 | 0.00 | — |
 | l5a04 | L5a | ans→ins(model_declined) | X | — | — | — |
 | l5a05 | L5a | ans→ans | X | 0.00 | 0.00 | — |
@@ -95,7 +94,7 @@
 | s05 | SUM | ans→ans | O | 0.33 | 0.14 | — |
 | n01 | L3 | ans→ins(model_declined) | O | — | — | — |
 | n08 | L3 | ans→ans | O | 0.67 | 0.09 | — |
-| n17 | L4 | ans→ans | O | 0.33 | 0.00 | O |
+| n17 | L4 | ans→ans | O | 0.50 | 0.00 | O |
 | n18 | L4 | ans→ans | O | 0.50 | 0.33 | O |
 | n19 | L4 | ans→ans | O | 0.50 | 0.00 | O |
 | n20 | L4 | ans→ans | O | 0.50 | 0.17 | O |
