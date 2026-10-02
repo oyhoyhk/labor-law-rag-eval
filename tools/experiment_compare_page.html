@@ -92,7 +92,7 @@ svg .grid { stroke: var(--line-soft); stroke-width: 1 }
 <div class="wrap">
   <header>
     <h1>Part C 실험 비교</h1>
-    <p class="lede">기준선 v1.1(조 단위 청킹 · top-5 · 시행 상태 주입 · 위임 확장 · τ 0.50) 대비 6개 실험의 지표 변화. 동일 골드셋 61문항, Luna 생성 · judge-v2 채점.</p>
+    <p class="lede">2차 실험: 기준선(조각 분할 색인 · top-5 · 시행 상태 주입 · 위임 확장 · τ 0.50 · 판례 없음) 대비 7개 실험과 최종 구성의 지표 변화. Gold Set v2.1 100문항(전 문항 사람 확인), Luna 생성 · judge-v2 채점, 가설은 측정 전 사전 등록.</p>
     <div class="rule">
       <span><b>유의 판정</b> = |Δ| &gt; 노이즈 범위(동일 설정 3회 반복의 최대−최소) <b>그리고</b> 문항 대응 부트스트랩 95% CI가 0 제외</span>
       <span>M5 judge는 κ 0.54로 보조 지표</span>
@@ -109,6 +109,12 @@ svg .grid { stroke: var(--line-soft); stroke-width: 1 }
     <div class="scroll"><table id="matrix"></table></div>
   </section>
 
+  <section aria-labelledby="h-subsets">
+    <h2 id="h-subsets">유형별 완전 정답</h2>
+    <p class="sub">실험이 노린 문항 유형만 떼어 본 완전 정답(정답 포인트 전부 충족, 거절은 실패). 유형은 코퍼스 구조에서 계산(eval/tags.py). 문항 수가 작아 2문항 변화(+0.167)도 신뢰구간 하한이 0이면 유의 판정에서 제외됨</p>
+    <div class="scroll"><table id="subsets"></table></div>
+  </section>
+
   <section aria-labelledby="h-detail">
     <h2 id="h-detail">실험 상세</h2>
     <p class="sub">개선 방향으로 정렬한 Δ(오른쪽 = 좋아짐). 회색 띠는 노이즈 범위, 가는 선은 95% CI</p>
@@ -120,8 +126,8 @@ svg .grid { stroke: var(--line-soft); stroke-width: 1 }
     <h2 id="h-cost">비용과 입력 토큰</h2>
     <p class="sub">실행 비용은 LLM 응답 캐시 적중분을 제외한 실제 청구액(생성+채점). 캐시 적중률이 실험마다 달라 비용끼리 단순 비교는 불가하고, 운영 부담은 입력 토큰으로 판단</p>
     <div class="two">
-      <div class="panel"><h3>실행 비용(원)</h3><p class="sub">61문항 1회 실행, 생성+judge</p><div class="svgbox" id="cost"></div></div>
-      <div class="panel"><h3>생성 호출당 평균 입력 토큰</h3><p class="sub">점선 = 기준선 3,701토큰</p><div class="svgbox" id="tokens"></div></div>
+      <div class="panel"><h3>실행 비용(원)</h3><p class="sub">100문항 1회 실행, 생성+judge (캐시 적중분 제외)</p><div class="svgbox" id="cost"></div></div>
+      <div class="panel"><h3>생성 호출당 평균 입력 토큰</h3><p class="sub">점선 = 기준선 3,576토큰</p><div class="svgbox" id="tokens"></div></div>
     </div>
   </section>
 
@@ -133,9 +139,9 @@ svg .grid { stroke: var(--line-soft); stroke-width: 1 }
 const DATA = __DATA__;
 const M = {
   M1_recall_any: ["M1 Recall@k (any)", "검색", false], M1_recall_all: ["M1 Recall@k (all)", "검색", false], M1_mrr: ["M1 MRR", "검색", false],
-  M2_oos_refusal: ["M2 범위 밖 거절", "거절", false], M2_l5b_no_assertion: ["M2 L5b 단정 회피", "거절", false], M2_over_refusal: ["M2 과잉 거절", "거절", true],
+  M2_oos_refusal: ["M2 범위 밖 거절", "거절", false], M2_over_refusal: ["M2 과잉 거절", "거절", true],
   M3_citation_precision: ["M3 인용 정밀도", "인용", false], M3_citation_recall: ["M3 인용 재현율", "인용", false],
-  M4_kp_coverage: ["M4 정답 포인트", "답변", false], M4_all_kp: ["M4 전 포인트 충족", "답변", false],
+  M4_complete: ["M4 완전 정답 (주 지표)", "답변", false], M4_kp_coverage: ["M4 정답 포인트", "답변", false], M4_all_kp: ["M4 전 포인트 충족", "답변", false],
   M5_unsupported_rate: ["M5 근거 없는 주장률", "답변", true], M6_temporal_error: ["M6 시점 오류", "답변", true],
 };
 const ORDER = Object.keys(M);
@@ -172,7 +178,7 @@ function rowTip(ex, r) {
 
 function renderMatrix() {
   const t = document.getElementById("matrix");
-  let h = `<thead><tr><th>지표</th><th>기준선 v1.1</th>`;
+  let h = `<thead><tr><th>지표</th><th>기준선</th>`;
   EX.forEach((e, i) => h += `<th><button class="colbtn" data-i="${i}" aria-pressed="${i === sel}">${esc(e.name)}</button></th>`);
   h += `</tr></thead><tbody>`;
   let grp = "";
@@ -194,6 +200,36 @@ function renderMatrix() {
   t.querySelectorAll("td[data-e]").forEach(td => {
     const e = EX[+td.dataset.e];
     bindTip(td, rowTip(e, e.rows.find(r => r.metric === td.dataset.k)));
+  });
+}
+
+const TAG_LABEL = { exception: "예외·단서", split: "분할 조문", temporal: "시점·부칙", delegation: "시행령 위임", precedent: "판례형" };
+function renderSubsets() {
+  const t = document.getElementById("subsets");
+  let h = `<thead><tr><th>유형</th><th>기준선</th>`;
+  EX.forEach((e, i) => h += `<th><button class="colbtn" data-i="${i}" aria-pressed="${i === sel}">${esc(e.name)}</button></th>`);
+  h += `</tr></thead><tbody>`;
+  DATA.tags.forEach(tag => {
+    const b = EX[0].subsets.find(r => r.tag === tag);
+    if (!b) return;
+    const nz = DATA.tag_noise[tag];
+    h += `<tr><td><span class="mname">${TAG_LABEL[tag] || tag}<small>n=${b.n} · 노이즈 ±${nz == null ? "—" : nz.toFixed(3)}</small></span></td>`;
+    h += `<td class="cell base"><span class="v">${f3(b.base)}</span><span class="d">&nbsp;</span></td>`;
+    EX.forEach((e, i) => {
+      const r = e.subsets.find(x => x.tag === tag);
+      if (!r) { h += `<td class="cell">—</td>`; return; }
+      const c = cls(r.verdict), mark = c === "good" ? "▲ " : c === "bad" ? "▼ " : "";
+      const items = Math.round(r.delta * r.n);
+      h += `<td class="cell ${c === "flat" ? "" : c}${i === sel ? " selcol" : ""}" data-e="${i}" data-t="${tag}"><span class="v">${f3(r.exp)}</span><span class="d">${mark}${sg(r.delta)}${items ? ` (${items > 0 ? "+" : "−"}${Math.abs(items)}문항)` : ""}</span></td>`;
+    });
+    h += `</tr>`;
+  });
+  t.innerHTML = h + `</tbody>`;
+  t.querySelectorAll(".colbtn").forEach(btn => btn.addEventListener("click", () => select(+btn.dataset.i)));
+  t.querySelectorAll("td[data-e]").forEach(td => {
+    const e = EX[+td.dataset.e], r = e.subsets.find(x => x.tag === td.dataset.t);
+    const ci = r.ci95 ? `[${sg(r.ci95[0])}, ${sg(r.ci95[1])}]` : "산출 불가";
+    bindTip(td, `<div class="t">${esc(e.name)} · ${TAG_LABEL[r.tag]}</div><div class="r">기준 ${f3(r.base)} → ${f3(r.exp)} (Δ ${sg(r.delta)}, n=${r.n})</div><div class="r">노이즈 범위 ±${r.noise_range == null ? "—" : r.noise_range.toFixed(3)}</div><div class="r">95% CI ${ci}</div><div>판정: ${r.verdict}</div>`);
   });
 }
 
@@ -308,14 +344,14 @@ function bars(id, items, unit, ref) {
 
 function renderCost() {
   bars("cost", EX.map(e => ({ name: e.name, v: e.cost })), "원");
-  bars("tokens", [{ name: "기준선 v1.1", v: DATA.base_tokens, base: true }, ...EX.map(e => ({
+  bars("tokens", [{ name: "기준선", v: DATA.base_tokens, base: true }, ...EX.map(e => ({
     name: e.name, v: e.tokens, note: e.tokens == null ? "" : `기준 대비 ${e.tokens >= DATA.base_tokens ? "+" : "−"}${Math.abs((e.tokens / DATA.base_tokens - 1) * 100).toFixed(1)}%` }))], "", DATA.base_tokens);
 }
 
 function select(i) {
   sel = i;
   try { localStorage.setItem("partc-sel", String(i)); } catch (e) {}
-  hideTip(); renderMatrix(); renderTabs(); renderDetail(); renderCost();
+  hideTip(); renderMatrix(); renderSubsets(); renderTabs(); renderDetail(); renderCost();
 }
 select(sel);
 </script>
