@@ -6,6 +6,7 @@ Sources, in order of trust:
 2. 부칙 sunset clauses ("…까지 효력을 가진다") — the only expiry signal, since the
    official current text still prints expired paragraphs (e.g. 근로기준법 제53조③).
 3. Delegation links (시행령 "법 제N조" → 법률, 시행규칙 "영 제N조" → 시행령).
+4. Precedent links: a Supreme Court case → the corpus articles in its 참조조문.
 
 Status is never computed by the LLM; `status_at()` renders it for a given date.
 """
@@ -17,6 +18,7 @@ import xml.etree.ElementTree as ET
 from datetime import date
 
 from app.ingest.parse import ROOT, Article, level_of, load_corpus, parse_file
+from app.ingest.precedent import load_precedents, ref_article_ids
 
 GRAPH = ROOT / "data" / "processed" / "provision_graph.json"
 
@@ -201,6 +203,12 @@ def build() -> dict:
     for src, targets in references.items():
         for tid, cue in targets.items():
             referenced_by.setdefault(tid, {})[src] = cue
+    precedents, by_article = {}, {}
+    for pid, prec in load_precedents().items():
+        if articles := ref_article_ids(prec.ref_articles, set(current)):
+            precedents[pid] = {"case_no": prec.case_no, "decided": prec.decided, "title": prec.title, "articles": articles}
+            for aid in articles:
+                by_article.setdefault(aid, []).append(pid)
     nodes = {}
     for aid in set(current) | set(pending):
         a = current.get(aid)
@@ -218,8 +226,10 @@ def build() -> dict:
             "reference_cues": dict(sorted(references.get(aid, {}).items())),
             "referenced_by": sorted(referenced_by.get(aid, {})),
             "referenced_by_cues": dict(sorted(referenced_by.get(aid, {}).items())),
+            # Supreme Court cases citing this article in 참조조문, newest first.
+            "precedents": sorted(by_article.get(aid, []), key=lambda p: (precedents[p]["decided"], p), reverse=True),
         }
-    graph = {"built_at": date.today().isoformat(), "nodes": nodes}
+    graph = {"built_at": date.today().isoformat(), "nodes": nodes, "precedents": precedents}
     GRAPH.parent.mkdir(parents=True, exist_ok=True)
     GRAPH.write_text(json.dumps(graph, ensure_ascii=False, indent=1))
     return graph
@@ -245,7 +255,8 @@ def status_at(node: dict, as_of: str) -> dict:
 
 
 if __name__ == "__main__":
-    g = build()["nodes"]
+    full = build()
+    g = full["nodes"]
     n_pending = sum(bool(n["pending"]) for n in g.values())
     n_sunset = sum(bool(n["sunsets"]) for n in g.values())
     n_impl = sum(bool(n["parent_provisions"]) for n in g.values())
@@ -254,3 +265,4 @@ if __name__ == "__main__":
     print(f"{len(cues)} same-law reference edges ({sum(c == 'exception' for c in cues)} exception · "
           f"{sum(c == 'mutatis' for c in cues)} 준용 · {sum(c == 'plain' for c in cues)} plain) "
           f"from {sum(bool(n['references']) for n in g.values())} articles")
+    print(f"{len(load_precedents())} precedents · {len(full['precedents'])} link to a corpus article · {sum(bool(n['precedents']) for n in g.values())} articles have a precedent")
