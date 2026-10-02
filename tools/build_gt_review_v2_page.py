@@ -1,7 +1,7 @@
 """Build the human-confirmation page for the 39 gold v2 additions: evidence text with key-point literals marked,
 effectivity status, precedent holdings, and the independent model review.
 
-Usage: uv run python tools/build_gt_review_v2_page.py ITEMS.jsonl OUT.html
+Usage: uv run python tools/build_gt_review_v2_page.py ITEMS.jsonl OUT.html [TEMPLATE.html]
 """
 
 import json
@@ -14,11 +14,13 @@ ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT))
 from app.ingest.parse import load_corpus  # noqa: E402
 from app.ingest.provision import status_at  # noqa: E402
+from app.ingest.precedent import load_precedents  # noqa: E402
 from eval.tags import item_tags  # noqa: E402
 
 AS_OF = "2026-10-01"
 corpus = {f"{a.law}#{a.article_key}": a.render() for a in load_corpus("현행")}
 graph = json.loads((ROOT / "data/processed/provision_graph.json").read_text())["nodes"]
+precedents = load_precedents()
 
 
 def holding(case_no: str) -> str:
@@ -30,6 +32,10 @@ def holding(case_no: str) -> str:
 
 
 def evidence(aid: str, literals: list[list[str]]) -> dict:
+    marks = [x for alts in literals for x in alts]
+    if aid in precedents:
+        return {"id": aid, "status": "precedent", "notes": [], "text": precedents[aid].render(), "pending": [],
+                "marks": marks}
     node = graph.get(aid, {})
     st = status_at(node, AS_OF) if node else {"status": "in_force", "notes": []}
     return {"id": aid, "status": st["status"], "notes": st["notes"], "text": corpus.get(aid, "(현행 코퍼스에 없음)"),
@@ -52,6 +58,6 @@ for l in Path(sys.argv[1]).open():
         "yoji": holding(case["case_no"]) if case else "",
         "evidence": [evidence(a, it["key_point_literals"]) for a in it["gold_evidence"]]})
 
-page = (ROOT / "tools/gt_review_v2_page.html").read_text()
+page = Path(sys.argv[3] if len(sys.argv) > 3 else ROOT / "tools/gt_review_v2_page.html").read_text()
 Path(sys.argv[2]).write_text(page.replace("__ITEMS__", json.dumps(items, ensure_ascii=False).replace("</", "<\\/")))
 print(f"{len(items)} items → {sys.argv[2]}")
