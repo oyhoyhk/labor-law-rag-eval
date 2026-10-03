@@ -32,6 +32,31 @@ EXPERIMENTS = [
      "hypothesis": "효과 없음 예측(1차에서 대상 미해결)", "decision": "미채택, 범위 밖 거절 악화", "tone": "reject"},
 ]
 BASE_TOKENS = 3576
+# Context-building pipeline: each step's baseline value, and what each experiment changed (others = baseline).
+STEPS = [
+    ("index", "① 색인 단위", "법령을 어떤 크기로 잘라 검색 대상으로 만드나"),
+    ("k", "② 검색 개수", "질문과 비슷한 조문을 몇 개 가져오나"),
+    ("links", "③ 위임 연결", "검색된 조와 연결된 시행령·상위법을 붙이나"),
+    ("siblings", "④ 나머지 조각", "쪼개진 조의 다른 조각을 함께 붙이나"),
+    ("reverse", "⑤ 예외 조문", "검색된 조를 '예외'로 가리키는 조문을 붙이나"),
+    ("precedents", "⑥ 판례", "검색된 조에 연결된 대법원 판례를 붙이나"),
+    ("status", "⑦ 시행 상태 표시", "조문마다 '시행 중·시행 예정·효력 상실'을 표시하나"),
+    ("prompt", "⑧ 답변 지시", "LLM에게 어떤 규칙으로 답하라고 하나"),
+]
+BASE_CFG = {"index": "조 단위 (긴 조는 항·호에서 분할)", "k": "5개", "links": "켬 (최대 3개)", "siblings": "끔",
+            "reverse": "끔", "precedents": "끔", "status": "켬", "prompt": "근거 블록만으로 답, 없으면 거절"}
+CHANGES = {
+    "v2-final": {"index": "조 전체 (분할 없음)", "precedents": "켬 (유사도 0.54 이상 최대 2건)",
+                 "prompt": "조문 → 대법원 판단 → 사안별 차이 단서"},
+    "v2-precedents": {"precedents": "켬 (유사도 0.54 이상 최대 2건)", "prompt": "조문 → 대법원 판단 → 사안별 차이 단서"},
+    "v2-h4-no-inject": {"status": "끔"},
+    "v2-h1-fixed": {"index": "고정 길이 512토큰 (조 경계 무시)"},
+    "v2-k10": {"k": "10개"},
+    "v2-siblings": {"siblings": "켬 (최대 4개)"},
+    "v2-reverse-refs": {"reverse": "켬 (최대 2개)"},
+    "v2-partial-prompt": {"prompt": "근거가 일부만 있어도 확인된 만큼 답"},
+}
+
 # Plain-language summary shown first on the page: what changed, what happened, and which item type it targeted.
 PLAIN = {
     "v2-final": ("조를 통째로 색인하고, 조문에 연결된 대법원 판례도 함께 제공 (현재 기본값)",
@@ -91,6 +116,21 @@ def item_changes(exp_scores: dict) -> list[dict]:
     return sorted(out, key=lambda r: ((r["exp_kp"] or 0) - (r["base_kp"] or 0), r["id"]))
 
 
+# Baseline = per-item mean of the three identical-config runs; an item counts as gained/lost against that mean.
+BASE_RUNS = ["baseline-v2", "noise-v2-2", "noise-v2-3"]
+base_m0 = {}
+for k in BASE_RUNS:
+    for s in jl(RES / k / "scores.jsonl"):
+        base_m0.setdefault(s["id"], []).append(float(bool(s.get("m0_correct"))))
+base_m0 = {i: sum(v) / len(v) for i, v in base_m0.items()}
+
+
+def flips(exp_scores: dict) -> dict:
+    up = sum(1 for i, b in base_m0.items() if b < 0.5 and exp_scores[i].get("m0_correct"))
+    down = sum(1 for i, b in base_m0.items() if b >= 0.5 and not exp_scores[i].get("m0_correct"))
+    return {"up": up, "down": down}
+
+
 exps = []
 for x in EXPERIMENTS:
     d = RES / x["key"]
@@ -98,13 +138,15 @@ for x in EXPERIMENTS:
     diff = json.loads((d / "diff_vs_base.json").read_text())
     what, result, target, kind = PLAIN[x["key"]]
     exps.append({**x, "what": what, "result": result, "target": target, "kind": kind,
+                 "cfg": {**BASE_CFG, **CHANGES[x["key"]]},
+                 "flips": flips({s["id"]: s for s in jl(d / "scores.jsonl")}),
                  "cost": x.get("cost", manifest["cost_krw"]), "rows": diff["rows"],
                  "subsets": [r for r in diff["subsets"] if r["field"] == "complete"],
                  "levels": levels(json.loads((d / "report.json").read_text())),
                  "changes": item_changes({s["id"]: s for s in jl(d / "scores.jsonl")})})
 
 noise_sub = json.loads((ROOT / "eval/results/noise_floor.json").read_text()).get("subsets", {})
-data = {"noise": {k: v["range"] for k, v in noise.items()}, "base_tokens": BASE_TOKENS, "tags": TAGS,
+data = {"steps": [{"key": k, "name": n, "desc": d} for k, n, d in STEPS], "base_cfg": BASE_CFG, "noise": {k: v["range"] for k, v in noise.items()}, "base_tokens": BASE_TOKENS, "tags": TAGS,
         "tag_noise": {t: noise_sub.get(f"{t}:complete", {}).get("range") for t in TAGS},
         "base_levels": levels(base_report), "level_n": {lv: base_report["by_level"].get(lv, {}).get("n", 0) for lv in LEVELS},
         "experiments": exps}

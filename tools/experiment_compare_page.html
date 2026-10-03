@@ -85,6 +85,22 @@ svg .grid { stroke: var(--line-soft); stroke-width: 1 }
 #tip { position: fixed; pointer-events: none; z-index: 10; background: var(--fg); color: var(--bg); padding: 8px 10px; border-radius: 6px; font-size: 12px; line-height: 1.5; max-width: 280px; box-shadow: 0 4px 14px rgba(0,0,0,.18) }
 #tip .t { font-weight: 500 }
 #tip .r { font-family: var(--font-mono); font-variant-numeric: tabular-nums }
+.cfgbar { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 14px }
+.pipe { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 8px }
+@media (max-width: 760px) { .pipe { grid-template-columns: repeat(2, minmax(0, 1fr)) } }
+.step { border: 1px solid var(--line); border-radius: 8px; padding: 10px 12px; background: var(--surface); display: grid; gap: 4px; min-width: 0 }
+.step .sn { font-size: 12px; font-weight: 700; color: var(--fg2) }
+.step .sv { font-size: 13px; font-weight: 500 }
+.step .sd { font-size: 11px; color: var(--muted) }
+.step .was { font-size: 11px; color: var(--muted); text-decoration: line-through }
+.step.changed { border: 2px solid var(--accent); background: var(--flat-bg) }
+.step.changed .sn { color: var(--accent) }
+.step.off .sv { color: var(--muted) }
+.cfgres { margin-top: 12px; display: flex; flex-wrap: wrap; gap: 8px 14px; align-items: center; font-size: 14px }
+.cfgres .score { font-family: var(--font-mono); font-variant-numeric: tabular-nums }
+td.chg { background: var(--flat-bg); color: var(--accent); font-weight: 500 }
+#cfgtable td, #cfgtable th { white-space: normal; text-align: left; min-width: 90px }
+#cfgtable td:first-child { min-width: 120px }
 .cards { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 12px }
 .card { background: var(--surface); border: 1px solid var(--line); border-radius: 8px; padding: 14px 16px; display: grid; gap: 6px; min-width: 0 }
 .card .top { display: flex; justify-content: space-between; align-items: baseline; gap: 8px; flex-wrap: wrap }
@@ -115,6 +131,17 @@ details.more[open] > summary { margin-bottom: 16px }
     <h2 id="h-overview">한눈에 보기: 전체 정답률</h2>
     <p class="sub">100문항 중 올바르게 처리한 비율. 답할 수 있는 질문은 필요한 내용을 빠짐없이 답해야, 답할 수 없는 질문은 거절해야 정답. 회색 띠는 같은 구성을 여러 번 돌려도 생기는 흔들림 범위라서, 막대 끝이 띠 안에 있으면 우연과 구별할 수 없음</p>
     <div class="panel"><div class="svgbox" id="overview"></div></div>
+  </section>
+
+  <section aria-labelledby="h-cfg">
+    <h2 id="h-cfg">무엇을 바꿨나: 컨텍스트 구성 단계</h2>
+    <p class="sub">모든 실험은 "질문이 들어왔을 때 LLM에게 어떤 근거를 어떻게 넣어 주느냐"를 바꾼 것. 버튼을 누르면 기준선과 달라진 단계가 강조되고 결과가 함께 표시됨. 채점 방식(하네스)은 모든 구성에서 동일</p>
+    <div class="cfgbar" role="tablist" id="cfgbar"></div>
+    <div class="pipe" id="pipe"></div>
+    <div class="cfgres" id="cfgres"></div>
+    <details style="margin-top:16px"><summary class="sub" style="cursor:pointer;color:var(--accent)">모든 구성을 표로 보기 (바뀐 칸만 색 표시)</summary>
+      <div class="scroll" style="margin-top:8px"><table id="cfgtable"></table></div>
+    </details>
   </section>
 
   <section aria-labelledby="h-cards">
@@ -284,7 +311,7 @@ function renderSubsets() {
 function renderTabs() {
   document.getElementById("tabs").innerHTML = EX.map((e, i) =>
     `<button class="tab" role="tab" id="tab-${i}" aria-selected="${i === sel}" data-i="${i}">${esc(e.name)}</button>`).join("");
-  document.querySelectorAll(".tab").forEach(b => b.addEventListener("click", () => select(+b.dataset.i)));
+  document.querySelectorAll("#tabs .tab").forEach(b => b.addEventListener("click", () => select(+b.dataset.i)));
 }
 
 function forest(ex) {
@@ -398,6 +425,46 @@ function renderCost() {
 
 const PLAIN_V = v => v === "개선" ? ["good", "좋아짐"] : v === "악화" ? ["bad", "나빠짐"] : ["flat", "판단 보류"];
 function m0(e) { return e.rows.find(r => r.metric === "M0_accuracy"); }
+const pp = v => (v >= 0 ? "+" : "−") + Math.abs(v * 100).toFixed(1) + "%p";
+// One-line reason for a verdict, from the same numbers the verdict rule uses.
+function reason(r, fl) {
+  const band = r.noise_range == null ? null : r.noise_range, ci = r.ci95;
+  const ciTxt = ci ? `문항을 다시 뽑아 계산한 95% 범위 ${pp(ci[0])} ~ ${pp(ci[1])}` : "";
+  const mix = fl ? `새로 맞힌 ${fl.up}문항·새로 틀린 ${fl.down}문항` : "";
+  if (r.verdict !== "유의하지 않음")
+    return `변화 ${pp(r.delta)}가 흔들림 범위(±${(band * 100).toFixed(1)}%p)보다 크고, ${ciTxt}도 한쪽 방향만 가리킴`;
+  if (band != null && Math.abs(r.delta) <= band)
+    return `변화 ${pp(r.delta)}가 같은 구성을 반복할 때의 흔들림(±${(band * 100).toFixed(1)}%p) 안${mix ? ` (${mix})` : ""}`;
+  return `흔들림(±${(band * 100).toFixed(1)}%p)보다는 크지만${mix ? ` ${mix}이 섞여 있어` : ""} ${ciTxt}가 0을 포함 → 효과가 0일 가능성 배제 불가`;
+}
+
+let cfgSel = 0;  // 0 = baseline, i + 1 = EX[i]
+function cfgOf(i) { return i === 0 ? DATA.base_cfg : EX[i - 1].cfg; }
+function renderCfg() {
+  const names = ["기준선 (처음 설계)", ...EX.map(e => e.name)];
+  document.getElementById("cfgbar").innerHTML = names.map((n, i) =>
+    `<button class="tab" role="tab" aria-selected="${i === cfgSel}" data-c="${i}">${esc(n)}</button>`).join("");
+  document.querySelectorAll("#cfgbar .tab").forEach(b => b.addEventListener("click", () => { cfgSel = +b.dataset.c; renderCfg(); }));
+  const cfg = cfgOf(cfgSel);
+  document.getElementById("pipe").innerHTML = DATA.steps.map(st => {
+    const v = cfg[st.key], b = DATA.base_cfg[st.key], ch = cfgSel > 0 && v !== b;
+    return `<div class="step${ch ? " changed" : ""}${v.startsWith("끔") ? " off" : ""}"><span class="sn">${st.name}</span>
+      <span class="sv">${esc(v)}</span>${ch ? `<span class="was">기준선: ${esc(b)}</span>` : ""}<span class="sd">${st.desc}</span></div>`;
+  }).join("");
+  const res = document.getElementById("cfgres");
+  if (cfgSel === 0) {
+    res.innerHTML = `<span>전체 정답률</span><span class="score">${m0(EX[0]).base.toFixed(3)}</span><span class="sub" style="margin:0">(3회 평균, 모든 실험의 비교 기준)</span>`;
+  } else {
+    const e = EX[cfgSel - 1], r = m0(e), [c, label] = PLAIN_V(r.verdict);
+    res.innerHTML = `<span>전체 정답률</span><span class="score">${r.base.toFixed(3)} → ${r.exp.toFixed(3)} (${r.delta >= 0 ? "+" : ""}${(r.delta * 100).toFixed(1)}%p)</span><span class="chip ${c}">${label}</span><span>${esc(e.result)}</span><span class="sub" style="margin:0;flex-basis:100%">판정 근거: ${reason(r, e.flips)}</span>`;
+  }
+  let h = `<thead><tr><th>단계</th><th>기준선</th>${EX.map(e => `<th>${esc(e.name)}</th>`).join("")}</tr></thead><tbody>`;
+  DATA.steps.forEach(st => {
+    const b = DATA.base_cfg[st.key];
+    h += `<tr><td><b>${st.name}</b></td><td>${esc(b)}</td>${EX.map(e => e.cfg[st.key] === b ? `<td style="color:var(--muted)">동일</td>` : `<td class="chg">${esc(e.cfg[st.key])}</td>`).join("")}</tr>`;
+  });
+  document.getElementById("cfgtable").innerHTML = h + `</tbody>`;
+}
 
 function renderOverview() {
   const base = m0(EX[0]).base, band = DATA.noise.M0_accuracy || 0;
@@ -430,17 +497,18 @@ function renderCards() {
       <div class="kind">${e.kind}</div>
       <div class="what">무엇을 바꿨나: ${esc(e.what)}</div>
       <div class="res">${esc(e.result)}</div>
-      <div class="score">전체 정답률 ${r.base.toFixed(3)} → ${r.exp.toFixed(3)}</div></div>`;
+      <div class="score">전체 정답률 ${r.base.toFixed(3)} → ${r.exp.toFixed(3)}</div>
+      <div class="what">판정 근거: ${reason(r, e.flips)}</div></div>`;
   }).join("");
 }
 
 function renderTargets() {
   const rows = EX.filter(e => e.target).map(e => ({ e, s: e.subsets.find(x => x.tag === e.target) })).filter(o => o.s);
-  let h = `<thead><tr><th>실험</th><th>노린 질문 유형</th><th>기준선에서 맞힌 수 (3회 평균)</th><th>실험에서 맞힌 수</th><th>판정</th></tr></thead><tbody>`;
+  let h = `<thead><tr><th>실험</th><th>노린 질문 유형</th><th>기준선에서 맞힌 수 (3회 평균)</th><th>실험에서 맞힌 수</th><th>판정</th><th>판정 근거</th></tr></thead><tbody>`;
   rows.forEach(({ e, s }) => {
     const [c, label] = PLAIN_V(s.verdict);
     const nb = "약 " + Math.round(s.base * s.n), ne = Math.round(s.exp * s.n);
-    h += `<tr><td>${esc(e.name)}</td><td>${TAG_LABEL[s.tag]}</td><td class="num">${nb} / ${s.n}</td><td class="num">${ne} / ${s.n}</td><td><span class="chip ${c}">${label}</span></td></tr>`;
+    h += `<tr><td>${esc(e.name)}</td><td>${TAG_LABEL[s.tag]}</td><td class="num">${nb} / ${s.n}</td><td class="num">${ne} / ${s.n}</td><td><span class="chip ${c}">${label}</span></td><td style="white-space:normal;min-width:260px;text-align:left;color:var(--fg2)">${reason(s)}</td></tr>`;
   });
   document.getElementById("targets").innerHTML = h + `</tbody>`;
 }
@@ -448,7 +516,7 @@ function renderTargets() {
 function select(i) {
   sel = i;
   try { localStorage.setItem("partc-sel", String(i)); } catch (e) {}
-  hideTip(); renderOverview(); renderCards(); renderTargets(); renderMatrix(); renderSubsets(); renderTabs(); renderDetail(); renderCost();
+  hideTip(); renderOverview(); renderCfg(); renderCards(); renderTargets(); renderMatrix(); renderSubsets(); renderTabs(); renderDetail(); renderCost();
 }
 select(sel);
 </script>
