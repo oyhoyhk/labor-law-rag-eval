@@ -45,7 +45,7 @@ def load(name: str) -> dict:
 
 # v2 audit (with competing articles) is primary; v1 kept for comparison.
 opus, codex, views = load("review_opus_v2"), load("review_codex_v2"), load("review_views_v2")
-notes = load("review_positive_notes_v1")
+notes, notes_codex = load("review_positive_notes_v1"), load("review_positive_notes_codex_v1")
 opus_v1, codex_v1 = load("review_opus_v1"), load("review_codex_v1")
 
 
@@ -59,7 +59,7 @@ def pattern(o: dict, c: dict) -> str | None:
 
 for it in items:
     o, c = opus.get(it["id"]), codex.get(it["id"])
-    it.update(opus=o, codex=c, view=views.get(it["id"]), pattern=pattern(o, c), notes=notes.get(it["id"], []),
+    it.update(opus=o, codex=c, view=views.get(it["id"]), pattern=pattern(o, c), notes=notes.get(it["id"], []), notes_codex=notes_codex.get(it["id"], []),
               v1={"opus": (opus_v1.get(it["id"]) or {}).get("verdict"), "codex": (codex_v1.get(it["id"]) or {}).get("verdict")})
 page = (ROOT / "tools/train_review_slides.html").read_text()
 Path(sys.argv[1]).write_text(page.replace("__ITEMS__", json.dumps(items, ensure_ascii=False).replace("</", "<\\/")))

@@ -67,6 +67,9 @@ td.f { white-space: nowrap; font-family: var(--font-mono); font-size: 13px }
 .pick { justify-self: start; border: 1px solid var(--line); background: var(--surface); color: var(--fg); border-radius: 999px; padding: 4px 14px; font-size: 14px; font-weight: 700 }
 .pick[aria-pressed="true"] { background: var(--good); border-color: var(--good); color: var(--surface) }
 .art.off { opacity: .55 }
+.roles { display: flex; flex-wrap: wrap; gap: 6px; align-items: center }
+.flag { font-size: 12px; font-weight: 700; padding: 1px 8px; border-radius: 999px; background: var(--warn-bg); color: var(--warn); border: 1px solid var(--warn) }
+.cnote { font-size: 13px; color: var(--muted) }
 .preview { font-size: 14px; background: var(--surface); border: 1px solid var(--line); border-radius: 8px; padding: 8px 12px }
 .preview b { color: var(--accent) }
 .btns button.confirm { background: var(--accent); border-color: var(--accent); color: var(--surface); font-weight: 700 }
@@ -126,7 +129,11 @@ const ROLE = { core: "핵심", related: "관련", unrelated: "무관" };
 const dec = {};
 let db = null, list = ITEMS, idx = 0;
 const draft = {};  // key -> Set of selected article ids (unsaved edits on the current page)
-function defaultSel(it) { const core = (it.notes || []).filter(n => n.role === "core").map(n => n.article); return new Set(core.filter(a => it.positives.some(p => p.id === a))); }
+// Pre-selected when at least one model calls the article core; a split between the models is flagged on the card.
+function defaultSel(it) {
+  const core = [...(it.notes || []), ...(it.notes_codex || [])].filter(n => n.role === "core").map(n => n.article);
+  return new Set(core.filter(a => it.positives.some(p => p.id === a)));
+}
 function selOf(it) { if (draft[it.key]) return draft[it.key]; const d = dec[it.key]; return new Set(d && d.selected ? d.selected : [...defaultSel(it)]); }
 try { const s = JSON.parse(localStorage.getItem("train-slides-pos") || "{}"); if (s.f) document.getElementById("filter").value = s.f; } catch {}
 
@@ -171,17 +178,24 @@ function render() {
 
   const s = document.getElementById("slide");
   const notes = Object.fromEntries((it.notes || []).map(n => [n.article, n]));
+  const cnotes = Object.fromEntries((it.notes_codex || []).map(n => [n.article, n]));
   const order = { core: 0, related: 1, unrelated: 2 };
   const pos = [...it.positives].sort((a, b) => (order[(notes[a.id] || {}).role] ?? 3) - (order[(notes[b.id] || {}).role] ?? 3));
   const sel = selOf(it);
   const arts = pos.map((p, i) => {
-    const n = notes[p.id] || {}, on = sel.has(p.id);
+    const n = notes[p.id] || {}, cn = cnotes[p.id] || {}, on = sel.has(p.id);
+    const split = n.role && cn.role && (n.role === "core") !== (cn.role === "core");
     const pick = el("button", { type: "button", class: "pick", "aria-pressed": String(on), text: `${i + 1}  ${on ? "학습에 넣기 ✓" : "넣지 않음"}` });
     pick.addEventListener("click", () => toggle(p.id));
     return el("div", { class: "art " + (n.role || "") + (on ? "" : " off") },
       pick,
-      el("div", { class: "art-head" }, el("span", { class: "art-id", text: p.id }), n.role ? el("span", { class: "role " + n.role, text: `Opus 판단: ${ROLE[n.role]}` }) : null),
-      n.note ? el("div", { class: "art-note", text: n.note }) : null,
+      el("div", { class: "art-head" }, el("span", { class: "art-id", text: p.id })),
+      el("div", { class: "roles" },
+        n.role ? el("span", { class: "role " + n.role, text: `Opus: ${ROLE[n.role]}` }) : null,
+        cn.role ? el("span", { class: "role " + cn.role, text: `Codex: ${ROLE[cn.role]}` }) : null,
+        split ? el("span", { class: "flag", text: "두 모델 판단이 다름 · 확인 필요" }) : null),
+      n.note ? el("div", { class: "art-note", text: `Opus: ${n.note}` }) : null,
+      cn.note && (split || cn.role !== n.role) ? el("div", { class: "art-note", text: `Codex: ${cn.note}` }) : null,
       marked(p.text, n.quote),
       el("details", {}, el("summary", { text: "조문 전문" }), el("pre", { text: p.text })));
   });
@@ -199,7 +213,7 @@ function render() {
     el("div", { class: "ask" }, el("b", { text: "이 질문을 검색했을 때 1등으로 나와야 할 조문만 '학습에 넣기'로 선택" }),
       el("ol", {}, el("li", { text: "조문을 읽으면 질문의 답(핵심 근거)이 나오는 조문만 선택 — 관련만 있는 조문은 빼기" }),
         el("li", { text: "질문이 너무 일반적이라 경쟁 조문도 똑같이 맞으면 → '이 질문 제외'" }),
-        el("li", { text: "Opus가 핵심으로 본 조문이 미리 선택되어 있음, 다르면 바꾸고 확정" }))),
+        el("li", { text: "Opus·Codex 중 하나라도 핵심으로 본 조문이 미리 선택되어 있음, 다르면 바꾸고 확정" }))),
     el("div", { class: "sec" }, el("h2", { text: `연결된 정답 후보 조문 ${it.positives.length}개 (근거 구절은 노란 표시)` }), ...arts),
     el("div", { class: "sec" }, el("h2", { text: "두 모델의 판정" }), judges,
       o.verdict && c.verdict && o.verdict !== c.verdict ? el("div", { class: "why" }, el("b", { text: "왜 다른가" + (it.pattern ? ` · ${it.pattern}` : "") + "  " }), vw.why_differ || "") : null),
