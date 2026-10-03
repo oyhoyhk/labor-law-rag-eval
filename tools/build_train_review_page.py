@@ -29,20 +29,37 @@ for src, n in SAMPLE.items():
 rng.shuffle(items)
 for k, it in enumerate(items):  # db doc ids must be ASCII
     it["key"] = f"t{k + 1:02d}"
-(ROOT / "data/train/review_sample_v1.json").write_text(json.dumps(items, ensure_ascii=False, indent=1))
-opus_path = ROOT / "data/train/review_opus_v1.json"
-opus = json.loads(opus_path.read_text())["verdicts"] if opus_path.exists() else {}
-codex_path = ROOT / "data/train/review_codex_v1.json"
-codex = json.loads(codex_path.read_text())["verdicts"] if codex_path.exists() else {}
-views_path = ROOT / "data/train/review_views_v1.json"
-views = json.loads(views_path.read_text()) if views_path.exists() else {}
-# Disagreement patterns, grouped by hand after reading both models' reasons (tools/summarize_review_views.py).
-PATTERN = {'t24': '구별 가능성 vs 내용 일치', 't40': '구별 가능성 vs 내용 일치', 't15': '판례 근거 조문 vs 쟁점 전체의 직접 규정', 't18': '판례 근거 조문 vs 쟁점 전체의 직접 규정', 't25': '같은 결함, 심각도 판단 차이'}
+# Competing articles for the v2 audit: what the current retriever (whole-article index) returns for the query,
+# minus the labelled positives, so a judge can tell whether the query singles out its positive.
+from app.rag import retriever  # noqa: E402
+ret = retriever("whole")
 for it in items:
-    it["view"] = views.get(it["id"])
-    it["pattern"] = PATTERN.get(it["key"])
-    it["opus"] = opus.get(it["id"])
-    it["codex"] = codex.get(it["id"])
+    pos = {p["id"] for p in it["positives"]}
+    comp = [a for h in ret.search(it["query"], 12) for a in h["article_ids"] if a not in pos]
+    it["competitors"] = [{"id": a, "text": texts.get(a, "")} for a in dict.fromkeys(comp)][:5]
+(ROOT / "data/train/review_sample_v1.json").write_text(json.dumps(items, ensure_ascii=False, indent=1))
+def load(name: str) -> dict:
+    path = ROOT / f"data/train/{name}.json"
+    return json.loads(path.read_text()).get("verdicts", json.loads(path.read_text())) if path.exists() else {}
+
+
+# v2 audit (with competing articles) is primary; v1 kept for comparison.
+opus, codex, views = load("review_opus_v2"), load("review_codex_v2"), load("review_views_v2")
+opus_v1, codex_v1 = load("review_opus_v1"), load("review_codex_v1")
+
+
+def pattern(o: dict, c: dict) -> str | None:
+    if not o or not c or o.get("verdict") == c.get("verdict"):
+        return None
+    if o.get("answers") == c.get("answers") and o.get("distinct") == c.get("distinct"):
+        return "같은 사실 판단, 등급 차이"
+    return "구별 가능성 판단 차이" if o.get("distinct") != c.get("distinct") else "답변 가능성 판단 차이"
+
+
+for it in items:
+    o, c = opus.get(it["id"]), codex.get(it["id"])
+    it.update(opus=o, codex=c, view=views.get(it["id"]), pattern=pattern(o, c),
+              v1={"opus": (opus_v1.get(it["id"]) or {}).get("verdict"), "codex": (codex_v1.get(it["id"]) or {}).get("verdict")})
 page = (ROOT / "tools/train_review_page.html").read_text()
 Path(sys.argv[1]).write_text(page.replace("__ITEMS__", json.dumps(items, ensure_ascii=False).replace("</", "<\\/")))
 print(f"{len(items)} pairs → {sys.argv[1]}")

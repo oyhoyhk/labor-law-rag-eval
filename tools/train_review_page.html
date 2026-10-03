@@ -72,7 +72,7 @@ input.note { width: 100%; margin-top: 8px; font: inherit; font-size: 14px; paddi
 
 <div class="wrap">
   <h1>학습 데이터 표본 검수</h1>
-  <p class="lede">임베딩 파인튜닝용 (질문, 정답 조문) 3,519쌍 중 출처별 무작위 40쌍. Claude Opus와 Codex(gpt-6-astra)가 같은 기준으로 각각 판정하고 이유를 남김(두 모델 일치 35/40). 맞는 쪽에 <b>동의</b>하거나 직접 선택. 결과는 학습 데이터 정확도 추정에 사용</p>
+  <p class="lede">임베딩 파인튜닝용 (질문, 정답 조문) 3,519쌍 중 출처별 무작위 40쌍. Claude Opus와 Codex(gpt-6-astra)가 같은 기준으로 각각 판정. 판정 v2는 정답 조문과 함께 <b>현재 검색기가 상위로 가져오는 경쟁 조문 5개</b>를 보여 주고, A(조문이 답하는가)·B(경쟁 조문과 구별되는가)를 따로 판정. 두 모델의 A·B 판단 일치 39/40. 맞는 쪽에 <b>동의</b>하거나 직접 선택. 결과는 학습 데이터 정확도 추정에 사용</p>
   <div class="summary" id="summary"></div>
   <div class="guide">
     <span><b>적합</b>: 질문의 답(또는 핵심 근거)이 이 조문에 있음</span>
@@ -116,14 +116,20 @@ function card(it) {
   c.append(el("p", { class: "q", text: it.query }));
   const o = it.opus || {}, x = it.codex || {};
   const vw = it.view || {};
+  const flag = (j, k, l) => j[k] === undefined ? "" : `${l} ${j[k] ? "✓" : "✗"}`;
   const pt = (who, j, point) => el("div", { class: "pt " + (j.verdict || "") }, el("span", { class: "who", text: who }),
-    el("span", { class: "v", text: VLABEL[j.verdict] || "판정 없음" }), el("span", { text: point || j.reason || "" }));
+    el("span", { class: "v", text: (VLABEL[j.verdict] || "판정 없음") + "  " + [flag(j, "answers", "A 답변"), flag(j, "distinct", "B 구별")].filter(Boolean).join(" · ") }),
+    el("span", { text: point || j.reason || "" }));
   if (o.verdict || x.verdict) c.append(el("div", { class: "points" }, pt("Opus 요점", o, vw.opus_point), pt("Codex 요점", x, vw.codex_point)));
   if (o.verdict && x.verdict && o.verdict !== x.verdict)
     c.append(el("div", { class: "why" }, el("b", { text: "왜 다른가" + (it.pattern ? ` · ${it.pattern}` : "") }), el("span", { text: vw.why_differ || "" })));
   c.append(el("details", { class: "reasons" }, el("summary", { text: "두 모델의 판정 이유 원문" }),
     el("div", { class: "opus " + (o.verdict || "") }, el("span", { text: `Opus: ${o.reason || ""}` })),
-    el("div", { class: "opus " + (x.verdict || "") }, el("span", { text: `Codex: ${x.reason || ""}` }))));
+    el("div", { class: "opus " + (x.verdict || "") }, el("span", { text: `Codex: ${x.reason || ""}` })),
+    el("div", { class: "opus" }, el("span", { text: `판정 v1(경쟁 조문 없이): Opus ${VLABEL[(it.v1 || {}).opus] || "—"} · Codex ${VLABEL[(it.v1 || {}).codex] || "—"}` }))));
+  if (it.competitors && it.competitors.length)
+    c.append(el("details", { class: "reasons" }, el("summary", { text: `경쟁 조문 ${it.competitors.length}개 (현재 검색기가 이 질문에 가져오는 다른 조문)` }),
+      ...it.competitors.map(cp => el("details", {}, el("summary", { text: cp.id }), el("pre", { text: cp.text })))));
   c.append(el("div", { class: "label", text: `정답 조문 ${it.positives.length}개` }));
   it.positives.forEach((p, i) => {
     const det = el("details", i < 1 ? { open: "" } : {}, el("summary", { text: p.id }), el("pre", { text: p.text || "(본문 없음)" }));
@@ -167,7 +173,10 @@ function summary() {
   });
   const pats = {};
   ITEMS.filter(i => i.pattern).forEach(i => (pats[i.pattern] = pats[i.pattern] || []).push(i.key));
-  const desc = { "구별 가능성 vs 내용 일치": "Opus는 질문만으로 다른 법령의 같은 조문과 구별되는지(검색 학습 관점), Codex는 조문 내용이 질문에 답하는지를 우선",
+  const desc = { "같은 사실 판단, 등급 차이": "A·B 판단은 같고 애매와 부적합 중 어느 등급을 붙일지만 다름 → 학습 사용 여부(A·B 모두 충족)는 동일",
+    "구별 가능성 판단 차이": "경쟁 조문과 구별되는지(B)에 대한 판단이 다름",
+    "답변 가능성 판단 차이": "정답 조문이 질문에 답하는지(A)에 대한 판단이 다름",
+    "구별 가능성 vs 내용 일치": "Opus는 질문만으로 다른 법령의 같은 조문과 구별되는지(검색 학습 관점), Codex는 조문 내용이 질문에 답하는지를 우선",
     "판례 근거 조문 vs 쟁점 전체의 직접 규정": "Opus는 판례가 근거로 삼은 조문이 들어 있는지, Codex는 판례 쟁점 전부(손해배상·소멸시효 등)를 조문이 직접 규정하는지를 우선",
     "같은 결함, 심각도 판단 차이": "둘 다 핵심 근거 누락을 지적, Opus는 일부 관련성을 인정해 애매, Codex는 결론을 뒷받침할 수 없다고 보아 부적합" };
   const ph = Object.entries(pats).map(([k, ids]) => `<span><b>${k}</b> (${ids.join(", ")}): ${desc[k] || ""}</span>`).join("");

@@ -1,10 +1,11 @@
 """Condense the Opus and Codex audit reasons into short per-model key points, and explain each disagreement.
 A summarization pass over the two models' own reasons — no new verdicts.
 
-Usage: uv run python tools/summarize_review_views.py
-Output: data/train/review_views_v1.json  {pair id: {opus_point, codex_point, why_differ}}
+Usage: uv run python tools/summarize_review_views.py [--version v1|v2]
+Output: data/train/review_views_<version>.json  {pair id: {opus_point, codex_point, why_differ}}
 """
 
+import argparse
 import json
 import subprocess
 from pathlib import Path
@@ -23,14 +24,18 @@ JSON 한 개로만 답: {{"<id>": {{"opus_point": "...", "codex_point": "...", "
 
 
 def main() -> None:
+    ap = argparse.ArgumentParser()
+    ap.add_argument("--version", default="v1", choices=["v1", "v2"])
+    v = ap.parse_args().version
     sample = json.loads((ROOT / "data/train/review_sample_v1.json").read_text())
-    opus = json.loads((ROOT / "data/train/review_opus_v1.json").read_text())["verdicts"]
-    codex = json.loads((ROOT / "data/train/review_codex_v1.json").read_text())["verdicts"]
+    opus = json.loads((ROOT / f"data/train/review_opus_{v}.json").read_text())["verdicts"]
+    codex = json.loads((ROOT / f"data/train/review_codex_{v}.json").read_text())["verdicts"]
     lines = []
     for it in sample:
         o, c = opus[it["id"]], codex[it["id"]]
+        sub = lambda j: f" (답변={j.get('answers')}, 구별={j.get('distinct')})" if "answers" in j else ""
         lines.append(f"[{it['key']}] 출처={it['source']} 질문={it['query']}\n  정답 조문={', '.join(p['id'] for p in it['positives'])}\n"
-                     f"  Opus={o['verdict']}: {o['reason']}\n  Codex={c['verdict']}: {c['reason']}")
+                     f"  Opus={o['verdict']}{sub(o)}: {o['reason']}\n  Codex={c['verdict']}{sub(c)}: {c['reason']}")
     cmd = ["claude", "-p", "--model", "opus", "--output-format", "json", "--tools", "", "--setting-sources", "",
            "--strict-mcp-config", "--no-session-persistence"]
     proc = subprocess.run(cmd, input=PROMPT.format(items="\n\n".join(lines)), capture_output=True, text=True,
@@ -39,7 +44,7 @@ def main() -> None:
     views = json.loads(text[text.find("{"):text.rfind("}") + 1])
     by_key = {it["key"]: it["id"] for it in sample}
     out = {by_key[k]: v for k, v in views.items() if k in by_key}
-    (ROOT / "data/train/review_views_v1.json").write_text(json.dumps(out, ensure_ascii=False, indent=1))
+    (ROOT / f"data/train/review_views_{v}.json").write_text(json.dumps(out, ensure_ascii=False, indent=1))
     print(len(out), "views")
 
 
