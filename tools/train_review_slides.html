@@ -1,0 +1,232 @@
+<title>학습 데이터 표본 검수</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+KR:wght@400;500;700&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+/* Layout: one pair per screen, like turning pages of a case file — question, the judging question, evidence grouped
+   by role, the two models' views, then a verdict that advances to the next page. */
+:root {
+  --bg: #f3f5f4; --surface: #ffffff; --line: #d8dedb; --fg: #18221f; --fg2: #47544f; --muted: #7a8681;
+  --accent: #21645a; --accent-bg: #e0ede9; --mark: #fde68a;
+  --good: #23704a; --good-bg: #e1f1e7; --bad: #a8352d; --bad-bg: #f8e2df; --warn: #8a5a12; --warn-bg: #f5ead3;
+  --font-body: "IBM Plex Sans KR", "Apple SD Gothic Neo", "Malgun Gothic", system-ui, sans-serif;
+  --font-mono: "IBM Plex Mono", ui-monospace, Menlo, monospace;
+}
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) {
+  --bg: #111614; --surface: #19201d; --line: #2b3531; --fg: #e3e9e6; --fg2: #b1bcb7; --muted: #83908a;
+  --accent: #7cc4b2; --accent-bg: #1c302a; --mark: #6b5414;
+  --good: #7ccf9d; --good-bg: #173123; --bad: #ec8d85; --bad-bg: #3a201f; --warn: #e0b46a; --warn-bg: #392e19; color-scheme: dark } }
+:root[data-theme="dark"] {
+  --bg: #111614; --surface: #19201d; --line: #2b3531; --fg: #e3e9e6; --fg2: #b1bcb7; --muted: #83908a;
+  --accent: #7cc4b2; --accent-bg: #1c302a; --mark: #6b5414;
+  --good: #7ccf9d; --good-bg: #173123; --bad: #ec8d85; --bad-bg: #3a201f; --warn: #e0b46a; --warn-bg: #392e19; color-scheme: dark }
+* { box-sizing: border-box }
+body { background: var(--bg); color: var(--fg); font: 15px/1.65 var(--font-body) }
+.wrap { max-width: 860px; margin: 0 auto; padding-inline: 16px; padding-block: 0 72px }
+.bar { position: sticky; top: env(safe-area-inset-top, 0px); z-index: 5; background: var(--bg); padding-block: 12px 10px; border-bottom: 1px solid var(--line); display: grid; gap: 8px }
+.bar-row { display: flex; flex-wrap: wrap; align-items: center; gap: 8px 12px }
+h1 { font-size: 18px; margin: 0; margin-right: auto }
+.pos { font-family: var(--font-mono); font-variant-numeric: tabular-nums; font-size: 14px }
+.prog { height: 4px; background: var(--line); border-radius: 2px; overflow: hidden }
+.prog i { display: block; height: 100%; background: var(--accent); width: 0 }
+button { font: inherit; cursor: pointer }
+.nav { border: 1px solid var(--line); background: var(--surface); color: var(--fg); border-radius: 6px; padding: 4px 12px; font-size: 14px }
+.nav:disabled { opacity: .4; cursor: default }
+select { font: inherit; font-size: 13px; padding: 3px 6px; border: 1px solid var(--line); border-radius: 6px; background: var(--surface); color: var(--fg) }
+.tally { font-size: 13px; color: var(--fg2); font-variant-numeric: tabular-nums }
+.notice { font-size: 13px; padding: 6px 10px; border-radius: 6px; background: var(--warn-bg); color: var(--warn) }
+.slide { display: grid; gap: 16px; margin-top: 18px }
+.meta { display: flex; gap: 8px; align-items: center; font-size: 12px; flex-wrap: wrap }
+.chip { padding: 1px 8px; border-radius: 999px; background: var(--accent-bg); color: var(--accent); font-weight: 500 }
+.key { font-family: var(--font-mono); color: var(--muted) }
+.q { font-size: 21px; font-weight: 700; line-height: 1.5; margin: 0; text-wrap: pretty }
+.ask { border: 1px solid var(--accent); border-radius: 8px; padding: 12px 14px; background: var(--surface); display: grid; gap: 4px; font-size: 14px }
+.ask b { color: var(--accent); font-size: 15px }
+.ask ol { margin: 2px 0 0; padding-left: 1.3em; color: var(--fg2) }
+.sec { display: grid; gap: 8px }
+.sec h2 { font-size: 13px; letter-spacing: .04em; color: var(--muted); margin: 0; font-weight: 500 }
+.art { background: var(--surface); border: 1px solid var(--line); border-radius: 8px; padding: 12px 14px; display: grid; gap: 6px; min-width: 0 }
+.art.core { border-left: 4px solid var(--good) } .art.related { border-left: 4px solid var(--warn) } .art.unrelated { border-left: 4px solid var(--bad); opacity: .85 }
+.art-head { display: flex; flex-wrap: wrap; align-items: baseline; gap: 6px 10px }
+.art-id { font-weight: 700 }
+.role { font-size: 12px; font-weight: 700; padding: 1px 8px; border-radius: 999px }
+.role.core { background: var(--good-bg); color: var(--good) } .role.related { background: var(--warn-bg); color: var(--warn) } .role.unrelated { background: var(--bad-bg); color: var(--bad) }
+.art-note { font-size: 14px; color: var(--fg2) }
+.excerpt { font-size: 14px; background: var(--bg); border-radius: 6px; padding: 8px 10px }
+mark { background: var(--mark); color: inherit; border-radius: 2px; padding: 0 1px }
+details summary { cursor: pointer; color: var(--accent); font-size: 13px }
+pre { white-space: pre-wrap; word-break: keep-all; overflow-wrap: anywhere; font: 13px/1.6 var(--font-body); background: var(--bg); border-radius: 6px; padding: 10px 12px; margin: 6px 0 0; max-height: 340px; overflow: auto }
+.judges { overflow-x: auto; border: 1px solid var(--line); border-radius: 8px; background: var(--surface) }
+table { border-collapse: collapse; width: 100%; font-size: 14px }
+th, td { padding: 8px 10px; border-bottom: 1px solid var(--line); text-align: left; vertical-align: top }
+th { font-size: 12px; color: var(--muted); font-weight: 500 }
+tr:last-child td { border-bottom: 0 }
+td.v { font-weight: 700; white-space: nowrap } td.v.ok { color: var(--good) } td.v.bad { color: var(--bad) } td.v.unsure { color: var(--warn) }
+td.f { white-space: nowrap; font-family: var(--font-mono); font-size: 13px }
+.why { border-left: 3px solid var(--accent); background: var(--accent-bg); padding: 8px 12px; border-radius: 0 6px 6px 0; font-size: 14px }
+.comp { display: grid; gap: 4px }
+.decide { position: sticky; bottom: 0; background: var(--bg); border-top: 1px solid var(--line); padding-block: 12px calc(12px + env(safe-area-inset-bottom, 0px)); display: grid; gap: 8px }
+.btns { display: flex; flex-wrap: wrap; gap: 8px; align-items: center }
+.btns button { border: 1px solid var(--line); background: var(--surface); color: var(--fg); border-radius: 8px; padding: 8px 16px; font-size: 15px }
+.btns button.ok[aria-pressed="true"] { background: var(--good); border-color: var(--good); color: var(--surface) }
+.btns button.unsure[aria-pressed="true"] { background: var(--warn); border-color: var(--warn); color: var(--surface) }
+.btns button.bad[aria-pressed="true"] { background: var(--bad); border-color: var(--bad); color: var(--surface) }
+.btns .hint { font-size: 12px; color: var(--muted) }
+.note { width: 100%; font: inherit; font-size: 14px; padding: 6px 10px; border: 1px solid var(--line); border-radius: 6px; background: var(--surface); color: var(--fg) }
+button:focus-visible, select:focus-visible, summary:focus-visible, input:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px }
+</style>
+
+<div class="wrap">
+  <div class="bar">
+    <div class="bar-row">
+      <h1>학습 데이터 표본 검수</h1>
+      <button class="nav" id="prev" type="button" aria-label="이전">← 이전</button>
+      <span class="pos" id="pos"></span>
+      <button class="nav" id="next" type="button" aria-label="다음">다음 →</button>
+    </div>
+    <div class="bar-row">
+      <label class="tally" for="filter">보기</label>
+      <select id="filter">
+        <option value="all">전체 40</option>
+        <option value="flagged">한 모델이라도 문제로 본 것</option>
+        <option value="split">두 모델 판정이 다른 것</option>
+        <option value="todo">아직 판단 안 한 것</option>
+      </select>
+      <span class="tally" id="tally"></span>
+    </div>
+    <div class="prog"><i id="prog"></i></div>
+    <div class="notice" id="notice" hidden></div>
+  </div>
+  <div class="slide" id="slide"></div>
+  <div class="decide">
+    <div class="btns" role="group" aria-label="판단">
+      <button type="button" class="ok" data-v="ok">적합 <span class="hint">1</span></button>
+      <button type="button" class="unsure" data-v="unsure">애매 <span class="hint">2</span></button>
+      <button type="button" class="bad" data-v="bad">부적합 <span class="hint">3</span></button>
+      <span class="hint" id="saved"></span>
+      <span class="hint">선택하면 다음 장으로 넘어감 · ←/→ 이동</span>
+    </div>
+    <input class="note" id="note" placeholder="메모 (선택)" aria-label="메모">
+  </div>
+</div>
+
+<script type="application/json" id="items">__ITEMS__</script>
+<script>
+const ITEMS = JSON.parse(document.getElementById("items").textContent);
+const SRC = { precedent: "판례 쟁점 → 참조조문", synthetic: "합성 질문 → 조문", title: "조 제목 → 조문" };
+const VL = { ok: "적합", bad: "부적합", unsure: "애매" };
+const ROLE = { core: "핵심", related: "관련", unrelated: "무관" };
+const dec = {};
+let db = null, list = ITEMS, idx = 0;
+try { const s = JSON.parse(localStorage.getItem("train-slides-pos") || "{}"); if (s.f) document.getElementById("filter").value = s.f; } catch {}
+
+function el(tag, attrs = {}, ...kids) {
+  const e = document.createElement(tag);
+  for (const [k, v] of Object.entries(attrs)) { if (k === "class") e.className = v; else if (k === "text") e.textContent = v; else if (v != null) e.setAttribute(k, v); }
+  for (const k of kids) if (k != null) e.append(k);
+  return e;
+}
+function marked(text, quote) {
+  const box = el("div", { class: "excerpt" });
+  const q = (quote || "").trim(), i = q ? text.replace(/\s+/g, " ").indexOf(q.replace(/\s+/g, " ")) : -1;
+  const flat = text.replace(/\s+/g, " ");
+  if (i < 0) { box.textContent = flat.slice(0, 220) + (flat.length > 220 ? "…" : ""); return box; }
+  const a = Math.max(0, i - 90), b = Math.min(flat.length, i + q.length + 110);
+  box.append((a > 0 ? "…" : "") + flat.slice(a, i), el("mark", { text: flat.slice(i, i + q.length) }), flat.slice(i + q.length, b) + (b < flat.length ? "…" : ""));
+  return box;
+}
+function visible(it, f) {
+  const o = it.opus || {}, c = it.codex || {};
+  if (f === "flagged") return o.verdict !== "ok" || c.verdict !== "ok";
+  if (f === "split") return o.verdict !== c.verdict;
+  if (f === "todo") return !(dec[it.key] || {}).decision;
+  return true;
+}
+function applyFilter(keepKey) {
+  const f = document.getElementById("filter").value;
+  list = ITEMS.filter(it => visible(it, f));
+  if (!list.length) list = ITEMS;
+  const k = keepKey ? list.findIndex(it => it.key === keepKey) : -1;
+  idx = k >= 0 ? k : Math.min(idx, list.length - 1);
+}
+function render() {
+  const it = list[idx], o = it.opus || {}, c = it.codex || {}, vw = it.view || {}, d = dec[it.key] || {};
+  document.getElementById("pos").textContent = `${idx + 1} / ${list.length}`;
+  document.getElementById("prev").disabled = idx === 0;
+  document.getElementById("next").disabled = idx === list.length - 1;
+  const done = ITEMS.filter(x => (dec[x.key] || {}).decision).length;
+  document.getElementById("prog").style.width = (100 * done / ITEMS.length) + "%";
+  const cnt = v => ITEMS.filter(x => (dec[x.key] || {}).decision === v).length;
+  document.getElementById("tally").textContent = `판단 ${done}/${ITEMS.length} · 적합 ${cnt("ok")} · 애매 ${cnt("unsure")} · 부적합 ${cnt("bad")}`;
+
+  const s = document.getElementById("slide");
+  const notes = Object.fromEntries((it.notes || []).map(n => [n.article, n]));
+  const order = { core: 0, related: 1, unrelated: 2 };
+  const pos = [...it.positives].sort((a, b) => (order[(notes[a.id] || {}).role] ?? 3) - (order[(notes[b.id] || {}).role] ?? 3));
+  const arts = pos.map(p => {
+    const n = notes[p.id] || {};
+    return el("div", { class: "art " + (n.role || "") },
+      el("div", { class: "art-head" }, el("span", { class: "art-id", text: p.id }), n.role ? el("span", { class: "role " + n.role, text: ROLE[n.role] }) : null),
+      n.note ? el("div", { class: "art-note", text: n.note }) : null,
+      marked(p.text, n.quote),
+      el("details", {}, el("summary", { text: "조문 전문" }), el("pre", { text: p.text })));
+  });
+  const row = (who, j, point) => el("tr", {}, el("td", { text: who }), el("td", { class: "v " + (j.verdict || ""), text: VL[j.verdict] || "—" }),
+    el("td", { class: "f", text: j.answers === undefined ? "—" : (j.answers ? "✓" : "✗") }), el("td", { class: "f", text: j.distinct === undefined ? "—" : (j.distinct ? "✓" : "✗") }),
+    el("td", { text: point || j.reason || "" }));
+  const judges = el("div", { class: "judges" }, el("table", {},
+    el("thead", {}, el("tr", {}, ...["모델", "등급", "A 답변", "B 구별", "요점"].map(h => el("th", { text: h })))),
+    el("tbody", {}, row("Opus", o, vw.opus_point), row("Codex", c, vw.codex_point))));
+  const comps = (it.competitors || []).map(cp => el("details", {}, el("summary", { text: `${cp.id} · ${(cp.text.split("\n")[0] || "").replace(/^.*?제\d+조(의\d+)?/, "").trim()}` }), el("pre", { text: cp.text })));
+  s.replaceChildren(
+    el("div", { class: "meta" }, el("span", { class: "chip", text: SRC[it.source] }), el("span", { class: "key", text: it.key })),
+    el("p", { class: "q", text: it.query }),
+    el("div", { class: "ask" }, el("b", { text: "이 질문을 검색하면, 아래 정답 조문이 1등으로 나와야 맞는가?" }),
+      el("ol", {}, el("li", { text: "정답 조문(핵심 표시)을 읽으면 질문의 답이 나오는가 → 아니면 부적합" }),
+        el("li", { text: "경쟁 조문보다 이 조문이 더 맞는가 → 경쟁 조문도 똑같이 맞으면 부적합, 비슷하면 애매" }))),
+    el("div", { class: "sec" }, el("h2", { text: `정답 조문 ${it.positives.length}개 (역할 · 근거 구절은 노란 표시)` }), ...arts),
+    el("div", { class: "sec" }, el("h2", { text: "두 모델의 판정" }), judges,
+      o.verdict && c.verdict && o.verdict !== c.verdict ? el("div", { class: "why" }, el("b", { text: "왜 다른가" + (it.pattern ? ` · ${it.pattern}` : "") + "  " }), vw.why_differ || "") : null),
+    comps.length ? el("div", { class: "sec" }, el("h2", { text: "경쟁 조문 (현재 검색기가 이 질문에 가져오는 다른 조문)" }), el("div", { class: "comp" }, ...comps)) : null);
+  document.querySelectorAll(".btns button[data-v]").forEach(b => b.setAttribute("aria-pressed", String(d.decision === b.dataset.v)));
+  document.getElementById("note").value = d.note || "";
+  document.getElementById("saved").textContent = d.at ? "저장됨" : "";
+  try { localStorage.setItem("train-slides-pos", JSON.stringify({ f: document.getElementById("filter").value, k: it.key })); } catch {}
+  window.scrollTo({ top: 0 });
+}
+function notice(t) { const n = document.getElementById("notice"); n.hidden = !t; n.textContent = t || ""; }
+async function save(patch) {
+  const it = list[idx];
+  const next = { ...(dec[it.key] || {}), ...patch, pair: it.id, source: it.source, opus: (it.opus || {}).verdict || null,
+    codex: (it.codex || {}).verdict || null, by: "user", at: new Date().toISOString() };
+  dec[it.key] = next;
+  if (db) { try { await db.collection("train_review_v1").doc(it.key).set(next); } catch { notice("저장하지 못했습니다. 다시 눌러 주세요."); } }
+  else { try { localStorage.setItem("train-review-v1", JSON.stringify(dec)); } catch {} }
+}
+function go(d) { const n = idx + d; if (n >= 0 && n < list.length) { idx = n; render(); } }
+async function decide(v) {
+  const cur = (dec[list[idx].key] || {}).decision;
+  await save({ decision: cur === v ? null : v, note: document.getElementById("note").value });
+  if (cur !== v && idx < list.length - 1) go(1); else render();
+}
+document.getElementById("prev").addEventListener("click", () => go(-1));
+document.getElementById("next").addEventListener("click", () => go(1));
+document.querySelectorAll(".btns button[data-v]").forEach(b => b.addEventListener("click", () => decide(b.dataset.v)));
+document.getElementById("filter").addEventListener("change", () => { applyFilter(list[idx] && list[idx].key); idx = 0; render(); });
+let nt; document.getElementById("note").addEventListener("input", e => { clearTimeout(nt); nt = setTimeout(() => save({ note: e.target.value }), 800); });
+document.addEventListener("keydown", e => {
+  if (e.target.tagName === "INPUT" || e.target.tagName === "SELECT") return;
+  if (e.key === "ArrowRight") go(1); else if (e.key === "ArrowLeft") go(-1);
+  else if (e.key === "1") decide("ok"); else if (e.key === "2") decide("unsure"); else if (e.key === "3") decide("bad");
+});
+let startKey = null; try { startKey = JSON.parse(localStorage.getItem("train-slides-pos") || "{}").k; } catch {}
+applyFilter(startKey); render();
+(async () => {
+  db = window.claude ? await window.claude.use("db") : null;
+  if (!db) { try { Object.assign(dec, JSON.parse(localStorage.getItem("train-review-v1") || "{}")); } catch {} notice("판단이 이 브라우저에만 저장됩니다. claude.ai에서 열어 주세요."); render(); return; }
+  db.collection("train_review_v1").onSnapshot(snap => {
+    let ch = false;
+    for (const x of snap.docChanges()) { const v = x.doc.data() || {}; if (!dec[x.doc.id] || dec[x.doc.id].at !== v.at) { dec[x.doc.id] = v; ch = true; } }
+    if (ch && document.activeElement !== document.getElementById("note")) render();
+  }, () => notice("저장소 연결이 끊겼습니다. 새로 고쳐 주세요."));
+})();
+</script>
