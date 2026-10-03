@@ -138,10 +138,11 @@ svg .grid { stroke: var(--line-soft); stroke-width: 1 }
 <script>
 const DATA = __DATA__;
 const M = {
+  M0_accuracy: ["M0 전체 정답률 (헤드라인)", "종합", false],
   M1_recall_any: ["M1 Recall@k (any)", "검색", false], M1_recall_all: ["M1 Recall@k (all)", "검색", false], M1_mrr: ["M1 MRR", "검색", false],
   M2_oos_refusal: ["M2 범위 밖 거절", "거절", false], M2_over_refusal: ["M2 과잉 거절", "거절", true],
   M3_citation_precision: ["M3 인용 정밀도", "인용", false], M3_citation_recall: ["M3 인용 재현율", "인용", false],
-  M4_complete: ["M4 완전 정답 (주 지표)", "답변", false], M4_kp_coverage: ["M4 정답 포인트", "답변", false], M4_all_kp: ["M4 전 포인트 충족", "답변", false],
+  M4_complete: ["M4 완전 정답", "답변", false], M4_kp_coverage: ["M4 정답 포인트", "답변", false], M4_all_kp: ["M4 전 포인트 충족", "답변", false],
   M5_unsupported_rate: ["M5 근거 없는 주장률", "답변", true], M6_temporal_error: ["M6 시점 오류", "답변", true],
 };
 const ORDER = Object.keys(M);

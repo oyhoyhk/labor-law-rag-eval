@@ -30,13 +30,17 @@ def item_scores(item: dict, pred: dict, judgment: dict | None) -> dict:
         # answer and is scored like any answerable item.
         "m2_correct_status": (not answered or (judgment or {}).get("grade", {}).get("asserts_conclusion") is False)
         if item["level"] == "L5b" and not expected_answer else answered == expected_answer,
-        # M3 citations (answered items only)
+        # M3 citations. Precision over answered items only (a refusal cites nothing); recall over every answerable
+        # item, a refusal counting 0, so refusing hard items cannot raise it.
         "m3_citation_precision": (len(cited & gold) / len(cited) if cited else None) if answered and gold else None,
-        "m3_citation_recall": (len(cited & gold) / len(gold)) if answered and gold else None,
+        "m3_citation_recall": ((len(cited & gold) / len(gold)) if answered else 0.0) if expected_answer and gold else None,
         "cost_krw": pred["meta"].get("cost_krw", 0.0), "latency_ms": pred["meta"].get("latency_ms"),
     }
     # End to end: an answerable item answered with every key point. A refusal counts as a miss.
     s["m4_complete"] = None if not expected_answer else False
+    # Key-point coverage counts a refused answerable item as 0 for the same reason as citation recall.
+    if expected_answer and not answered and item["key_points"]:
+        s["m4_kp_coverage"] = 0.0
     if judgment and answered:
         g, gr = judgment.get("grade", {}), judgment.get("grounding", {})
         kps = g.get("key_points", [])
@@ -53,6 +57,8 @@ def item_scores(item: dict, pred: dict, judgment: dict | None) -> dict:
             s["m6_temporal_error"] = bool(g["temporal_error"])
         if "asserts_conclusion" in g:
             s["soft_refusal_ok"] = not g["asserts_conclusion"]
+    # M0 overall accuracy over all items: answerable → complete answer, refusal-expected → correct refusal.
+    s["m0_correct"] = bool(s["m4_complete"]) if expected_answer else s["m2_correct_status"]
     return s
 
 
@@ -66,6 +72,7 @@ def aggregate(rows: list[dict]) -> dict:
     refusable = [r for r in rows if r["expected"] != "answered"]
     out = {
         "n": len(rows),
+        "M0_accuracy": _avg(rows, "m0_correct"),
         "M1_recall_any": _avg(rows, "m1_recall_any"), "M1_recall_all": _avg(rows, "m1_recall_all"),
         "M1_mrr": _avg(rows, "m1_rr"), "M1_with_links_any": _avg(rows, "m1_with_links_any"),
         # M2: out-of-corpus refusal, L5b no-assertion (refuse or hedge; refusal-expected L5b only, None when

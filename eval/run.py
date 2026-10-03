@@ -28,7 +28,7 @@ from eval.metrics import aggregate, by_group, item_scores
 GOLD = ROOT / "eval" / "gold" / "gold_v2.jsonl"
 SPLITS = ROOT / "eval" / "gold" / "splits.json"
 CACHE = ROOT / "data" / "cache" / "llm"
-METRIC_KEYS = ["M1_recall_any", "M1_recall_all", "M1_mrr", "M2_oos_refusal", "M2_l5b_no_assertion", "M2_over_refusal", "M3_citation_precision", "M3_citation_recall", "M4_kp_coverage", "M4_all_kp", "M4_complete",
+METRIC_KEYS = ["M0_accuracy", "M1_recall_any", "M1_recall_all", "M1_mrr", "M2_oos_refusal", "M2_l5b_no_assertion", "M2_over_refusal", "M3_citation_precision", "M3_citation_recall", "M4_kp_coverage", "M4_all_kp", "M4_complete",
                "M5_unsupported_rate", "M6_temporal_error"]
 
 

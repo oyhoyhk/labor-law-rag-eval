@@ -5,6 +5,18 @@
   "eval/results/v2/final-noise-3"
  ],
  "metrics": {
+  "M0_accuracy": {
+   "values": [
+    0.79,
+    0.76,
+    0.78
+   ],
+   "mean": 0.7767,
+   "min": 0.76,
+   "max": 0.79,
+   "range": 0.03,
+   "std": 0.0125
+  },
   "M1_recall_any": {
    "values": [
     0.924,
@@ -79,25 +91,25 @@
   },
   "M3_citation_recall": {
    "values": [
-    0.872,
-    0.885,
-    0.895
+    0.815,
+    0.828,
+    0.837
    ],
-   "mean": 0.884,
-   "min": 0.872,
-   "max": 0.895,
-   "range": 0.023,
-   "std": 0.0094
+   "mean": 0.8267,
+   "min": 0.815,
+   "max": 0.837,
+   "range": 0.022,
+   "std": 0.009
   },
   "M4_kp_coverage": {
    "values": [
-    0.91,
-    0.9,
-    0.91
+    0.851,
+    0.841,
+    0.851
    ],
-   "mean": 0.9067,
-   "min": 0.9,
-   "max": 0.91,
+   "mean": 0.8477,
+   "min": 0.841,
+   "max": 0.851,
    "range": 0.01,
    "std": 0.0047
   },
@@ -161,9 +173,9 @@
   },
   "exception:m4_kp_coverage": {
    "values": [
-    0.8636,
-    0.8636,
-    0.8636
+    0.7917,
+    0.7917,
+    0.7917
    ],
    "range": 0.0
   },
@@ -209,11 +221,11 @@
   },
   "temporal:m4_kp_coverage": {
    "values": [
-    0.8576,
-    0.8197,
-    0.8803
+    0.7547,
+    0.7213,
+    0.7747
    ],
-   "range": 0.0606
+   "range": 0.0534
   },
   "temporal:m1_recall_all": {
    "values": [
@@ -257,9 +269,9 @@
   },
   "precedent:m4_kp_coverage": {
    "values": [
-    0.9333,
-    0.9333,
-    0.9333
+    0.5185,
+    0.5185,
+    0.5185
    ],
    "range": 0.0
   },
@@ -281,11 +293,11 @@
   },
   "split:dev:m4_kp_coverage": {
    "values": [
-    0.8553,
-    0.886,
-    0.886
+    0.8125,
+    0.8417,
+    0.8417
    ],
-   "range": 0.0307
+   "range": 0.0292
   },
   "split:dev:m1_recall_all": {
    "values": [
@@ -305,11 +317,11 @@
   },
   "split:test:m4_kp_coverage": {
    "values": [
-    0.9531,
-    0.9115,
-    0.9288
+    0.8798,
+    0.8413,
+    0.8574
    ],
-   "range": 0.0416
+   "range": 0.0385
   },
   "split:test:m1_recall_all": {
    "values": [

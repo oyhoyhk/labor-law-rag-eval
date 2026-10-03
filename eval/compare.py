@@ -21,11 +21,11 @@ from eval.tags import TAGS, item_tags
 
 ROOT = Path(__file__).resolve().parents[1]
 NOISE = ROOT / "eval" / "results" / "noise_floor.json"
-METRICS = ["M1_recall_any", "M1_recall_all", "M1_mrr", "M2_oos_refusal", "M2_l5b_no_assertion", "M2_over_refusal",
+METRICS = ["M0_accuracy", "M1_recall_any", "M1_recall_all", "M1_mrr", "M2_oos_refusal", "M2_l5b_no_assertion", "M2_over_refusal",
            "M3_citation_precision", "M3_citation_recall", "M4_kp_coverage", "M4_all_kp", "M4_complete",
            "M5_unsupported_rate", "M6_temporal_error"]
 # Per-item score field behind each metric, for the paired bootstrap (None = not item-pairable).
-ITEM_FIELD = {"M1_recall_any": "m1_recall_any", "M1_recall_all": "m1_recall_all", "M1_mrr": "m1_rr",
+ITEM_FIELD = {"M0_accuracy": "m0_correct", "M1_recall_any": "m1_recall_any", "M1_recall_all": "m1_recall_all", "M1_mrr": "m1_rr",
               "M3_citation_precision": "m3_citation_precision", "M3_citation_recall": "m3_citation_recall",
               "M4_kp_coverage": "m4_kp_coverage", "M4_all_kp": "m4_all_kp", "M4_complete": "m4_complete",
               "M5_unsupported_rate": "m5_unsupported_rate", "M6_temporal_error": "m6_temporal_error"}
