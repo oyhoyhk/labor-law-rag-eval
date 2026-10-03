@@ -32,8 +32,11 @@ for k, it in enumerate(items):  # db doc ids must be ASCII
 (ROOT / "data/train/review_sample_v1.json").write_text(json.dumps(items, ensure_ascii=False, indent=1))
 opus_path = ROOT / "data/train/review_opus_v1.json"
 opus = json.loads(opus_path.read_text())["verdicts"] if opus_path.exists() else {}
+codex_path = ROOT / "data/train/review_codex_v1.json"
+codex = json.loads(codex_path.read_text())["verdicts"] if codex_path.exists() else {}
 for it in items:
     it["opus"] = opus.get(it["id"])
+    it["codex"] = codex.get(it["id"])
 page = (ROOT / "tools/train_review_page.html").read_text()
 Path(sys.argv[1]).write_text(page.replace("__ITEMS__", json.dumps(items, ensure_ascii=False).replace("</", "<\\/")))
 print(f"{len(items)} pairs → {sys.argv[1]}")

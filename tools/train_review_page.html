@@ -63,7 +63,7 @@ input.note { width: 100%; margin-top: 8px; font: inherit; font-size: 14px; paddi
 
 <div class="wrap">
   <h1>학습 데이터 표본 검수</h1>
-  <p class="lede">임베딩 파인튜닝용 (질문, 정답 조문) 3,519쌍 중 출처별 무작위 40쌍. Claude Opus가 먼저 판정하고 이유를 남김. Opus 판정이 맞으면 <b>"Opus에 동의"</b>, 다르면 적합·부적합·애매 중 하나를 선택. 결과는 학습 데이터 정확도 추정에 사용</p>
+  <p class="lede">임베딩 파인튜닝용 (질문, 정답 조문) 3,519쌍 중 출처별 무작위 40쌍. Claude Opus와 Codex(gpt-6-astra)가 같은 기준으로 각각 판정하고 이유를 남김(두 모델 일치 35/40). 맞는 쪽에 <b>동의</b>하거나 직접 선택. 결과는 학습 데이터 정확도 추정에 사용</p>
   <div class="summary" id="summary"></div>
   <div class="guide">
     <span><b>적합</b>: 질문의 답(또는 핵심 근거)이 이 조문에 있음</span>
@@ -84,7 +84,7 @@ const SRC = { precedent: "판례 쟁점 → 참조조문", synthetic: "합성 �
 const dec = {};
 const VLABEL = { ok: "적합", bad: "부적합", unsure: "애매" };
 let filter = "flagged";
-const FILTERS = [["flagged", "Opus가 문제로 본 것"], ["todo", "미확인"], ["all", "전체"]];
+const FILTERS = [["flagged", "한 모델이라도 문제로 본 것"], ["split", "두 모델 판정이 다른 것"], ["todo", "미확인"], ["all", "전체"]];
 let db = null;
 function el(tag, attrs = {}, ...kids) {
   const e = document.createElement(tag);
@@ -105,8 +105,9 @@ function card(it) {
   const c = el("article", { class: "card", id: "c-" + it.key, "data-d": d.decision || "" });
   c.append(el("div", { class: "meta" }, el("span", { class: "chip", text: SRC[it.source] }), el("span", { class: "id", text: it.key })));
   c.append(el("p", { class: "q", text: it.query }));
-  const o = it.opus || {};
+  const o = it.opus || {}, x = it.codex || {};
   if (o.verdict) c.append(el("div", { class: "opus " + o.verdict }, el("span", {}, el("b", { text: `Opus 판정: ${VLABEL[o.verdict]}` })), el("span", { text: o.reason })));
+  if (x.verdict) c.append(el("div", { class: "opus " + x.verdict }, el("span", {}, el("b", { text: `Codex 판정: ${VLABEL[x.verdict]}` + (x.verdict === o.verdict ? " (Opus와 같음)" : "") })), el("span", { text: x.reason })));
   c.append(el("div", { class: "label", text: `정답 조문 ${it.positives.length}개` }));
   it.positives.forEach((p, i) => {
     const det = el("details", i < 1 ? { open: "" } : {}, el("summary", { text: p.id }), el("pre", { text: p.text || "(본문 없음)" }));
@@ -116,7 +117,13 @@ function card(it) {
   if (o.verdict) {
     const ag = el("button", { type: "button", class: "agree", "aria-pressed": String(d.decision === o.verdict), text: "Opus에 동의" });
     ag.addEventListener("click", () => save(it, { decision: d.decision === o.verdict ? null : o.verdict, agreed: true }));
-    row.append(ag, el("span", { class: "or", text: "또는 직접 선택:" }));
+    row.append(ag);
+    if (x.verdict && x.verdict !== o.verdict) {
+      const ac = el("button", { type: "button", class: "agree", "aria-pressed": String(d.decision === x.verdict && d.by_model === "codex"), text: "Codex에 동의" });
+      ac.addEventListener("click", () => save(it, { decision: x.verdict, agreed: false, by_model: "codex" }));
+      row.append(ac);
+    }
+    row.append(el("span", { class: "or", text: "또는 직접 선택:" }));
   }
   [["ok", "적합"], ["bad", "부적합"], ["unsure", "애매"]].forEach(([v, l]) => {
     const b = el("button", { type: "button", class: v, "aria-pressed": String(d.decision === v), text: l });
@@ -133,12 +140,14 @@ function card(it) {
 }
 function summary() {
   const srcs = ["precedent", "synthetic", "title"];
-  let h = `<b>Opus 판정 요약</b><table><tr><th>출처</th><th>적합</th><th>애매</th><th>부적합</th><th>정확도(Opus)</th><th>내 확인</th></tr>`;
+  let h = `<b>모델 판정 요약</b> (적합/애매/부적합)<table><tr><th>출처</th><th>Opus</th><th>Codex</th><th>둘 다 적합</th><th>내 확인</th></tr>`;
   srcs.forEach(s => {
-    const xs = ITEMS.filter(i => i.source === s), c = v => xs.filter(i => (i.opus || {}).verdict === v).length;
+    const xs = ITEMS.filter(i => i.source === s);
+    const t = k => ["ok", "unsure", "bad"].map(v => xs.filter(i => (i[k] || {}).verdict === v).length).join("/");
+    const both = xs.filter(i => (i.opus || {}).verdict === "ok" && (i.codex || {}).verdict === "ok").length;
     const mine = xs.filter(i => (dec[i.key] || {}).decision);
     const agree = mine.filter(i => dec[i.key].decision === (i.opus || {}).verdict).length;
-    h += `<tr><td>${SRC[s]}</td><td>${c("ok")}</td><td>${c("unsure")}</td><td>${c("bad")}</td><td>${Math.round(100 * c("ok") / xs.length)}%</td><td>${mine.length ? `${mine.length}건 중 동의 ${agree}` : "—"}</td></tr>`;
+    h += `<tr><td>${SRC[s]}</td><td>${t("opus")}</td><td>${t("codex")}</td><td>${both}/${xs.length} (${Math.round(100 * both / xs.length)}%)</td><td>${mine.length ? `${mine.length}건 확인, Opus와 같음 ${agree}` : "—"}</td></tr>`;
   });
   document.getElementById("summary").innerHTML = h + `</table>`;
 }
@@ -151,14 +160,15 @@ function filters() {
   }));
 }
 function visible(it, f = filter) {
-  if (f === "flagged") return (it.opus || {}).verdict !== "ok";
+  if (f === "flagged") return (it.opus || {}).verdict !== "ok" || (it.codex || {}).verdict !== "ok";
+  if (f === "split") return (it.opus || {}).verdict !== (it.codex || {}).verdict;
   if (f === "todo") return !(dec[it.key] || {}).decision;
   return true;
 }
 function render() { document.getElementById("list").replaceChildren(...ITEMS.filter(i => visible(i)).map(card)); ledger(); summary(); filters(); }
 function notice(t) { const n = document.getElementById("notice"); n.hidden = !t; n.textContent = t || ""; }
 async function save(it, patch, quiet) {
-  const next = { ...(dec[it.key] || {}), ...patch, opus: (it.opus || {}).verdict || null, pair: it.id, source: it.source, by: "user", at: new Date().toISOString() };
+  const next = { ...(dec[it.key] || {}), ...patch, opus: (it.opus || {}).verdict || null, codex: (it.codex || {}).verdict || null, pair: it.id, source: it.source, by: "user", at: new Date().toISOString() };
   dec[it.key] = next;
   if (db) { try { await db.collection("train_review_v1").doc(it.key).set(next); } catch (e) { notice("저장하지 못했습니다. 잠시 후 다시 눌러 주세요."); } }
   else { try { localStorage.setItem("train-review-v1", JSON.stringify(dec)); } catch {} }
