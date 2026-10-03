@@ -23,6 +23,7 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT))
 
+import torch  # noqa: E402
 from datasets import Dataset  # noqa: E402
 from sentence_transformers import SentenceTransformerTrainer, SentenceTransformerTrainingArguments  # noqa: E402
 from sentence_transformers.losses import MultipleNegativesRankingLoss  # noqa: E402
@@ -81,8 +82,9 @@ def main() -> None:
     out = ROOT / "models" / args.name
     targs = SentenceTransformerTrainingArguments(
         output_dir=str(out / "checkpoints"), num_train_epochs=args.epochs, per_device_train_batch_size=args.batch,
-        learning_rate=args.lr, warmup_ratio=0.1, batch_sampler=BatchSamplers.NO_DUPLICATES, seed=args.seed,
-        save_strategy="no", logging_steps=20, report_to="none", dataloader_drop_last=True)
+        learning_rate=args.lr, warmup_steps=0.1, batch_sampler=BatchSamplers.NO_DUPLICATES, seed=args.seed,
+        save_strategy="no", logging_steps=20, report_to="none", dataloader_drop_last=True,
+        bf16=torch.cuda.is_available())
     t0 = time.time()
     SentenceTransformerTrainer(model=model, args=targs, train_dataset=Dataset.from_list(rows),
                                loss=MultipleNegativesRankingLoss(model)).train()

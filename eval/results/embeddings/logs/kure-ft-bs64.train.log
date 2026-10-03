@@ -1,0 +1,116 @@
+/home/elicer/elice-rag-eval/scripts/train_embedder.py:29: DeprecationWarning: Importing from 'sentence_transformers.losses' is deprecated and will be removed in a future version. Please use 'sentence_transformers.sentence_transformer.losses' instead.
+  from sentence_transformers.losses import MultipleNegativesRankingLoss  # noqa: E402
+/home/elicer/elice-rag-eval/scripts/train_embedder.py:30: DeprecationWarning: Importing from 'sentence_transformers.training_args' is deprecated and will be removed in a future version. Please use 'sentence_transformers.sentence_transformer.training_args' instead.
+  from sentence_transformers.training_args import BatchSamplers  # noqa: E402
+3200 pairs → 3348 examples
+Warning: You are sending unauthenticated requests to the HF Hub. Please set a HF_TOKEN to enable higher rate limits and faster downloads.
+Computing widget examples:   0%|          | 0/1 [00:00<?, ?example/s]                                                                       0%|          | 0/52 [00:00<?, ?it/s]Traceback (most recent call last):
+  File "/home/elicer/elice-rag-eval/scripts/train_embedder.py", line 102, in <module>
+    main()
+    ~~~~^^
+  File "/home/elicer/elice-rag-eval/scripts/train_embedder.py", line 90, in main
+    loss=MultipleNegativesRankingLoss(model)).train()
+                                              ~~~~~^^
+  File "/home/elicer/elice-rag-eval/.venv/lib/python3.13/site-packages/transformers/trainer.py", line 1549, in train
+    return inner_training_loop(
+        args=args,
+    ...<2 lines>...
+        ignore_keys_for_eval=ignore_keys_for_eval,
+    )
+  File "/home/elicer/elice-rag-eval/.venv/lib/python3.13/site-packages/transformers/trainer.py", line 1631, in _inner_training_loop
+    self._run_epoch(
+    ~~~~~~~~~~~~~~~^
+        model=model,
+        ^^^^^^^^^^^^
+    ...<9 lines>...
+        steps_trained_in_current_epoch=steps_trained_in_current_epoch,
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "/home/elicer/elice-rag-eval/.venv/lib/python3.13/site-packages/transformers/trainer.py", line 1871, in _run_epoch
+    tr_loss_step = self.training_step(model, inputs, num_items_in_batch)
+  File "/home/elicer/elice-rag-eval/.venv/lib/python3.13/site-packages/transformers/trainer.py", line 2043, in training_step
+    loss = self.compute_loss(model, inputs, num_items_in_batch=num_items_in_batch)
+  File "/home/elicer/elice-rag-eval/.venv/lib/python3.13/site-packages/sentence_transformers/base/trainer.py", line 507, in compute_loss
+    loss = loss_fn(features, labels)
+  File "/home/elicer/elice-rag-eval/.venv/lib/python3.13/site-packages/torch/nn/modules/module.py", line 1751, in _wrapped_call_impl
+    return self._call_impl(*args, **kwargs)
+           ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^
+  File "/home/elicer/elice-rag-eval/.venv/lib/python3.13/site-packages/torch/nn/modules/module.py", line 1762, in _call_impl
+    return forward_call(*args, **kwargs)
+  File "/home/elicer/elice-rag-eval/.venv/lib/python3.13/site-packages/sentence_transformers/sentence_transformer/losses/multiple_negatives_ranking.py", line 234, in forward
+    embeddings = embed_columns(self.model, sentence_features)
+  File "/home/elicer/elice-rag-eval/.venv/lib/python3.13/site-packages/sentence_transformers/base/losses/merged_forward.py", line 194, in embed_columns
+    *embed_columns(model, features_list[1:], separate_first=False),
+     ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/elicer/elice-rag-eval/.venv/lib/python3.13/site-packages/sentence_transformers/base/losses/merged_forward.py", line 199, in embed_columns
+    embeddings = model(merged)["sentence_embedding"]
+                 ~~~~~^^^^^^^^
+  File "/home/elicer/elice-rag-eval/.venv/lib/python3.13/site-packages/torch/nn/modules/module.py", line 1751, in _wrapped_call_impl
+    return self._call_impl(*args, **kwargs)
+           ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^
+  File "/home/elicer/elice-rag-eval/.venv/lib/python3.13/site-packages/torch/nn/modules/module.py", line 1762, in _call_impl
+    return forward_call(*args, **kwargs)
+  File "/home/elicer/elice-rag-eval/.venv/lib/python3.13/site-packages/accelerate/utils/operations.py", line 943, in forward
+    return model_forward(*args, **kwargs)
+  File "/home/elicer/elice-rag-eval/.venv/lib/python3.13/site-packages/accelerate/utils/operations.py", line 931, in __call__
+    return convert_to_fp32(self.model_forward(*args, **kwargs))
+                           ~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^
+  File "/home/elicer/elice-rag-eval/.venv/lib/python3.13/site-packages/torch/amp/autocast_mode.py", line 44, in decorate_autocast
+    return func(*args, **kwargs)
+  File "/home/elicer/elice-rag-eval/.venv/lib/python3.13/site-packages/sentence_transformers/base/model.py", line 569, in forward
+    input = module(input, **module_kwargs)
+  File "/home/elicer/elice-rag-eval/.venv/lib/python3.13/site-packages/torch/nn/modules/module.py", line 1751, in _wrapped_call_impl
+    return self._call_impl(*args, **kwargs)
+           ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^
+  File "/home/elicer/elice-rag-eval/.venv/lib/python3.13/site-packages/torch/nn/modules/module.py", line 1762, in _call_impl
+    return forward_call(*args, **kwargs)
+  File "/home/elicer/elice-rag-eval/.venv/lib/python3.13/site-packages/sentence_transformers/base/modules/transformer.py", line 1650, in forward
+    model_output = model_method(**filtered_kwargs)
+  File "/home/elicer/elice-rag-eval/.venv/lib/python3.13/site-packages/transformers/utils/generic.py", line 1068, in wrapper
+    output = func(self, *args, **kwargs)
+  File "/home/elicer/elice-rag-eval/.venv/lib/python3.13/site-packages/transformers/utils/output_capturing.py", line 287, in wrapper
+    outputs = func(self, *args, **kwargs)
+  File "/home/elicer/elice-rag-eval/.venv/lib/python3.13/site-packages/transformers/models/xlm_roberta/modeling_xlm_roberta.py", line 637, in forward
+    encoder_outputs = self.encoder(
+        embedding_output,
+    ...<6 lines>...
+        **kwargs,
+    )
+  File "/home/elicer/elice-rag-eval/.venv/lib/python3.13/site-packages/torch/nn/modules/module.py", line 1751, in _wrapped_call_impl
+    return self._call_impl(*args, **kwargs)
+           ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^
+  File "/home/elicer/elice-rag-eval/.venv/lib/python3.13/site-packages/torch/nn/modules/module.py", line 1762, in _call_impl
+    return forward_call(*args, **kwargs)
+  File "/home/elicer/elice-rag-eval/.venv/lib/python3.13/site-packages/transformers/models/xlm_roberta/modeling_xlm_roberta.py", line 531, in forward
+    hidden_states = layer_module(
+        hidden_states,
+    ...<4 lines>...
+        **kwargs,
+    )
+  File "/home/elicer/elice-rag-eval/.venv/lib/python3.13/site-packages/transformers/modeling_layers.py", line 110, in __call__
+    return super().__call__(*args, **kwargs)
+           ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^
+  File "/home/elicer/elice-rag-eval/.venv/lib/python3.13/site-packages/torch/nn/modules/module.py", line 1751, in _wrapped_call_impl
+    return self._call_impl(*args, **kwargs)
+           ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^
+  File "/home/elicer/elice-rag-eval/.venv/lib/python3.13/site-packages/torch/nn/modules/module.py", line 1762, in _call_impl
+    return forward_call(*args, **kwargs)
+  File "/home/elicer/elice-rag-eval/.venv/lib/python3.13/site-packages/transformers/models/xlm_roberta/modeling_xlm_roberta.py", line 455, in forward
+    layer_output = apply_chunking_to_forward(
+        self.feed_forward_chunk, self.chunk_size_feed_forward, self.seq_len_dim, attention_output
+    )
+  File "/home/elicer/elice-rag-eval/.venv/lib/python3.13/site-packages/transformers/pytorch_utils.py", line 199, in apply_chunking_to_forward
+    return forward_fn(*input_tensors)
+  File "/home/elicer/elice-rag-eval/.venv/lib/python3.13/site-packages/transformers/models/xlm_roberta/modeling_xlm_roberta.py", line 462, in feed_forward_chunk
+    layer_output = self.output(intermediate_output, attention_output)
+  File "/home/elicer/elice-rag-eval/.venv/lib/python3.13/site-packages/torch/nn/modules/module.py", line 1751, in _wrapped_call_impl
+    return self._call_impl(*args, **kwargs)
+           ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^
+  File "/home/elicer/elice-rag-eval/.venv/lib/python3.13/site-packages/torch/nn/modules/module.py", line 1762, in _call_impl
+    return forward_call(*args, **kwargs)
+  File "/home/elicer/elice-rag-eval/.venv/lib/python3.13/site-packages/transformers/models/xlm_roberta/modeling_xlm_roberta.py", line 397, in forward
+    hidden_states = self.LayerNorm(hidden_states + input_tensor)
+                                   ~~~~~~~~~~~~~~^~~~~~~~~~~~~~
+torch.OutOfMemoryError: CUDA out of memory. Tried to allocate 256.00 MiB. GPU 0 has a total capacity of 79.33 GiB of which 186.00 MiB is free. Process 319466 has 79.14 GiB memory in use. Of the allocated memory 78.35 GiB is allocated by PyTorch, and 297.13 MiB is reserved by PyTorch but unallocated. If reserved but unallocated memory is large try setting PYTORCH_CUDA_ALLOC_CONF=expandable_segments:True to avoid fragmentation.  See documentation for Memory Management  (https://pytorch.org/docs/stable/notes/cuda.html#environment-variables)
+  0%|          | 0/52 [00:00<?, ?it/s]

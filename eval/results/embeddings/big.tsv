@@ -1,0 +1,6 @@
+bge-m3	"encode_seconds": 22.2	[whole@bge-m3 k=5 split=dev] Recall@k(any) 36/40 = 0.900 · Recall@k(all) 0.600 · MRR 0.767 · 위임 확장 포함 36/40
+multilingual-e5-large-instruct	"encode_seconds": 2.3	[whole@multilingual-e5-large-instruct k=5 split=dev] Recall@k(any) 36/40 = 0.900 · Recall@k(all) 0.675 · MRR 0.729 · 위임 확장 포함 36/40
+Qwen3-Embedding-0.6B	"encode_seconds": 8.5	[whole@Qwen3-Embedding-0.6B k=5 split=dev] Recall@k(any) 36/40 = 0.900 · Recall@k(all) 0.650 · MRR 0.704 · 위임 확장 포함 36/40
+Qwen3-Embedding-4B	"encode_seconds": 37.4	[whole@Qwen3-Embedding-4B k=5 split=dev] Recall@k(any) 37/40 = 0.925 · Recall@k(all) 0.800 · MRR 0.842 · 위임 확장 포함 37/40
+Qwen3-Embedding-8B	"encode_seconds": 55.8	[whole@Qwen3-Embedding-8B k=5 split=dev] Recall@k(any) 37/40 = 0.925 · Recall@k(all) 0.750 · MRR 0.852 · 위임 확장 포함 37/40
+DONE

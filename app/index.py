@@ -31,9 +31,18 @@ WHOLE_MAX_TOKENS = 8192  # KURE-v1 / XLM-R context; the longest 조 is ~2.5k tok
 
 
 @lru_cache(maxsize=4)
-def embedder(model: str = EMBED_MODEL, revision: str | None = EMBED_REVISION) -> SentenceTransformer:
-    """The base KURE-v1 by default; a fine-tuned local model directory when an index was built with one."""
-    return SentenceTransformer(model, revision=revision, device="mps")
+def embedder(model: str = EMBED_MODEL, revision: str | None = EMBED_REVISION, bf16: bool = False,
+             trust_remote_code: bool = False) -> SentenceTransformer:
+    """The base KURE-v1 by default; a fine-tuned local directory or another hub model when an index was built with one."""
+    import torch
+    device = "cuda" if torch.cuda.is_available() else "mps" if torch.backends.mps.is_available() else "cpu"
+    kwargs = {"torch_dtype": torch.bfloat16} if bf16 else {}
+    m = SentenceTransformer(model, revision=revision, device=device, trust_remote_code=trust_remote_code,
+                            model_kwargs=kwargs)
+    # Fine-tuned models are saved with their training length; use the model's real context, capped at 8,192.
+    limit = getattr(m.tokenizer, "model_max_length", WHOLE_MAX_TOKENS)
+    m.max_seq_length = min(WHOLE_MAX_TOKENS, limit if limit and limit < 10**6 else WHOLE_MAX_TOKENS)
+    return m
 
 
 def _future_only_articles(graph: dict) -> list:
@@ -51,13 +60,14 @@ def _future_only_articles(graph: dict) -> list:
     return out
 
 
-def build(strategy: str, model_path: str | None = None) -> None:
+def build(strategy: str, model_path: str | None = None, query_prefix: str = "", doc_prefix: str = "",
+          bf16: bool = False, trust_remote_code: bool = False) -> None:
+    """model_path: a local fine-tuned directory or a hub id. Prefixes follow each model's card (e5: "query: " /
+    "passage: ", Qwen3-Embedding: an instruction before the query); they are stored in meta and reused at query time."""
     graph = json.loads(GRAPH.read_text()) if GRAPH.exists() else build_graph()
     articles = load_corpus("현행") + _future_only_articles(graph)
     model_name, revision = (str(model_path), None) if model_path else (EMBED_MODEL, EMBED_REVISION)
-    model = embedder(model_name, revision)
-    # A fine-tuned model is saved with its (shorter) training length; indexing whole 조 needs the full context.
-    model.max_seq_length = WHOLE_MAX_TOKENS
+    model = embedder(model_name, revision, bf16, trust_remote_code)
     if strategy == "whole":  # one vector per 조, no 항·호 split (longest 조 ≈ 2.5k tokens, model limit 8,192)
         chunks: list[Chunk] = article_chunks(articles, model.tokenizer, max_tokens=WHOLE_MAX_TOKENS)
     else:
@@ -65,7 +75,7 @@ def build(strategy: str, model_path: str | None = None) -> None:
         chunks = chunker(articles, model.tokenizer)
 
     t0 = time.time()
-    emb = model.encode([c.text for c in chunks], batch_size=16, normalize_embeddings=True,
+    emb = model.encode([doc_prefix + c.text for c in chunks], batch_size=8 if bf16 else 16, normalize_embeddings=True,
                        show_progress_bar=True, convert_to_numpy=True).astype("float32")
     index = faiss.IndexFlatIP(emb.shape[1])
     index.add(emb)
@@ -78,7 +88,8 @@ def build(strategy: str, model_path: str | None = None) -> None:
             f.write(json.dumps(asdict(c), ensure_ascii=False) + "\n")
     manifest_hash = hashlib.sha256((ROOT / "data" / "manifest.json").read_bytes()).hexdigest()[:12]
     meta = {"strategy": strategy, "embed_model": model_name, "embed_revision": revision,
-            "chunks": len(chunks), "dim": int(emb.shape[1]), "built_at": date.today().isoformat(),
+            "query_prefix": query_prefix, "doc_prefix": doc_prefix, "bf16": bf16, "trust_remote_code": trust_remote_code,
+            "max_seq_length": model.max_seq_length, "chunks": len(chunks), "dim": int(emb.shape[1]), "built_at": date.today().isoformat(),
             "corpus_manifest_sha256": manifest_hash, "encode_seconds": round(time.time() - t0, 1)}
     (out / "meta.json").write_text(json.dumps(meta, ensure_ascii=False, indent=2) + "\n")
     print(json.dumps(meta, ensure_ascii=False))
@@ -123,11 +134,13 @@ class Retriever:
         self.index = faiss.read_index(str(d / "faiss.index"))
         self.chunks = [json.loads(line) for line in (d / "chunks.jsonl").open()]
         self.meta = json.loads((d / "meta.json").read_text())
-        self.model = embedder(self.meta.get("embed_model", EMBED_MODEL), self.meta.get("embed_revision", EMBED_REVISION))
-        self.model.max_seq_length = WHOLE_MAX_TOKENS
+        m = self.meta
+        self.model = embedder(m.get("embed_model", EMBED_MODEL), m.get("embed_revision", EMBED_REVISION),
+                              m.get("bf16", False), m.get("trust_remote_code", False))
+        self.query_prefix = m.get("query_prefix", "")
 
     def search(self, query: str, k: int = 5) -> list[dict]:
-        q = self.model.encode([query], normalize_embeddings=True, convert_to_numpy=True).astype("float32")
+        q = self.model.encode([self.query_prefix + query], normalize_embeddings=True, convert_to_numpy=True).astype("float32")
         scores, idx = self.index.search(q, k)
         return [{**self.chunks[i], "score": float(s)} for s, i in zip(scores[0], idx[0]) if i >= 0]
 
@@ -137,6 +150,13 @@ if __name__ == "__main__":
     sub = ap.add_subparsers(dest="cmd", required=True)
     b = sub.add_parser("build")
     b.add_argument("--strategy", choices=["article", "whole", "fixed", "precedent"], default="article")
-    b.add_argument("--model", help="local fine-tuned model directory (index goes to <strategy>@<dir name>)")
+    b.add_argument("--model", help="local fine-tuned directory or hub id (index goes to <strategy>@<last path part>)")
+    b.add_argument("--query-prefix", default="")
+    b.add_argument("--doc-prefix", default="")
+    b.add_argument("--bf16", action="store_true")
+    b.add_argument("--trust-remote-code", action="store_true")
     args = ap.parse_args()
-    build_precedents() if args.strategy == "precedent" else build(args.strategy, args.model)
+    if args.strategy == "precedent":
+        build_precedents()
+    else:
+        build(args.strategy, args.model, args.query_prefix, args.doc_prefix, args.bf16, args.trust_remote_code)

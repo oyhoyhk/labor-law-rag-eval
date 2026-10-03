@@ -1,0 +1,9 @@
+kure-ft-seed7	--seed 7	[whole@kure-ft-seed7 k=5 split=dev] Recall@k(any) 38/40 = 0.950 · Recall@k(all) 0.700 · MRR 0.848 · 위임 확장 포함 38/40
+kure-ft-noprec	--sources title,synthetic	[whole@kure-ft-noprec k=5 split=dev] Recall@k(any) 37/40 = 0.925 · Recall@k(all) 0.650 · MRR 0.829 · 위임 확장 포함 37/40
+kure-ft-nohn	--no-hard-negative	[whole@kure-ft-nohn k=5 split=dev] Recall@k(any) 39/40 = 0.975 · Recall@k(all) 0.725 · MRR 0.863 · 위임 확장 포함 39/40
+kure-ft-ep3	--epochs 3	[whole@kure-ft-ep3 k=5 split=dev] Recall@k(any) 38/40 = 0.950 · Recall@k(all) 0.650 · MRR 0.812 · 위임 확장 포함 38/40
+kure-ft-lr5e5	--lr 5e-5	[whole@kure-ft-lr5e5 k=5 split=dev] Recall@k(any) 37/40 = 0.925 · Recall@k(all) 0.650 · MRR 0.790 · 위임 확장 포함 37/40
+kure-ft-bs64	TRAIN_FAIL
+kure-ft-f25	--frac 0.25	[whole@kure-ft-f25 k=5 split=dev] Recall@k(any) 37/40 = 0.925 · Recall@k(all) 0.750 · MRR 0.800 · 위임 확장 포함 37/40
+kure-ft-f50	--frac 0.5	[whole@kure-ft-f50 k=5 split=dev] Recall@k(any) 39/40 = 0.975 · Recall@k(all) 0.675 · MRR 0.808 · 위임 확장 포함 39/40
+DONE

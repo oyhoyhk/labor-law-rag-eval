@@ -1,0 +1,22 @@
+{
+ "name": "kure-ft-ep3",
+ "base": "nlpai-lab/KURE-v1",
+ "base_revision": "8b418a58414668e75532ed045c22d9ca018ae2b2",
+ "pairs": "data/train/pairs_v2.jsonl",
+ "pairs_sha256": "ef7a06e1f4a8",
+ "sources": [
+  "precedent",
+  "synthetic",
+  "title"
+ ],
+ "frac": 1.0,
+ "n_pairs": 3200,
+ "n_examples": 3348,
+ "hard_negative": true,
+ "epochs": 3.0,
+ "lr": 2e-05,
+ "batch": 16,
+ "max_len": 512,
+ "seed": 42,
+ "train_seconds": 316
+}
