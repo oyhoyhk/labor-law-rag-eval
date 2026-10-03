@@ -64,6 +64,14 @@ td.v { font-weight: 700; white-space: nowrap } td.v.ok { color: var(--good) } td
 td.f { white-space: nowrap; font-family: var(--font-mono); font-size: 13px }
 .why { border-left: 3px solid var(--accent); background: var(--accent-bg); padding: 8px 12px; border-radius: 0 6px 6px 0; font-size: 14px }
 .comp { display: grid; gap: 4px }
+.pick { justify-self: start; border: 1px solid var(--line); background: var(--surface); color: var(--fg); border-radius: 999px; padding: 4px 14px; font-size: 14px; font-weight: 700 }
+.pick[aria-pressed="true"] { background: var(--good); border-color: var(--good); color: var(--surface) }
+.art.off { opacity: .55 }
+.preview { font-size: 14px; background: var(--surface); border: 1px solid var(--line); border-radius: 8px; padding: 8px 12px }
+.preview b { color: var(--accent) }
+.btns button.confirm { background: var(--accent); border-color: var(--accent); color: var(--surface); font-weight: 700 }
+.btns button.drop[aria-pressed="true"] { background: var(--bad); border-color: var(--bad); color: var(--surface) }
+.state { font-size: 12px; font-weight: 700; padding: 1px 8px; border-radius: 999px; background: var(--accent-bg); color: var(--accent) }
 .decide { position: sticky; bottom: 0; background: var(--bg); border-top: 1px solid var(--line); padding-block: 12px calc(12px + env(safe-area-inset-bottom, 0px)); display: grid; gap: 8px }
 .btns { display: flex; flex-wrap: wrap; gap: 8px; align-items: center }
 .btns button { border: 1px solid var(--line); background: var(--surface); color: var(--fg); border-radius: 8px; padding: 8px 16px; font-size: 15px }
@@ -78,7 +86,7 @@ button:focus-visible, select:focus-visible, summary:focus-visible, input:focus-v
 <div class="wrap">
   <div class="bar">
     <div class="bar-row">
-      <h1>학습 데이터 표본 검수</h1>
+      <h1>학습 데이터 정답 조문 확정</h1>
       <button class="nav" id="prev" type="button" aria-label="이전">← 이전</button>
       <span class="pos" id="pos"></span>
       <button class="nav" id="next" type="button" aria-label="다음">다음 →</button>
@@ -89,7 +97,7 @@ button:focus-visible, select:focus-visible, summary:focus-visible, input:focus-v
         <option value="all">전체 40</option>
         <option value="flagged">한 모델이라도 문제로 본 것</option>
         <option value="split">두 모델 판정이 다른 것</option>
-        <option value="todo">아직 판단 안 한 것</option>
+        <option value="todo">아직 확정 안 한 것</option>
       </select>
       <span class="tally" id="tally"></span>
     </div>
@@ -98,12 +106,12 @@ button:focus-visible, select:focus-visible, summary:focus-visible, input:focus-v
   </div>
   <div class="slide" id="slide"></div>
   <div class="decide">
-    <div class="btns" role="group" aria-label="판단">
-      <button type="button" class="ok" data-v="ok">적합 <span class="hint">1</span></button>
-      <button type="button" class="unsure" data-v="unsure">애매 <span class="hint">2</span></button>
-      <button type="button" class="bad" data-v="bad">부적합 <span class="hint">3</span></button>
+    <div class="preview" id="preview"></div>
+    <div class="btns" role="group" aria-label="확정">
+      <button type="button" class="confirm" id="confirm">확정하고 다음 <span class="hint">Enter</span></button>
+      <button type="button" class="drop" id="drop">이 질문 제외 <span class="hint">X</span></button>
       <span class="hint" id="saved"></span>
-      <span class="hint">선택하면 다음 장으로 넘어감 · ←/→ 이동</span>
+      <span class="hint">조문 토글: 숫자키 1·2·3… · ←/→ 이동</span>
     </div>
     <input class="note" id="note" placeholder="메모 (선택)" aria-label="메모">
   </div>
@@ -117,6 +125,9 @@ const VL = { ok: "적합", bad: "부적합", unsure: "애매" };
 const ROLE = { core: "핵심", related: "관련", unrelated: "무관" };
 const dec = {};
 let db = null, list = ITEMS, idx = 0;
+const draft = {};  // key -> Set of selected article ids (unsaved edits on the current page)
+function defaultSel(it) { const core = (it.notes || []).filter(n => n.role === "core").map(n => n.article); return new Set(core.filter(a => it.positives.some(p => p.id === a))); }
+function selOf(it) { if (draft[it.key]) return draft[it.key]; const d = dec[it.key]; return new Set(d && d.selected ? d.selected : [...defaultSel(it)]); }
 try { const s = JSON.parse(localStorage.getItem("train-slides-pos") || "{}"); if (s.f) document.getElementById("filter").value = s.f; } catch {}
 
 function el(tag, attrs = {}, ...kids) {
@@ -138,7 +149,7 @@ function visible(it, f) {
   const o = it.opus || {}, c = it.codex || {};
   if (f === "flagged") return o.verdict !== "ok" || c.verdict !== "ok";
   if (f === "split") return o.verdict !== c.verdict;
-  if (f === "todo") return !(dec[it.key] || {}).decision;
+  if (f === "todo") return !(dec[it.key] || {}).confirmed;
   return true;
 }
 function applyFilter(keepKey) {
@@ -153,19 +164,23 @@ function render() {
   document.getElementById("pos").textContent = `${idx + 1} / ${list.length}`;
   document.getElementById("prev").disabled = idx === 0;
   document.getElementById("next").disabled = idx === list.length - 1;
-  const done = ITEMS.filter(x => (dec[x.key] || {}).decision).length;
-  document.getElementById("prog").style.width = (100 * done / ITEMS.length) + "%";
-  const cnt = v => ITEMS.filter(x => (dec[x.key] || {}).decision === v).length;
-  document.getElementById("tally").textContent = `판단 ${done}/${ITEMS.length} · 적합 ${cnt("ok")} · 애매 ${cnt("unsure")} · 부적합 ${cnt("bad")}`;
+  const conf = ITEMS.filter(x => (dec[x.key] || {}).confirmed);
+  document.getElementById("prog").style.width = (100 * conf.length / ITEMS.length) + "%";
+  const kept = conf.filter(x => !dec[x.key].excluded), nArts = kept.reduce((n, x) => n + dec[x.key].selected.length, 0);
+  document.getElementById("tally").textContent = `확정 ${conf.length}/${ITEMS.length} · 학습 유지 ${kept.length}쌍(정답 조문 ${nArts}개) · 제외 ${conf.length - kept.length}`;
 
   const s = document.getElementById("slide");
   const notes = Object.fromEntries((it.notes || []).map(n => [n.article, n]));
   const order = { core: 0, related: 1, unrelated: 2 };
   const pos = [...it.positives].sort((a, b) => (order[(notes[a.id] || {}).role] ?? 3) - (order[(notes[b.id] || {}).role] ?? 3));
-  const arts = pos.map(p => {
-    const n = notes[p.id] || {};
-    return el("div", { class: "art " + (n.role || "") },
-      el("div", { class: "art-head" }, el("span", { class: "art-id", text: p.id }), n.role ? el("span", { class: "role " + n.role, text: ROLE[n.role] }) : null),
+  const sel = selOf(it);
+  const arts = pos.map((p, i) => {
+    const n = notes[p.id] || {}, on = sel.has(p.id);
+    const pick = el("button", { type: "button", class: "pick", "aria-pressed": String(on), text: `${i + 1}  ${on ? "학습에 넣기 ✓" : "넣지 않음"}` });
+    pick.addEventListener("click", () => toggle(p.id));
+    return el("div", { class: "art " + (n.role || "") + (on ? "" : " off") },
+      pick,
+      el("div", { class: "art-head" }, el("span", { class: "art-id", text: p.id }), n.role ? el("span", { class: "role " + n.role, text: `Opus 판단: ${ROLE[n.role]}` }) : null),
       n.note ? el("div", { class: "art-note", text: n.note }) : null,
       marked(p.text, n.quote),
       el("details", {}, el("summary", { text: "조문 전문" }), el("pre", { text: p.text })));
@@ -178,18 +193,23 @@ function render() {
     el("tbody", {}, row("Opus", o, vw.opus_point), row("Codex", c, vw.codex_point))));
   const comps = (it.competitors || []).map(cp => el("details", {}, el("summary", { text: `${cp.id} · ${(cp.text.split("\n")[0] || "").replace(/^.*?제\d+조(의\d+)?/, "").trim()}` }), el("pre", { text: cp.text })));
   s.replaceChildren(
-    el("div", { class: "meta" }, el("span", { class: "chip", text: SRC[it.source] }), el("span", { class: "key", text: it.key })),
+    el("div", { class: "meta" }, el("span", { class: "chip", text: SRC[it.source] }), el("span", { class: "key", text: it.key }),
+      d.confirmed ? el("span", { class: "state", text: d.excluded ? "확정: 제외" : `확정: 정답 ${d.selected.length}개` }) : null),
     el("p", { class: "q", text: it.query }),
-    el("div", { class: "ask" }, el("b", { text: "이 질문을 검색하면, 아래 정답 조문이 1등으로 나와야 맞는가?" }),
-      el("ol", {}, el("li", { text: "정답 조문(핵심 표시)을 읽으면 질문의 답이 나오는가 → 아니면 부적합" }),
-        el("li", { text: "경쟁 조문보다 이 조문이 더 맞는가 → 경쟁 조문도 똑같이 맞으면 부적합, 비슷하면 애매" }))),
-    el("div", { class: "sec" }, el("h2", { text: `정답 조문 ${it.positives.length}개 (역할 · 근거 구절은 노란 표시)` }), ...arts),
+    el("div", { class: "ask" }, el("b", { text: "이 질문을 검색했을 때 1등으로 나와야 할 조문만 '학습에 넣기'로 선택" }),
+      el("ol", {}, el("li", { text: "조문을 읽으면 질문의 답(핵심 근거)이 나오는 조문만 선택 — 관련만 있는 조문은 빼기" }),
+        el("li", { text: "질문이 너무 일반적이라 경쟁 조문도 똑같이 맞으면 → '이 질문 제외'" }),
+        el("li", { text: "Opus가 핵심으로 본 조문이 미리 선택되어 있음, 다르면 바꾸고 확정" }))),
+    el("div", { class: "sec" }, el("h2", { text: `연결된 정답 후보 조문 ${it.positives.length}개 (근거 구절은 노란 표시)` }), ...arts),
     el("div", { class: "sec" }, el("h2", { text: "두 모델의 판정" }), judges,
       o.verdict && c.verdict && o.verdict !== c.verdict ? el("div", { class: "why" }, el("b", { text: "왜 다른가" + (it.pattern ? ` · ${it.pattern}` : "") + "  " }), vw.why_differ || "") : null),
     comps.length ? el("div", { class: "sec" }, el("h2", { text: "경쟁 조문 (현재 검색기가 이 질문에 가져오는 다른 조문)" }), el("div", { class: "comp" }, ...comps)) : null);
-  document.querySelectorAll(".btns button[data-v]").forEach(b => b.setAttribute("aria-pressed", String(d.decision === b.dataset.v)));
+  const chosen = it.positives.filter(p => sel.has(p.id)).map(p => p.id);
+  document.getElementById("preview").replaceChildren(el("b", { text: "확정하면 → " }),
+    chosen.length ? `학습 쌍: "${it.query.length > 40 ? it.query.slice(0, 40) + "…" : it.query}" → ${chosen.join(", ")}` : "선택한 조문이 없어 이 질문은 학습에서 제외");
+  document.getElementById("drop").setAttribute("aria-pressed", String(!!d.excluded));
   document.getElementById("note").value = d.note || "";
-  document.getElementById("saved").textContent = d.at ? "저장됨" : "";
+  document.getElementById("saved").textContent = d.confirmed ? "확정됨" : "";
   try { localStorage.setItem("train-slides-pos", JSON.stringify({ f: document.getElementById("filter").value, k: it.key })); } catch {}
   window.scrollTo({ top: 0 });
 }
@@ -199,31 +219,41 @@ async function save(patch) {
   const next = { ...(dec[it.key] || {}), ...patch, pair: it.id, source: it.source, opus: (it.opus || {}).verdict || null,
     codex: (it.codex || {}).verdict || null, by: "user", at: new Date().toISOString() };
   dec[it.key] = next;
-  if (db) { try { await db.collection("train_review_v1").doc(it.key).set(next); } catch { notice("저장하지 못했습니다. 다시 눌러 주세요."); } }
-  else { try { localStorage.setItem("train-review-v1", JSON.stringify(dec)); } catch {} }
+  if (db) { try { await db.collection("train_review_v2").doc(it.key).set(next); } catch { notice("저장하지 못했습니다. 다시 눌러 주세요."); } }
+  else { try { localStorage.setItem("train-review-v2", JSON.stringify(dec)); } catch {} }
 }
 function go(d) { const n = idx + d; if (n >= 0 && n < list.length) { idx = n; render(); } }
-async function decide(v) {
-  const cur = (dec[list[idx].key] || {}).decision;
-  await save({ decision: cur === v ? null : v, note: document.getElementById("note").value });
-  if (cur !== v && idx < list.length - 1) go(1); else render();
+function toggle(aid) {
+  const it = list[idx], s = new Set(selOf(it));
+  s.has(aid) ? s.delete(aid) : s.add(aid);
+  draft[it.key] = s; render();
+}
+async function confirm(excluded) {
+  const it = list[idx], selected = excluded ? [] : it.positives.filter(p => selOf(it).has(p.id)).map(p => p.id);
+  await save({ confirmed: true, excluded: excluded || selected.length === 0, selected, note: document.getElementById("note").value,
+    model_default: [...defaultSel(it)] });
+  delete draft[it.key];
+  if (idx < list.length - 1) go(1); else render();
 }
 document.getElementById("prev").addEventListener("click", () => go(-1));
 document.getElementById("next").addEventListener("click", () => go(1));
-document.querySelectorAll(".btns button[data-v]").forEach(b => b.addEventListener("click", () => decide(b.dataset.v)));
+document.getElementById("confirm").addEventListener("click", () => confirm(false));
+document.getElementById("drop").addEventListener("click", () => confirm(true));
 document.getElementById("filter").addEventListener("change", () => { applyFilter(list[idx] && list[idx].key); idx = 0; render(); });
 let nt; document.getElementById("note").addEventListener("input", e => { clearTimeout(nt); nt = setTimeout(() => save({ note: e.target.value }), 800); });
 document.addEventListener("keydown", e => {
   if (e.target.tagName === "INPUT" || e.target.tagName === "SELECT") return;
   if (e.key === "ArrowRight") go(1); else if (e.key === "ArrowLeft") go(-1);
-  else if (e.key === "1") decide("ok"); else if (e.key === "2") decide("unsure"); else if (e.key === "3") decide("bad");
+  else if (e.key === "Enter") { e.preventDefault(); confirm(false); }
+  else if (e.key === "x" || e.key === "X") confirm(true);
+  else if (/^[1-9]$/.test(e.key)) { const b = document.querySelectorAll(".pick")[+e.key - 1]; if (b) b.click(); }
 });
 let startKey = null; try { startKey = JSON.parse(localStorage.getItem("train-slides-pos") || "{}").k; } catch {}
 applyFilter(startKey); render();
 (async () => {
   db = window.claude ? await window.claude.use("db") : null;
-  if (!db) { try { Object.assign(dec, JSON.parse(localStorage.getItem("train-review-v1") || "{}")); } catch {} notice("판단이 이 브라우저에만 저장됩니다. claude.ai에서 열어 주세요."); render(); return; }
-  db.collection("train_review_v1").onSnapshot(snap => {
+  if (!db) { try { Object.assign(dec, JSON.parse(localStorage.getItem("train-review-v2") || "{}")); } catch {} notice("판단이 이 브라우저에만 저장됩니다. claude.ai에서 열어 주세요."); render(); return; }
+  db.collection("train_review_v2").onSnapshot(snap => {
     let ch = false;
     for (const x of snap.docChanges()) { const v = x.doc.data() || {}; if (!dec[x.doc.id] || dec[x.doc.id].at !== v.at) { dec[x.doc.id] = v; ch = true; } }
     if (ch && document.activeElement !== document.getElementById("note")) render();
