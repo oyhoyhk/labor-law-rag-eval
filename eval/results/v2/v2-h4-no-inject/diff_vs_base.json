@@ -1,5 +1,10 @@
 {
  "base": "eval/results/v2/baseline-v2",
+ "base_runs": [
+  "eval/results/v2/baseline-v2",
+  "eval/results/v2/noise-v2-2",
+  "eval/results/v2/noise-v2-3"
+ ],
  "exp": "eval/results/v2/v2-h4-no-inject",
  "rows": [
   {
@@ -52,96 +57,96 @@
   },
   {
    "metric": "M2_over_refusal",
-   "base": 0.098,
+   "base": 0.10533333333333333,
    "exp": 0.152,
-   "delta": 0.054,
+   "delta": 0.0467,
    "noise_range": 0.022,
    "ci95": null,
    "verdict": "악화"
   },
   {
    "metric": "M3_citation_precision",
-   "base": 0.708,
+   "base": 0.6996666666666667,
    "exp": 0.669,
-   "delta": -0.039,
+   "delta": -0.0307,
    "noise_range": 0.016,
    "ci95": [
-    -0.0917,
-    -0.0154,
+    -0.0703,
+    -0.0059,
     78
    ],
    "verdict": "악화"
   },
   {
    "metric": "M3_citation_recall",
-   "base": 0.85,
+   "base": 0.8513333333333333,
    "exp": 0.885,
-   "delta": 0.035,
+   "delta": 0.0337,
    "noise_range": 0.036,
    "ci95": [
-    -0.0064,
-    0.0641,
+    -0.0014,
+    0.0584,
     78
    ],
    "verdict": "유의하지 않음"
   },
   {
    "metric": "M4_kp_coverage",
-   "base": 0.888,
+   "base": 0.8776666666666667,
    "exp": 0.824,
-   "delta": -0.064,
+   "delta": -0.0537,
    "noise_range": 0.017,
    "ci95": [
-    -0.1378,
-    -0.0353,
+    -0.1129,
+    -0.0185,
     78
    ],
    "verdict": "악화"
   },
   {
    "metric": "M4_all_kp",
-   "base": 0.783,
+   "base": 0.773,
    "exp": 0.667,
-   "delta": -0.116,
+   "delta": -0.106,
    "noise_range": 0.018,
    "ci95": [
-    -0.2436,
-    -0.0385,
+    -0.2137,
+    -0.0299,
     78
    ],
    "verdict": "악화"
   },
   {
    "metric": "M4_complete",
-   "base": 0.707,
+   "base": 0.6923333333333334,
    "exp": 0.565,
-   "delta": -0.142,
+   "delta": -0.1273,
    "noise_range": 0.033,
    "ci95": [
-    -0.2391,
-    -0.0543,
+    -0.2138,
+    -0.0471,
     92
    ],
    "verdict": "악화"
   },
   {
    "metric": "M5_unsupported_rate",
-   "base": 0.026,
+   "base": 0.019333333333333334,
    "exp": 0.02,
-   "delta": -0.006,
+   "delta": 0.0007,
    "noise_range": 0.017,
    "ci95": [
-    -0.0165,
-    0.0208,
+    -0.0077,
+    0.0183,
     78
    ],
    "verdict": "유의하지 않음"
   },
   {
    "metric": "M6_temporal_error",
-   "base": 0.071,
+   "base": 0.023666666666666666,
    "exp": 0.273,
-   "delta": 0.202,
+   "delta": 0.2493,
    "noise_range": 0.071,
    "ci95": [
     0.0,
@@ -156,13 +161,13 @@
    "tag": "exception",
    "field": "complete",
    "n": 12,
-   "base": 0.5,
+   "base": 0.5278,
    "exp": 0.5833,
-   "delta": 0.0833,
+   "delta": 0.0555,
    "noise_range": 0.0833,
    "ci95": [
     0.0,
-    0.25,
+    0.1667,
     12
    ],
    "verdict": "유의하지 않음"
@@ -170,14 +175,14 @@
   {
    "tag": "exception",
    "field": "m4_kp_coverage",
-   "n": 10,
-   "base": 0.8,
+   "n": 11,
+   "base": 0.7727,
    "exp": 0.9259,
-   "delta": 0.1259,
+   "delta": 0.1532,
    "noise_range": 0.0773,
    "ci95": [
     0.0,
-    0.1111,
+    0.0988,
     9
    ],
    "verdict": "유의하지 않음"
@@ -201,13 +206,13 @@
    "tag": "split",
    "field": "complete",
    "n": 12,
-   "base": 0.6667,
+   "base": 0.7222,
    "exp": 0.75,
-   "delta": 0.0833,
+   "delta": 0.0278,
    "noise_range": 0.0833,
    "ci95": [
     0.0,
-    0.25,
+    0.0833,
     12
    ],
    "verdict": "유의하지 않음"
@@ -216,13 +221,13 @@
    "tag": "split",
    "field": "m4_kp_coverage",
    "n": 12,
-   "base": 0.8792,
+   "base": 0.8838,
    "exp": 0.9,
-   "delta": 0.0208,
+   "delta": 0.0162,
    "noise_range": 0.0278,
    "ci95": [
     0.0,
-    0.0625,
+    0.0417,
     12
    ],
    "verdict": "유의하지 않음"
@@ -246,13 +251,13 @@
    "tag": "temporal",
    "field": "complete",
    "n": 25,
-   "base": 0.72,
+   "base": 0.6667,
    "exp": 0.24,
-   "delta": -0.48,
+   "delta": -0.4267,
    "noise_range": 0.08,
    "ci95": [
-    -0.64,
-    -0.28,
+    -0.6,
+    -0.24,
     25
    ],
    "verdict": "악화"
@@ -261,13 +266,13 @@
    "tag": "temporal",
    "field": "m4_kp_coverage",
    "n": 21,
-   "base": 0.8905,
+   "base": 0.8627,
    "exp": 0.5759,
-   "delta": -0.3146,
+   "delta": -0.2868,
    "noise_range": 0.0518,
    "ci95": [
-    -0.4722,
-    -0.1759,
+    -0.4074,
+    -0.1481,
     18
    ],
    "verdict": "악화"
@@ -291,12 +296,12 @@
    "tag": "delegation",
    "field": "complete",
    "n": 13,
-   "base": 0.8462,
+   "base": 0.7949,
    "exp": 0.6154,
-   "delta": -0.2308,
+   "delta": -0.1795,
    "noise_range": 0.077,
    "ci95": [
-    -0.5385,
+    -0.4872,
     0.0769,
     13
    ],
@@ -306,12 +311,12 @@
    "tag": "delegation",
    "field": "m4_kp_coverage",
    "n": 13,
-   "base": 0.9231,
+   "base": 0.9017,
    "exp": 0.8205,
-   "delta": -0.1026,
+   "delta": -0.0812,
    "noise_range": 0.0385,
    "ci95": [
-    -0.2308,
+    -0.2094,
     0.0256,
     13
    ],
@@ -351,9 +356,9 @@
    "tag": "precedent",
    "field": "m4_kp_coverage",
    "n": 3,
-   "base": 0.3333,
+   "base": 0.2593,
    "exp": 0.3333,
-   "delta": 0.0,
+   "delta": 0.074,
    "noise_range": 0.1666,
    "ci95": null,
    "verdict": "유의하지 않음"
@@ -370,6 +375,96 @@
     0.0,
     0.0,
     9
+   ],
+   "verdict": "유의하지 않음"
+  },
+  {
+   "tag": "split:dev",
+   "field": "complete",
+   "n": 40,
+   "base": 0.675,
+   "exp": 0.525,
+   "delta": -0.15,
+   "noise_range": null,
+   "ci95": [
+    -0.275,
+    -0.025,
+    40
+   ],
+   "verdict": "유의하지 않음"
+  },
+  {
+   "tag": "split:dev",
+   "field": "m4_kp_coverage",
+   "n": 37,
+   "base": 0.8476,
+   "exp": 0.8283,
+   "delta": -0.0193,
+   "noise_range": null,
+   "ci95": [
+    -0.1263,
+    0.0101,
+    33
+   ],
+   "verdict": "유의하지 않음"
+  },
+  {
+   "tag": "split:dev",
+   "field": "m1_recall_all",
+   "n": 40,
+   "base": 0.675,
+   "exp": 0.675,
+   "delta": 0.0,
+   "noise_range": null,
+   "ci95": [
+    0.0,
+    0.0,
+    40
+   ],
+   "verdict": "유의하지 않음"
+  },
+  {
+   "tag": "split:test",
+   "field": "complete",
+   "n": 52,
+   "base": 0.7051,
+   "exp": 0.5962,
+   "delta": -0.1089,
+   "noise_range": null,
+   "ci95": [
+    -0.2244,
+    -0.0064,
+    52
+   ],
+   "verdict": "유의하지 않음"
+  },
+  {
+   "tag": "split:test",
+   "field": "m4_kp_coverage",
+   "n": 47,
+   "base": 0.883,
+   "exp": 0.8204,
+   "delta": -0.0626,
+   "noise_range": null,
+   "ci95": [
+    -0.1395,
+    -0.0093,
+    45
+   ],
+   "verdict": "유의하지 않음"
+  },
+  {
+   "tag": "split:test",
+   "field": "m1_recall_all",
+   "n": 52,
+   "base": 0.7115,
+   "exp": 0.7115,
+   "delta": 0.0,
+   "noise_range": null,
+   "ci95": [
+    0.0,
+    0.0,
+    52
    ],
    "verdict": "유의하지 않음"
   }
