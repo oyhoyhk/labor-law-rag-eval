@@ -1,0 +1,130 @@
+<title>학습 데이터 표본 검수</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+KR:wght@400;500;700&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+/* Layout: one column of audit cards under a sticky tally; question on top, evidence below, three verdict buttons. */
+:root {
+  --bg: #f4f6f5; --surface: #ffffff; --line: #d9dfdc; --fg: #1a2421; --fg2: #4b5853; --muted: #7b8782;
+  --accent: #23665a; --accent-bg: #e1eeea;
+  --good: #23704a; --good-bg: #e2f2e8; --bad: #a8352d; --bad-bg: #f8e3e1; --warn: #8a5a12; --warn-bg: #f6ebd5;
+  --font-body: "IBM Plex Sans KR", "Apple SD Gothic Neo", "Malgun Gothic", system-ui, sans-serif;
+  --font-mono: "IBM Plex Mono", ui-monospace, Menlo, monospace;
+}
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) {
+  --bg: #121715; --surface: #1a211e; --line: #2c3632; --fg: #e3e9e6; --fg2: #b2bdb8; --muted: #84918b;
+  --accent: #7cc4b2; --accent-bg: #1d302b; --good: #7ccf9d; --good-bg: #183224; --bad: #ec8d85; --bad-bg: #3a2120;
+  --warn: #e0b46a; --warn-bg: #3a2f1a; color-scheme: dark } }
+:root[data-theme="dark"] {
+  --bg: #121715; --surface: #1a211e; --line: #2c3632; --fg: #e3e9e6; --fg2: #b2bdb8; --muted: #84918b;
+  --accent: #7cc4b2; --accent-bg: #1d302b; --good: #7ccf9d; --good-bg: #183224; --bad: #ec8d85; --bad-bg: #3a2120;
+  --warn: #e0b46a; --warn-bg: #3a2f1a; color-scheme: dark }
+* { box-sizing: border-box }
+body { background: var(--bg); color: var(--fg); font: 15px/1.65 var(--font-body) }
+.wrap { max-width: 880px; margin: 0 auto; padding-inline: 16px; padding-block: 28px 80px }
+h1 { font-size: 26px; margin: 0; text-wrap: balance }
+.lede { color: var(--fg2); margin: 6px 0 0; max-width: 70ch }
+.guide { margin-top: 12px; font-size: 13px; color: var(--fg2); display: grid; gap: 2px }
+.ledger { position: sticky; top: env(safe-area-inset-top, 0px); z-index: 5; background: var(--bg); border-bottom: 1px solid var(--line); margin-top: 16px; padding-block: 10px; font-size: 14px; font-variant-numeric: tabular-nums; display: flex; flex-wrap: wrap; gap: 6px 16px }
+.notice { margin-top: 8px; font-size: 13px; padding: 8px 12px; border-radius: 6px; background: var(--warn-bg); color: var(--warn) }
+.list { display: grid; gap: 14px; margin-top: 16px }
+.card { background: var(--surface); border: 1px solid var(--line); border-radius: 8px; padding: 16px 18px; min-width: 0 }
+.card[data-d="ok"] { border-left: 4px solid var(--good) }
+.card[data-d="bad"] { border-left: 4px solid var(--bad) }
+.card[data-d="unsure"] { border-left: 4px solid var(--warn) }
+.meta { display: flex; gap: 8px; align-items: center; font-size: 12px; flex-wrap: wrap }
+.chip { padding: 1px 8px; border-radius: 999px; background: var(--accent-bg); color: var(--accent); font-weight: 500 }
+.id { font-family: var(--font-mono); color: var(--muted); font-size: 12px }
+.q { font-size: 17px; font-weight: 700; margin: 8px 0 4px; text-wrap: pretty }
+.label { font-size: 12px; color: var(--muted); margin-top: 10px; letter-spacing: .03em }
+details { margin-top: 6px }
+summary { cursor: pointer; color: var(--accent); font-size: 13px }
+pre { white-space: pre-wrap; word-break: keep-all; overflow-wrap: anywhere; font: 13px/1.6 var(--font-body); background: var(--bg); border-radius: 6px; padding: 10px 12px; margin: 6px 0 0; max-height: 360px; overflow: auto }
+.decide { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 14px; align-items: center }
+.decide button { font: inherit; font-size: 14px; padding: 6px 14px; border-radius: 6px; border: 1px solid var(--line); background: var(--surface); color: var(--fg); cursor: pointer }
+.decide button[aria-pressed="true"].ok { background: var(--good); border-color: var(--good); color: var(--surface) }
+.decide button[aria-pressed="true"].bad { background: var(--bad); border-color: var(--bad); color: var(--surface) }
+.decide button[aria-pressed="true"].unsure { background: var(--warn); border-color: var(--warn); color: var(--surface) }
+button:focus-visible, summary:focus-visible, input:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px }
+.saved { font-size: 12px; color: var(--muted) }
+input.note { width: 100%; margin-top: 8px; font: inherit; font-size: 14px; padding: 6px 10px; border: 1px solid var(--line); border-radius: 6px; background: var(--surface); color: var(--fg) }
+</style>
+
+<div class="wrap">
+  <h1>학습 데이터 표본 검수</h1>
+  <p class="lede">임베딩 파인튜닝용 (질문, 정답 조문) 3,519쌍 중 출처별 무작위 40쌍. "이 질문을 받으면 이 조문을 찾아오는 게 맞는가"만 판단. 결과는 학습 데이터 정확도 추정에 쓰고, 개별 쌍 수정에는 쓰지 않음</p>
+  <div class="guide">
+    <span><b>적합</b>: 질문의 답(또는 핵심 근거)이 이 조문에 있음</span>
+    <span><b>부적합</b>: 이 조문으로는 답할 수 없음, 질문이 어색해 쓸 수 없음</span>
+    <span><b>애매</b>: 관련은 있지만 다른 조문이 더 맞음, 판례 쟁점과 조문의 관련이 간접적임</span>
+    <span>판례 출처는 정답 조문이 여러 개(판례의 참조조문 전체)이며, 그중 하나라도 맞으면 적합</span>
+  </div>
+  <div class="ledger" id="ledger"></div>
+  <div class="notice" id="notice" hidden></div>
+  <div class="list" id="list"></div>
+</div>
+
+<script type="application/json" id="items">__ITEMS__</script>
+<script>
+const ITEMS = JSON.parse(document.getElementById("items").textContent);
+const SRC = { precedent: "판례 쟁점 → 참조조문", synthetic: "합성 질문 → 조문", title: "조 제목 → 조문" };
+const dec = {};
+let db = null;
+function el(tag, attrs = {}, ...kids) {
+  const e = document.createElement(tag);
+  for (const [k, v] of Object.entries(attrs)) { if (k === "class") e.className = v; else if (k === "text") e.textContent = v; else if (v != null) e.setAttribute(k, v); }
+  for (const k of kids) if (k) e.append(k);
+  return e;
+}
+function ledger() {
+  const n = v => ITEMS.filter(i => (dec[i.key] || {}).decision === v).length;
+  const done = ITEMS.filter(i => (dec[i.key] || {}).decision).length;
+  const by = s => { const xs = ITEMS.filter(i => i.source === s && (dec[i.key] || {}).decision); const ok = xs.filter(i => dec[i.key].decision === "ok").length; return xs.length ? `${SRC[s].split(" ")[0]} ${ok}/${xs.length}` : ""; };
+  document.getElementById("ledger").replaceChildren(
+    el("span", { text: `${done}/${ITEMS.length} 검수` }), el("span", { text: `적합 ${n("ok")} · 부적합 ${n("bad")} · 애매 ${n("unsure")}` }),
+    el("span", { text: ["precedent", "synthetic", "title"].map(by).filter(Boolean).join(" · ") }));
+}
+function card(it) {
+  const d = dec[it.key] || {};
+  const c = el("article", { class: "card", id: "c-" + it.key, "data-d": d.decision || "" });
+  c.append(el("div", { class: "meta" }, el("span", { class: "chip", text: SRC[it.source] }), el("span", { class: "id", text: it.key })));
+  c.append(el("p", { class: "q", text: it.query }));
+  c.append(el("div", { class: "label", text: `정답 조문 ${it.positives.length}개` }));
+  it.positives.forEach((p, i) => {
+    const det = el("details", i < 2 ? { open: "" } : {}, el("summary", { text: p.id }), el("pre", { text: p.text || "(본문 없음)" }));
+    c.append(det);
+  });
+  const row = el("div", { class: "decide" });
+  [["ok", "적합"], ["bad", "부적합"], ["unsure", "애매"]].forEach(([v, l]) => {
+    const b = el("button", { type: "button", class: v, "aria-pressed": String(d.decision === v), text: l });
+    b.addEventListener("click", () => save(it, { decision: d.decision === v ? null : v }));
+    row.append(b);
+  });
+  row.append(el("span", { class: "saved", text: d.at ? "저장됨" : "" }));
+  c.append(row);
+  const note = el("input", { class: "note", id: "n-" + it.key, placeholder: "메모 (선택)", "aria-label": it.key + " 메모" });
+  note.value = d.note || "";
+  let t; note.addEventListener("input", () => { clearTimeout(t); t = setTimeout(() => save(it, { note: note.value }, true), 800); });
+  c.append(note);
+  return c;
+}
+function render() { document.getElementById("list").replaceChildren(...ITEMS.map(card)); ledger(); }
+function notice(t) { const n = document.getElementById("notice"); n.hidden = !t; n.textContent = t || ""; }
+async function save(it, patch, quiet) {
+  const next = { ...(dec[it.key] || {}), ...patch, pair: it.id, source: it.source, by: "user", at: new Date().toISOString() };
+  dec[it.key] = next;
+  if (db) { try { await db.collection("train_review_v1").doc(it.key).set(next); } catch (e) { notice("저장하지 못했습니다. 잠시 후 다시 눌러 주세요."); } }
+  else { try { localStorage.setItem("train-review-v1", JSON.stringify(dec)); } catch {} }
+  if (!quiet) { const node = document.getElementById("c-" + it.key); node.replaceWith(card(it)); }
+  ledger();
+}
+render();
+(async () => {
+  db = window.claude ? await window.claude.use("db") : null;
+  if (!db) { try { Object.assign(dec, JSON.parse(localStorage.getItem("train-review-v1") || "{}")); } catch {} notice("결정이 이 브라우저에만 저장됩니다. claude.ai에서 열어 주세요."); render(); return; }
+  db.collection("train_review_v1").onSnapshot(snap => {
+    let ch = false;
+    for (const x of snap.docChanges()) { const v = x.doc.data() || {}; if (!dec[x.doc.id] || dec[x.doc.id].at !== v.at) { dec[x.doc.id] = v; ch = true; } }
+    if (ch && !(document.activeElement && document.activeElement.tagName === "INPUT")) render(); else if (ch) ledger();
+  }, () => notice("저장소 연결이 끊겼습니다. 새로 고쳐 주세요."));
+})();
+</script>
