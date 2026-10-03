@@ -10,6 +10,7 @@ retrieved article (never searched on its own).
 import argparse
 import hashlib
 import json
+import threading
 import time
 from dataclasses import asdict
 from datetime import date
@@ -27,6 +28,8 @@ from app.ingest.provision import GRAPH, build as build_graph
 EMBED_MODEL = "nlpai-lab/KURE-v1"
 EMBED_REVISION = "8b418a58414668e75532ed045c22d9ca018ae2b2"
 INDEX_DIR = ROOT / "data" / "index"
+# eval runs answer items on worker threads; MPS (and one model instance in general) must not encode concurrently
+ENCODE_LOCK = threading.Lock()
 WHOLE_MAX_TOKENS = 8192  # KURE-v1 / XLM-R context; the longest 조 is ~2.5k tokens
 
 
@@ -123,7 +126,8 @@ class PrecedentScorer:
         self.vectors = {pid: index.reconstruct(i) for i, pid in enumerate(ids)}
 
     def scores(self, query: str, ids: list[str]) -> dict[str, float]:
-        q = embedder().encode([query], normalize_embeddings=True, convert_to_numpy=True).astype("float32")[0]
+        with ENCODE_LOCK:
+            q = embedder().encode([query], normalize_embeddings=True, convert_to_numpy=True).astype("float32")[0]
         return {pid: float(self.vectors[pid] @ q) for pid in ids if pid in self.vectors}
 
 
@@ -140,7 +144,8 @@ class Retriever:
         self.query_prefix = m.get("query_prefix", "")
 
     def search(self, query: str, k: int = 5) -> list[dict]:
-        q = self.model.encode([self.query_prefix + query], normalize_embeddings=True, convert_to_numpy=True).astype("float32")
+        with ENCODE_LOCK:
+            q = self.model.encode([self.query_prefix + query], normalize_embeddings=True, convert_to_numpy=True).astype("float32")
         scores, idx = self.index.search(q, k)
         return [{**self.chunks[i], "score": float(s)} for s, i in zip(scores[0], idx[0]) if i >= 0]
 
