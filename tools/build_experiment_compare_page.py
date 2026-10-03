@@ -32,6 +32,33 @@ EXPERIMENTS = [
      "hypothesis": "효과 없음 예측(1차에서 대상 미해결)", "decision": "미채택, 범위 밖 거절 악화", "tone": "reject"},
 ]
 BASE_TOKENS = 3576
+# Plain-language summary shown first on the page: what changed, what happened, and which item type it targeted.
+PLAIN = {
+    "v2-final": ("조를 통째로 색인하고, 조문에 연결된 대법원 판례도 함께 제공 (현재 기본값)",
+                 "판례가 필요한 질문 9개 중 4개를 새로 맞힘. 전체로도 올랐지만 우연과 구별이 아슬아슬함. 대신 정답 목록 밖 근거 인용이 늘어남",
+                 "precedent", "개선 시도"),
+    "v2-k10": ("검색해 오는 조문 수를 5개에서 10개로 늘림",
+               "정답 조문을 더 많이 찾아 전체 정답률이 확실히 오름(우연 아님). 대신 입력이 길어져 질문당 비용 약 1.6배",
+               None, "개선 시도"),
+    "v2-precedents": ("조문에 연결된 대법원 판례를 함께 제공",
+                      "판례가 필요한 질문 9개 중 4개 해결(우연 아님). 전체 정답률 상승은 판단 보류",
+                      "precedent", "개선 시도"),
+    "v2-siblings": ("긴 조가 여러 조각으로 나뉘었을 때 나머지 조각도 함께 제공",
+                    "노린 유형 12문항 중 2문항 개선. 문항이 적어 우연과 구별 안 됨",
+                    "split", "개선 시도"),
+    "v2-reverse-refs": ("검색된 조문을 '예외'로 가리키는 다른 조문도 함께 제공",
+                        "노린 유형 12문항 중 2문항 개선, 다른 2문항 하락. 판단 보류",
+                        "exception", "개선 시도"),
+    "v2-partial-prompt": ("근거가 일부만 있어도 아는 만큼 답하도록 지시",
+                          "효과 없음. 오히려 답하면 안 되는 질문 1개에 답해 버림",
+                          None, "개선 시도"),
+    "v2-h1-fixed": ("조 단위가 아니라 512토큰씩 기계적으로 잘라 색인 (나빠지는지 확인하는 실험)",
+                    "거절이 늘고 인용 정확도가 절반으로 떨어짐 → 조 단위 색인이 맞다는 근거",
+                    None, "확인 실험"),
+    "v2-h4-no-inject": ("조문 앞의 '시행 예정·효력 상실' 표시를 빼 봄 (확인 실험)",
+                        "시점을 묻는 질문 정답률 0.67 → 0.24로 급락 → 이 표시가 핵심 장치라는 근거",
+                        "temporal", "확인 실험"),
+}
 LEVELS = ["L1", "L2", "L3", "L4", "L5a", "L5b", "OOS", "SUM"]
 TAGS = ["exception", "split", "temporal", "delegation", "precedent"]
 LEVEL_METRICS = ["M1_recall_any", "M3_citation_precision", "M4_kp_coverage", "M5_unsupported_rate"]
@@ -69,7 +96,9 @@ for x in EXPERIMENTS:
     d = RES / x["key"]
     manifest = json.loads((d / "manifest.json").read_text())
     diff = json.loads((d / "diff_vs_base.json").read_text())
-    exps.append({**x, "cost": x.get("cost", manifest["cost_krw"]), "rows": diff["rows"],
+    what, result, target, kind = PLAIN[x["key"]]
+    exps.append({**x, "what": what, "result": result, "target": target, "kind": kind,
+                 "cost": x.get("cost", manifest["cost_krw"]), "rows": diff["rows"],
                  "subsets": [r for r in diff["subsets"] if r["field"] == "complete"],
                  "levels": levels(json.loads((d / "report.json").read_text())),
                  "changes": item_changes({s["id"]: s for s in jl(d / "scores.jsonl")})})

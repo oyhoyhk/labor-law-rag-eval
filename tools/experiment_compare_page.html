@@ -85,6 +85,22 @@ svg .grid { stroke: var(--line-soft); stroke-width: 1 }
 #tip { position: fixed; pointer-events: none; z-index: 10; background: var(--fg); color: var(--bg); padding: 8px 10px; border-radius: 6px; font-size: 12px; line-height: 1.5; max-width: 280px; box-shadow: 0 4px 14px rgba(0,0,0,.18) }
 #tip .t { font-weight: 500 }
 #tip .r { font-family: var(--font-mono); font-variant-numeric: tabular-nums }
+.cards { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 12px }
+.card { background: var(--surface); border: 1px solid var(--line); border-radius: 8px; padding: 14px 16px; display: grid; gap: 6px; min-width: 0 }
+.card .top { display: flex; justify-content: space-between; align-items: baseline; gap: 8px; flex-wrap: wrap }
+.card .nm { font-weight: 700; font-size: 15px }
+.card .kind { font-size: 11px; color: var(--muted); letter-spacing: .04em }
+.card .what { color: var(--fg2); font-size: 13px }
+.card .res { font-size: 14px }
+.card .score { font-family: var(--font-mono); font-variant-numeric: tabular-nums; font-size: 13px; color: var(--fg2) }
+.glossary { background: var(--surface); border: 1px solid var(--line); border-radius: 8px; padding: 14px 18px; font-size: 13px; color: var(--fg2) }
+.glossary dl { display: grid; grid-template-columns: max-content 1fr; gap: 6px 14px; margin: 0 }
+.glossary dt { font-weight: 700; color: var(--fg) }
+.glossary dd { margin: 0 }
+@media (max-width: 560px) { .glossary dl { grid-template-columns: 1fr } }
+details.more > summary { cursor: pointer; font-weight: 700; font-size: 16px; padding: 12px 0; color: var(--accent) }
+details.more[open] > summary { margin-bottom: 16px }
+.more-body { display: grid; gap: 40px }
 .foot { color: var(--muted); font-size: 12px; max-width: 80ch }
 @media (prefers-reduced-motion: no-preference) { .tab, .colbtn { transition: color .12s, border-color .12s } }
 </style>
@@ -92,12 +108,40 @@ svg .grid { stroke: var(--line-soft); stroke-width: 1 }
 <div class="wrap">
   <header>
     <h1>Part C 실험 비교</h1>
-    <p class="lede">2차 실험: 기준선(3회 문항별 평균, 조각 분할 색인 · top-5 · 시행 상태 주입 · 위임 확장 · τ 0.50 · 판례 없음) 대비 7개 실험과 최종 구성의 지표 변화. Gold Set v2.2 100문항(전 문항 사람 확인), Luna 생성 · judge-v2 채점, 가설은 측정 전 사전 등록.</p>
-    <div class="rule">
-      <span><b>유의 판정</b> = |Δ| &gt; 노이즈 범위(동일 설정 3회 반복의 최대−최소) <b>그리고</b> 문항 대응 부트스트랩 95% CI가 0 제외</span>
-      <span>M5 judge는 κ 0.54로 보조 지표</span>
-    </div>
+    <p class="lede">노동법령 RAG의 구성을 하나씩 바꿔 가며, 100개 질문 중 몇 개를 올바르게 처리하는지 비교한 결과입니다. 비교 기준(기준선)은 판례 없이 조문만 쓰는 처음 구성입니다.</p>
   </header>
+
+  <section aria-labelledby="h-overview">
+    <h2 id="h-overview">한눈에 보기: 전체 정답률</h2>
+    <p class="sub">100문항 중 올바르게 처리한 비율. 답할 수 있는 질문은 필요한 내용을 빠짐없이 답해야, 답할 수 없는 질문은 거절해야 정답. 회색 띠는 같은 구성을 여러 번 돌려도 생기는 흔들림 범위라서, 막대 끝이 띠 안에 있으면 우연과 구별할 수 없음</p>
+    <div class="panel"><div class="svgbox" id="overview"></div></div>
+  </section>
+
+  <section aria-labelledby="h-cards">
+    <h2 id="h-cards">실험별 한 줄 결론</h2>
+    <p class="sub">개선 시도는 좋아지길 기대한 변경, 확인 실험은 일부러 기능을 빼서 그 기능이 정말 필요한지 확인한 변경(나빠지는 것이 예상대로)</p>
+    <div class="cards" id="cards"></div>
+  </section>
+
+  <section aria-labelledby="h-targets">
+    <h2 id="h-targets">노린 문제를 고쳤나</h2>
+    <p class="sub">각 실험이 겨냥한 유형의 질문만 따로 센 결과. 문항 수가 9~25개라 2~3문항 차이는 우연일 수 있음</p>
+    <div class="scroll"><table id="targets"></table></div>
+  </section>
+
+  <div class="glossary">
+    <dl>
+      <dt>기준선</dt><dd>비교 기준이 되는 처음 구성. 같은 구성을 3번 돌린 평균을 사용</dd>
+      <dt>좋아짐 · 나빠짐</dt><dd>변화가 흔들림 범위보다 크고, 문항을 무작위로 다시 뽑아 계산해도 같은 방향이 유지될 때만 붙임(통계적으로 유의)</dd>
+      <dt>판단 보류</dt><dd>숫자는 바뀌었지만 우연히 생길 수 있는 크기라서 효과가 있다고 말할 수 없음</dd>
+      <dt>완전 정답</dt><dd>답할 수 있는 질문에서 필요한 사실(정답 포인트)을 하나도 빠뜨리지 않은 답변</dd>
+    </dl>
+  </div>
+
+  <details class="more">
+    <summary>자세한 지표 보기 (지표별 표 · 실험 상세 · 비용)</summary>
+    <div class="more-body">
+
 
   <section aria-labelledby="h-matrix">
     <h2 id="h-matrix">지표별 판정 매트릭스</h2>
@@ -130,6 +174,9 @@ svg .grid { stroke: var(--line-soft); stroke-width: 1 }
       <div class="panel"><h3>생성 호출당 평균 입력 토큰</h3><p class="sub">점선 = 기준선 3,576토큰</p><div class="svgbox" id="tokens"></div></div>
     </div>
   </section>
+
+    </div>
+  </details>
 
   <p class="foot">출처: eval/results/*/diff_vs_base.json · manifest.json · report.json · scores.jsonl, eval/results/noise_floor.json. 생성: tools/build_experiment_compare_page.py</p>
 </div>
@@ -349,10 +396,59 @@ function renderCost() {
     name: e.name, v: e.tokens, note: e.tokens == null ? "" : `기준 대비 ${e.tokens >= DATA.base_tokens ? "+" : "−"}${Math.abs((e.tokens / DATA.base_tokens - 1) * 100).toFixed(1)}%` }))], "", DATA.base_tokens);
 }
 
+const PLAIN_V = v => v === "개선" ? ["good", "좋아짐"] : v === "악화" ? ["bad", "나빠짐"] : ["flat", "판단 보류"];
+function m0(e) { return e.rows.find(r => r.metric === "M0_accuracy"); }
+
+function renderOverview() {
+  const base = m0(EX[0]).base, band = DATA.noise.M0_accuracy || 0;
+  const items = [...EX].sort((a, b) => m0(b).exp - m0(a).exp);
+  const W = 760, L = 200, R = 210, rowH = 34, top = 30, H = top + items.length * rowH + 30;
+  const lo = 0.5, hi = 0.9, x = v => L + (v - lo) / (hi - lo) * (W - L - R);
+  let s = `<svg viewBox="0 0 ${W} ${H}" style="width:100%;max-width:900px;min-width:620px" role="img" aria-label="실험별 전체 정답률">`;
+  [0.5, 0.6, 0.7, 0.8, 0.9].forEach(v => s += `<line class="grid" x1="${x(v)}" x2="${x(v)}" y1="${top - 6}" y2="${H - 24}"/><text x="${x(v)}" y="${H - 8}" text-anchor="middle">${v.toFixed(1)}</text>`);
+  s += `<rect x="${x(base - band)}" y="${top - 6}" width="${x(base + band) - x(base - band)}" height="${H - top - 18}" fill="var(--band)"/>`;
+  s += `<line x1="${x(base)}" x2="${x(base)}" y1="${top - 10}" y2="${H - 24}" stroke="var(--fg2)" stroke-dasharray="4 3"/>`;
+  s += `<text x="${x(base)}" y="${top - 14}" text-anchor="middle">기준선 ${base.toFixed(3)}</text>`;
+  items.forEach((e, i) => {
+    const r = m0(e), y = top + i * rowH, [c, label] = PLAIN_V(r.verdict);
+    const col = c === "good" ? "var(--good)" : c === "bad" ? "var(--bad)" : "var(--ci)";
+    s += `<text class="lbl" x="${L - 10}" y="${y + rowH / 2 + 4}" text-anchor="end">${esc(e.name)}</text>`;
+    const x0 = x(Math.min(base, r.exp)), w = Math.abs(x(r.exp) - x(base));
+    s += `<rect x="${x0}" y="${y + 8}" width="${Math.max(2, w)}" height="${rowH - 16}" rx="3" fill="${col}"/>`;
+    s += `<circle cx="${x(r.exp)}" cy="${y + rowH / 2}" r="5" fill="${col}" stroke="var(--surface)" stroke-width="2"/>`;
+    const pp = (r.delta * 100).toFixed(1);
+    s += `<text class="lbl" x="${W - R + 12}" y="${y + rowH / 2 + 4}">${r.exp.toFixed(3)}  (${r.delta >= 0 ? "+" : ""}${pp}%p, ${label})</text>`;
+  });
+  document.getElementById("overview").innerHTML = s + `</svg>`;
+}
+
+function renderCards() {
+  const order = [...EX].sort((a, b) => (a.kind === b.kind ? m0(b).exp - m0(a).exp : a.kind === "개선 시도" ? -1 : 1));
+  document.getElementById("cards").innerHTML = order.map(e => {
+    const r = m0(e), [c, label] = PLAIN_V(r.verdict);
+    return `<div class="card"><div class="top"><span class="nm">${esc(e.name)}</span><span class="chip ${c}">전체 정답률: ${label}</span></div>
+      <div class="kind">${e.kind}</div>
+      <div class="what">무엇을 바꿨나: ${esc(e.what)}</div>
+      <div class="res">${esc(e.result)}</div>
+      <div class="score">전체 정답률 ${r.base.toFixed(3)} → ${r.exp.toFixed(3)}</div></div>`;
+  }).join("");
+}
+
+function renderTargets() {
+  const rows = EX.filter(e => e.target).map(e => ({ e, s: e.subsets.find(x => x.tag === e.target) })).filter(o => o.s);
+  let h = `<thead><tr><th>실험</th><th>노린 질문 유형</th><th>기준선에서 맞힌 수 (3회 평균)</th><th>실험에서 맞힌 수</th><th>판정</th></tr></thead><tbody>`;
+  rows.forEach(({ e, s }) => {
+    const [c, label] = PLAIN_V(s.verdict);
+    const nb = "약 " + Math.round(s.base * s.n), ne = Math.round(s.exp * s.n);
+    h += `<tr><td>${esc(e.name)}</td><td>${TAG_LABEL[s.tag]}</td><td class="num">${nb} / ${s.n}</td><td class="num">${ne} / ${s.n}</td><td><span class="chip ${c}">${label}</span></td></tr>`;
+  });
+  document.getElementById("targets").innerHTML = h + `</tbody>`;
+}
+
 function select(i) {
   sel = i;
   try { localStorage.setItem("partc-sel", String(i)); } catch (e) {}
-  hideTip(); renderMatrix(); renderSubsets(); renderTabs(); renderDetail(); renderCost();
+  hideTip(); renderOverview(); renderCards(); renderTargets(); renderMatrix(); renderSubsets(); renderTabs(); renderDetail(); renderCost();
 }
 select(sel);
 </script>
