@@ -1,0 +1,542 @@
+{
+ "t30": {
+  "confirmed": true,
+  "excluded": false,
+  "selected": [
+   "파견근로자 보호 등에 관한 법률#21"
+  ],
+  "model_default": [
+   "파견근로자 보호 등에 관한 법률#21",
+   "파견근로자 보호 등에 관한 법률#2"
+  ],
+  "note": "",
+  "at": "2026-10-03T05:27:06.140Z",
+  "pair": "prec:판례#2021다229588:5",
+  "source": "precedent"
+ },
+ "t26": {
+  "confirmed": true,
+  "excluded": false,
+  "selected": [
+   "근로기준법 시행령#6"
+  ],
+  "model_default": [
+   "근로기준법 시행령#6"
+  ],
+  "note": "",
+  "at": "2026-10-03T05:26:42.799Z",
+  "pair": "title:근로기준법 시행령#6",
+  "source": "title"
+ },
+ "t06": {
+  "confirmed": true,
+  "excluded": false,
+  "selected": [
+   "최저임금법#6",
+   "근로자퇴직급여 보장법#8"
+  ],
+  "model_default": [
+   "최저임금법#6",
+   "근로자퇴직급여 보장법#8"
+  ],
+  "note": "",
+  "at": "2026-10-03T05:10:30.636Z",
+  "pair": "prec:판례#2012다70388:1",
+  "source": "precedent"
+ },
+ "t10": {
+  "confirmed": true,
+  "excluded": false,
+  "selected": [
+   "근로기준법#54"
+  ],
+  "model_default": [
+   "근로기준법#54"
+  ],
+  "note": "",
+  "at": "2026-10-03T05:10:58.657Z",
+  "pair": "syn:근로기준법#54:0",
+  "source": "synthetic"
+ },
+ "t11": {
+  "confirmed": true,
+  "excluded": false,
+  "selected": [
+   "근로자퇴직급여 보장법 시행규칙#7"
+  ],
+  "model_default": [
+   "근로자퇴직급여 보장법 시행규칙#7"
+  ],
+  "note": "",
+  "at": "2026-10-03T05:11:28.000Z",
+  "pair": "syn:근로자퇴직급여 보장법 시행규칙#7:0",
+  "source": "synthetic"
+ },
+ "t07": {
+  "confirmed": true,
+  "excluded": false,
+  "selected": [
+   "근로기준법#85"
+  ],
+  "model_default": [
+   "근로기준법#85"
+  ],
+  "note": "",
+  "at": "2026-10-03T05:10:32.625Z",
+  "pair": "syn:근로기준법#85:0",
+  "source": "synthetic"
+ },
+ "t27": {
+  "confirmed": true,
+  "excluded": true,
+  "selected": [],
+  "model_default": [],
+  "note": "",
+  "at": "2026-10-03T05:26:47.090Z",
+  "pair": "prec:판례#2018다262653:4",
+  "source": "precedent"
+ },
+ "t31": {
+  "confirmed": true,
+  "excluded": false,
+  "selected": [
+   "기간제 및 단시간근로자 보호 등에 관한 법률#7"
+  ],
+  "model_default": [
+   "기간제 및 단시간근로자 보호 등에 관한 법률#7"
+  ],
+  "note": "",
+  "at": "2026-10-03T05:27:23.574Z",
+  "pair": "title:기간제 및 단시간근로자 보호 등에 관한 법률#7",
+  "source": "title"
+ },
+ "t16": {
+  "confirmed": true,
+  "excluded": false,
+  "selected": [
+   "기간제 및 단시간근로자 보호 등에 관한 법률#4"
+  ],
+  "model_default": [
+   "기간제 및 단시간근로자 보호 등에 관한 법률#4"
+  ],
+  "note": "",
+  "at": "2026-10-03T05:12:57.655Z",
+  "pair": "title:기간제 및 단시간근로자 보호 등에 관한 법률#4",
+  "source": "title"
+ },
+ "t36": {
+  "confirmed": true,
+  "excluded": false,
+  "selected": [
+   "근로기준법#2"
+  ],
+  "model_default": [
+   "근로기준법#2"
+  ],
+  "note": "",
+  "at": "2026-10-03T05:28:52.032Z",
+  "pair": "prec:판례#2020다207864:0",
+  "source": "precedent"
+ },
+ "t20": {
+  "confirmed": true,
+  "excluded": false,
+  "selected": [
+   "근로기준법#15",
+   "근로기준법#43"
+  ],
+  "model_default": [
+   "근로기준법#15",
+   "근로기준법#43"
+  ],
+  "note": "",
+  "at": "2026-10-03T05:19:03.519Z",
+  "pair": "prec:판례#2019다293098:2",
+  "source": "precedent"
+ },
+ "t21": {
+  "confirmed": true,
+  "excluded": false,
+  "selected": [
+   "파견근로자 보호 등에 관한 법률#31"
+  ],
+  "model_default": [
+   "파견근로자 보호 등에 관한 법률#31"
+  ],
+  "note": "",
+  "at": "2026-10-03T05:19:08.152Z",
+  "pair": "syn:파견근로자 보호 등에 관한 법률#31:0",
+  "source": "synthetic"
+ },
+ "t37": {
+  "confirmed": true,
+  "excluded": true,
+  "selected": [],
+  "model_default": [
+   "근로자퇴직급여 보장법 시행령#17"
+  ],
+  "note": "",
+  "at": "2026-10-03T05:28:58.106Z",
+  "pair": "title:근로자퇴직급여 보장법 시행령#17",
+  "source": "title"
+ },
+ "t40": {
+  "confirmed": true,
+  "excluded": true,
+  "selected": [],
+  "model_default": [
+   "근로자퇴직급여 보장법 시행규칙#1"
+  ],
+  "note": "",
+  "at": "2026-10-03T05:30:26.932Z",
+  "pair": "syn:근로자퇴직급여 보장법 시행규칙#1:1",
+  "source": "synthetic"
+ },
+ "t17": {
+  "confirmed": true,
+  "excluded": false,
+  "selected": [
+   "최저임금법#26"
+  ],
+  "model_default": [
+   "최저임금법#26"
+  ],
+  "note": "",
+  "at": "2026-10-03T05:13:20.005Z",
+  "pair": "syn:최저임금법#26:0",
+  "source": "synthetic"
+ },
+ "t01": {
+  "confirmed": true,
+  "excluded": false,
+  "selected": [
+   "근로기준법#43의7"
+  ],
+  "model_default": [
+   "근로기준법#43의7"
+  ],
+  "note": "",
+  "at": "2026-10-03T05:10:10.593Z",
+  "pair": "title:근로기준법#43의7",
+  "source": "title"
+ },
+ "t14": {
+  "confirmed": true,
+  "excluded": true,
+  "selected": [],
+  "model_default": [
+   "파견근로자 보호 등에 관한 법률#27"
+  ],
+  "note": "",
+  "at": "2026-10-03T05:12:45.139Z",
+  "pair": "syn:파견근로자 보호 등에 관한 법률#27:1",
+  "source": "synthetic"
+ },
+ "t02": {
+  "confirmed": true,
+  "excluded": false,
+  "selected": [
+   "근로기준법 시행령#6"
+  ],
+  "model_default": [
+   "근로기준법 시행령#6"
+  ],
+  "note": "",
+  "at": "2026-10-03T05:10:16.257Z",
+  "pair": "prec:판례#2017다273663:0",
+  "source": "precedent"
+ },
+ "t38": {
+  "confirmed": true,
+  "excluded": true,
+  "selected": [],
+  "model_default": [],
+  "note": "",
+  "at": "2026-10-03T05:29:27.815Z",
+  "pair": "prec:판례#2018다206899:3",
+  "source": "precedent"
+ },
+ "t18": {
+  "confirmed": true,
+  "excluded": false,
+  "selected": [
+   "근로기준법#25"
+  ],
+  "model_default": [
+   "근로기준법#25"
+  ],
+  "note": "",
+  "at": "2026-10-03T05:17:57.268Z",
+  "pair": "prec:판례#2016다13437:3",
+  "source": "precedent"
+ },
+ "t22": {
+  "confirmed": true,
+  "excluded": false,
+  "selected": [
+   "근로기준법#40"
+  ],
+  "model_default": [
+   "근로기준법#40"
+  ],
+  "note": "",
+  "at": "2026-10-03T05:19:22.836Z",
+  "pair": "syn:근로기준법#40:1",
+  "source": "synthetic"
+ },
+ "t34": {
+  "confirmed": true,
+  "excluded": true,
+  "selected": [],
+  "model_default": [
+   "근로기준법#33"
+  ],
+  "note": "",
+  "at": "2026-10-03T05:28:39.156Z",
+  "pair": "prec:판례#2011두23481:2",
+  "source": "precedent"
+ },
+ "t35": {
+  "confirmed": true,
+  "excluded": false,
+  "selected": [
+   "근로기준법#65"
+  ],
+  "model_default": [
+   "근로기준법#65"
+  ],
+  "note": "",
+  "at": "2026-10-03T05:28:47.115Z",
+  "pair": "syn:근로기준법#65:0",
+  "source": "synthetic"
+ },
+ "t23": {
+  "confirmed": true,
+  "excluded": true,
+  "selected": [],
+  "model_default": [
+   "남녀고용평등과 일ㆍ가정 양립 지원에 관한 법률 시행규칙#17"
+  ],
+  "note": "",
+  "at": "2026-10-03T05:25:40.816Z",
+  "pair": "title:남녀고용평등과 일ㆍ가정 양립 지원에 관한 법률 시행규칙#17",
+  "source": "title"
+ },
+ "t19": {
+  "confirmed": true,
+  "excluded": true,
+  "selected": [],
+  "model_default": [],
+  "note": "",
+  "at": "2026-10-03T05:18:23.136Z",
+  "pair": "prec:판례#2020다299955:0",
+  "source": "precedent"
+ },
+ "t39": {
+  "confirmed": true,
+  "excluded": false,
+  "selected": [
+   "근로기준법 시행령#2"
+  ],
+  "model_default": [
+   "근로기준법 시행령#2"
+  ],
+  "note": "",
+  "at": "2026-10-03T05:29:48.205Z",
+  "pair": "syn:근로기준법 시행령#2:0",
+  "source": "synthetic"
+ },
+ "t03": {
+  "confirmed": true,
+  "excluded": false,
+  "selected": [
+   "기간제 및 단시간근로자 보호 등에 관한 법률#2"
+  ],
+  "model_default": [
+   "기간제 및 단시간근로자 보호 등에 관한 법률#2"
+  ],
+  "note": "",
+  "at": "2026-10-03T05:10:20.999Z",
+  "pair": "prec:판례#2012두2207:1",
+  "source": "precedent"
+ },
+ "t15": {
+  "confirmed": true,
+  "excluded": false,
+  "selected": [
+   "파견근로자 보호 등에 관한 법률#35"
+  ],
+  "model_default": [
+   "파견근로자 보호 등에 관한 법률#35"
+  ],
+  "note": "",
+  "at": "2026-10-03T05:12:54.805Z",
+  "pair": "prec:판례#2011다60247:1",
+  "source": "precedent"
+ },
+ "t08": {
+  "confirmed": true,
+  "excluded": false,
+  "selected": [
+   "근로기준법#44의2"
+  ],
+  "model_default": [
+   "근로기준법#44의2"
+  ],
+  "note": "",
+  "at": "2026-10-03T05:10:34.757Z",
+  "pair": "title:근로기준법#44의2",
+  "source": "title"
+ },
+ "t24": {
+  "confirmed": true,
+  "excluded": true,
+  "selected": [],
+  "model_default": [
+   "근로기준법 시행규칙#16"
+  ],
+  "note": "",
+  "at": "2026-10-03T05:25:50.199Z",
+  "pair": "title:근로기준법 시행규칙#16",
+  "source": "title"
+ },
+ "t32": {
+  "confirmed": true,
+  "excluded": false,
+  "selected": [
+   "근로기준법#2"
+  ],
+  "model_default": [
+   "근로기준법#2"
+  ],
+  "note": "",
+  "at": "2026-10-03T05:27:50.632Z",
+  "pair": "prec:판례#2024도20470:3",
+  "source": "precedent"
+ },
+ "t12": {
+  "confirmed": true,
+  "excluded": true,
+  "selected": [],
+  "model_default": [
+   "남녀고용평등과 일ㆍ가정 양립 지원에 관한 법률 시행규칙#3"
+  ],
+  "note": "",
+  "at": "2026-10-03T05:12:35.305Z",
+  "pair": "title:남녀고용평등과 일ㆍ가정 양립 지원에 관한 법률 시행규칙#3",
+  "source": "title"
+ },
+ "t04": {
+  "confirmed": true,
+  "excluded": false,
+  "selected": [
+   "최저임금법#8"
+  ],
+  "model_default": [
+   "최저임금법#8"
+  ],
+  "note": "",
+  "at": "2026-10-03T05:10:23.841Z",
+  "pair": "syn:최저임금법#8:1",
+  "source": "synthetic"
+ },
+ "t28": {
+  "confirmed": true,
+  "excluded": false,
+  "selected": [
+   "남녀고용평등과 일ㆍ가정 양립 지원에 관한 법률 시행규칙#11"
+  ],
+  "model_default": [
+   "남녀고용평등과 일ㆍ가정 양립 지원에 관한 법률 시행규칙#11"
+  ],
+  "note": "",
+  "at": "2026-10-03T05:26:49.457Z",
+  "pair": "syn:남녀고용평등과 일ㆍ가정 양립 지원에 관한 법률 시행규칙#11:1",
+  "source": "synthetic"
+ },
+ "t29": {
+  "confirmed": true,
+  "excluded": false,
+  "selected": [
+   "근로자퇴직급여 보장법 시행규칙#13"
+  ],
+  "model_default": [
+   "근로자퇴직급여 보장법 시행규칙#13"
+  ],
+  "note": "",
+  "at": "2026-10-03T05:26:52.107Z",
+  "pair": "syn:근로자퇴직급여 보장법 시행규칙#13:1",
+  "source": "synthetic"
+ },
+ "t05": {
+  "confirmed": true,
+  "excluded": false,
+  "selected": [
+   "기간제 및 단시간근로자 보호 등에 관한 법률#2"
+  ],
+  "model_default": [
+   "기간제 및 단시간근로자 보호 등에 관한 법률#2"
+  ],
+  "note": "",
+  "at": "2026-10-03T05:10:26.241Z",
+  "pair": "syn:기간제 및 단시간근로자 보호 등에 관한 법률#2:1",
+  "source": "synthetic"
+ },
+ "t13": {
+  "confirmed": true,
+  "excluded": false,
+  "selected": [
+   "근로기준법#54"
+  ],
+  "model_default": [
+   "근로기준법#54"
+  ],
+  "note": "",
+  "at": "2026-10-03T05:12:38.714Z",
+  "pair": "title:근로기준법#54",
+  "source": "title"
+ },
+ "t33": {
+  "confirmed": true,
+  "excluded": false,
+  "selected": [
+   "최저임금법#6",
+   "최저임금법 시행령#5"
+  ],
+  "model_default": [
+   "최저임금법#6",
+   "최저임금법 시행령#5",
+   "최저임금법 시행령#5의3"
+  ],
+  "note": "",
+  "at": "2026-10-03T05:27:59.823Z",
+  "pair": "prec:판례#2023다209625:0",
+  "source": "precedent"
+ },
+ "t25": {
+  "confirmed": true,
+  "excluded": true,
+  "selected": [],
+  "model_default": [
+   "임금채권보장법#9"
+  ],
+  "note": "",
+  "at": "2026-10-03T05:26:31.299Z",
+  "pair": "prec:판례#2015다233555:0",
+  "source": "precedent"
+ },
+ "t09": {
+  "confirmed": true,
+  "excluded": false,
+  "selected": [
+   "근로기준법#80"
+  ],
+  "model_default": [
+   "근로기준법#80"
+  ],
+  "note": "",
+  "at": "2026-10-03T05:10:37.407Z",
+  "pair": "syn:근로기준법#80:1",
+  "source": "synthetic"
+ }
+}
