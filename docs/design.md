@@ -1,5 +1,7 @@
 # 노동법령 RAG QA + 자체 Eval Harness 설계안
 
+> **현행 아님 — 2026-10-01 시점 초기 설계 문서.** 현재 구현은 [reports/part-a-rag-service.md](reports/part-a-rag-service.md)(서비스)·[reports/part-b-eval-harness.md](reports/part-b-eval-harness.md)(평가)·[reports/part-c-experiments.md](reports/part-c-experiments.md)(실험) 기준. 주요 차이: ① 판례를 Corpus에서 제외하던 설계 → 대법원 판례 400건을 참조조문으로 조문에 연결해 기본 사용, L5b는 거절형 → 판례 인용 답변형 ② 조 단위 + 긴 조 항 분할 Chunking → 조 전체 색인(조 1개 = 벡터 1개) ③ Gold Set 56문항 → 100문항(v2.2, 구조 태그 부분집합 판정), 헤드라인 지표는 M0 전체 정답률·M4 완전 정답 ④ Judge 보정은 dev 40건 직접 라벨 계획 → Claude 채점 + 사람 동의/이의 확인(비블라인드) 46건, 기준선은 동일 설정 3회 문항별 평균
+
 > 작성 2026-10-01 · 엘리스 AI Engineer(Platform) 미니프로젝트
 > 상태: Corpus 노동법령 확정(2026-10-01) — closed-book 게이트는 Hallucination 관측력 측정용으로 유지
 > 개정 2026-10-01: 시행 상태 연결 주입(2.4) · 판례 기반 난이도 단계 Gold Set(3.1) · H5 판례 Corpus 실험 추가

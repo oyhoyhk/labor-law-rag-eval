@@ -16,6 +16,12 @@
   - 평가 체계 개선: 1차(61문항)에서 판정 불가였던 실험 대상 유형(예외·분할)을 GT 확충으로 판정 가능하게 전환, 전체 최소 검출 효과 0.105 → 0.062
 - **비용**: 엘리스 크레딧 약 6,000원 사용(5만원 중), 임베딩은 로컬
 
+## 리포트
+
+- [Part A: RAG 서비스](docs/reports/part-a-rag-service.md) — 현재 기본 구성의 인제스트·Chunking 비교·그래프 확장·거절·인용·API 스키마·비용, 요구사항 대응표
+- [Part B: Eval Harness](docs/reports/part-b-eval-harness.md) — 지표 정의와 분모 원칙, Gold Set 구축 이력, Judge 신뢰성, 판정 규칙·최소 검출 효과, CI 설계
+- [Part C: 개선 실험](docs/reports/part-c-experiments.md) — 1·2차 실험 전체 결과표, 대표 실험(판례 연결) Hypothesis/Result/Analysis/Next Steps, 과적합 vs 일반화 검증
+
 ## Corpus: 노동 관계 법령 24건 + 대법원 판례 400건
 
 - 법령: 근로기준법·최저임금법·근로자퇴직급여 보장법·남녀고용평등법·기간제법·파견법·근로자참여법·임금채권보장법 × (법률·시행령·시행규칙), 조문 894개, 본문 약 255페이지
