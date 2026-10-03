@@ -1,6 +1,8 @@
 """Build the sample-audit page for fine-tuning pairs: a stratified random sample with the positive article text.
 
 Usage: uv run python tools/build_train_review_page.py OUT.html
+Writes the fixed sample to data/train/review_sample_v1.json and embeds Opus verdicts from
+data/train/review_opus_v1.json when present (tools/opus_review_train_pairs.py).
 """
 
 import json
@@ -27,6 +29,11 @@ for src, n in SAMPLE.items():
 rng.shuffle(items)
 for k, it in enumerate(items):  # db doc ids must be ASCII
     it["key"] = f"t{k + 1:02d}"
+(ROOT / "data/train/review_sample_v1.json").write_text(json.dumps(items, ensure_ascii=False, indent=1))
+opus_path = ROOT / "data/train/review_opus_v1.json"
+opus = json.loads(opus_path.read_text())["verdicts"] if opus_path.exists() else {}
+for it in items:
+    it["opus"] = opus.get(it["id"])
 page = (ROOT / "tools/train_review_page.html").read_text()
 Path(sys.argv[1]).write_text(page.replace("__ITEMS__", json.dumps(items, ensure_ascii=False).replace("</", "<\\/")))
 print(f"{len(items)} pairs → {sys.argv[1]}")

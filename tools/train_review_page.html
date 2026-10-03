@@ -45,13 +45,26 @@ pre { white-space: pre-wrap; word-break: keep-all; overflow-wrap: anywhere; font
 .decide button[aria-pressed="true"].bad { background: var(--bad); border-color: var(--bad); color: var(--surface) }
 .decide button[aria-pressed="true"].unsure { background: var(--warn); border-color: var(--warn); color: var(--surface) }
 button:focus-visible, summary:focus-visible, input:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px }
+.opus { margin-top: 10px; padding: 10px 12px; border-radius: 6px; background: var(--accent-bg); font-size: 14px; display: grid; gap: 2px }
+.opus.ok { background: var(--good-bg) } .opus.bad { background: var(--bad-bg) } .opus.unsure { background: var(--warn-bg) }
+.opus b { font-weight: 700 }
+.decide button.agree { font-weight: 700; border-color: var(--accent); color: var(--accent) }
+.decide button[aria-pressed="true"].agree { background: var(--accent); color: var(--surface) }
+.decide .or { font-size: 12px; color: var(--muted) }
+.filters { display: flex; gap: 6px; flex-wrap: wrap; margin-top: 10px }
+.filters button { font: inherit; font-size: 13px; border: 1px solid var(--line); background: var(--surface); color: var(--fg); border-radius: 999px; padding: 3px 12px; cursor: pointer }
+.filters button[aria-pressed="true"] { background: var(--fg); color: var(--bg); border-color: var(--fg) }
+.summary { margin-top: 14px; background: var(--surface); border: 1px solid var(--line); border-radius: 8px; padding: 12px 16px; font-size: 14px; display: grid; gap: 4px }
+.summary table { border-collapse: collapse; font-variant-numeric: tabular-nums; font-size: 13px }
+.summary td, .summary th { padding: 3px 12px 3px 0; text-align: left }
 .saved { font-size: 12px; color: var(--muted) }
 input.note { width: 100%; margin-top: 8px; font: inherit; font-size: 14px; padding: 6px 10px; border: 1px solid var(--line); border-radius: 6px; background: var(--surface); color: var(--fg) }
 </style>
 
 <div class="wrap">
   <h1>학습 데이터 표본 검수</h1>
-  <p class="lede">임베딩 파인튜닝용 (질문, 정답 조문) 3,519쌍 중 출처별 무작위 40쌍. "이 질문을 받으면 이 조문을 찾아오는 게 맞는가"만 판단. 결과는 학습 데이터 정확도 추정에 쓰고, 개별 쌍 수정에는 쓰지 않음</p>
+  <p class="lede">임베딩 파인튜닝용 (질문, 정답 조문) 3,519쌍 중 출처별 무작위 40쌍. Claude Opus가 먼저 판정하고 이유를 남김. Opus 판정이 맞으면 <b>"Opus에 동의"</b>, 다르면 적합·부적합·애매 중 하나를 선택. 결과는 학습 데이터 정확도 추정에 사용</p>
+  <div class="summary" id="summary"></div>
   <div class="guide">
     <span><b>적합</b>: 질문의 답(또는 핵심 근거)이 이 조문에 있음</span>
     <span><b>부적합</b>: 이 조문으로는 답할 수 없음, 질문이 어색해 쓸 수 없음</span>
@@ -59,6 +72,7 @@ input.note { width: 100%; margin-top: 8px; font: inherit; font-size: 14px; paddi
     <span>판례 출처는 정답 조문이 여러 개(판례의 참조조문 전체)이며, 그중 하나라도 맞으면 적합</span>
   </div>
   <div class="ledger" id="ledger"></div>
+  <div class="filters" id="filters" role="group" aria-label="보기 필터"></div>
   <div class="notice" id="notice" hidden></div>
   <div class="list" id="list"></div>
 </div>
@@ -68,6 +82,9 @@ input.note { width: 100%; margin-top: 8px; font: inherit; font-size: 14px; paddi
 const ITEMS = JSON.parse(document.getElementById("items").textContent);
 const SRC = { precedent: "판례 쟁점 → 참조조문", synthetic: "합성 질문 → 조문", title: "조 제목 → 조문" };
 const dec = {};
+const VLABEL = { ok: "적합", bad: "부적합", unsure: "애매" };
+let filter = "flagged";
+const FILTERS = [["flagged", "Opus가 문제로 본 것"], ["todo", "미확인"], ["all", "전체"]];
 let db = null;
 function el(tag, attrs = {}, ...kids) {
   const e = document.createElement(tag);
@@ -88,15 +105,22 @@ function card(it) {
   const c = el("article", { class: "card", id: "c-" + it.key, "data-d": d.decision || "" });
   c.append(el("div", { class: "meta" }, el("span", { class: "chip", text: SRC[it.source] }), el("span", { class: "id", text: it.key })));
   c.append(el("p", { class: "q", text: it.query }));
+  const o = it.opus || {};
+  if (o.verdict) c.append(el("div", { class: "opus " + o.verdict }, el("span", {}, el("b", { text: `Opus 판정: ${VLABEL[o.verdict]}` })), el("span", { text: o.reason })));
   c.append(el("div", { class: "label", text: `정답 조문 ${it.positives.length}개` }));
   it.positives.forEach((p, i) => {
-    const det = el("details", i < 2 ? { open: "" } : {}, el("summary", { text: p.id }), el("pre", { text: p.text || "(본문 없음)" }));
+    const det = el("details", i < 1 ? { open: "" } : {}, el("summary", { text: p.id }), el("pre", { text: p.text || "(본문 없음)" }));
     c.append(det);
   });
   const row = el("div", { class: "decide" });
+  if (o.verdict) {
+    const ag = el("button", { type: "button", class: "agree", "aria-pressed": String(d.decision === o.verdict), text: "Opus에 동의" });
+    ag.addEventListener("click", () => save(it, { decision: d.decision === o.verdict ? null : o.verdict, agreed: true }));
+    row.append(ag, el("span", { class: "or", text: "또는 직접 선택:" }));
+  }
   [["ok", "적합"], ["bad", "부적합"], ["unsure", "애매"]].forEach(([v, l]) => {
     const b = el("button", { type: "button", class: v, "aria-pressed": String(d.decision === v), text: l });
-    b.addEventListener("click", () => save(it, { decision: d.decision === v ? null : v }));
+    b.addEventListener("click", () => save(it, { decision: d.decision === v ? null : v, agreed: v === o.verdict }));
     row.append(b);
   });
   row.append(el("span", { class: "saved", text: d.at ? "저장됨" : "" }));
@@ -107,15 +131,39 @@ function card(it) {
   c.append(note);
   return c;
 }
-function render() { document.getElementById("list").replaceChildren(...ITEMS.map(card)); ledger(); }
+function summary() {
+  const srcs = ["precedent", "synthetic", "title"];
+  let h = `<b>Opus 판정 요약</b><table><tr><th>출처</th><th>적합</th><th>애매</th><th>부적합</th><th>정확도(Opus)</th><th>내 확인</th></tr>`;
+  srcs.forEach(s => {
+    const xs = ITEMS.filter(i => i.source === s), c = v => xs.filter(i => (i.opus || {}).verdict === v).length;
+    const mine = xs.filter(i => (dec[i.key] || {}).decision);
+    const agree = mine.filter(i => dec[i.key].decision === (i.opus || {}).verdict).length;
+    h += `<tr><td>${SRC[s]}</td><td>${c("ok")}</td><td>${c("unsure")}</td><td>${c("bad")}</td><td>${Math.round(100 * c("ok") / xs.length)}%</td><td>${mine.length ? `${mine.length}건 중 동의 ${agree}` : "—"}</td></tr>`;
+  });
+  document.getElementById("summary").innerHTML = h + `</table>`;
+}
+function filters() {
+  document.getElementById("filters").replaceChildren(...FILTERS.map(([v, l]) => {
+    const n = ITEMS.filter(i => visible(i, v)).length;
+    const b = el("button", { type: "button", "aria-pressed": String(filter === v), text: `${l} ${n}` });
+    b.addEventListener("click", () => { filter = v; render(); });
+    return b;
+  }));
+}
+function visible(it, f = filter) {
+  if (f === "flagged") return (it.opus || {}).verdict !== "ok";
+  if (f === "todo") return !(dec[it.key] || {}).decision;
+  return true;
+}
+function render() { document.getElementById("list").replaceChildren(...ITEMS.filter(i => visible(i)).map(card)); ledger(); summary(); filters(); }
 function notice(t) { const n = document.getElementById("notice"); n.hidden = !t; n.textContent = t || ""; }
 async function save(it, patch, quiet) {
-  const next = { ...(dec[it.key] || {}), ...patch, pair: it.id, source: it.source, by: "user", at: new Date().toISOString() };
+  const next = { ...(dec[it.key] || {}), ...patch, opus: (it.opus || {}).verdict || null, pair: it.id, source: it.source, by: "user", at: new Date().toISOString() };
   dec[it.key] = next;
   if (db) { try { await db.collection("train_review_v1").doc(it.key).set(next); } catch (e) { notice("저장하지 못했습니다. 잠시 후 다시 눌러 주세요."); } }
   else { try { localStorage.setItem("train-review-v1", JSON.stringify(dec)); } catch {} }
-  if (!quiet) { const node = document.getElementById("c-" + it.key); node.replaceWith(card(it)); }
-  ledger();
+  if (!quiet) { const node = document.getElementById("c-" + it.key); if (node) node.replaceWith(card(it)); }
+  ledger(); summary(); filters();
 }
 render();
 (async () => {
