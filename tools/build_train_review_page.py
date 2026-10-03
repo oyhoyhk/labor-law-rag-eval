@@ -34,7 +34,13 @@ opus_path = ROOT / "data/train/review_opus_v1.json"
 opus = json.loads(opus_path.read_text())["verdicts"] if opus_path.exists() else {}
 codex_path = ROOT / "data/train/review_codex_v1.json"
 codex = json.loads(codex_path.read_text())["verdicts"] if codex_path.exists() else {}
+views_path = ROOT / "data/train/review_views_v1.json"
+views = json.loads(views_path.read_text()) if views_path.exists() else {}
+# Disagreement patterns, grouped by hand after reading both models' reasons (tools/summarize_review_views.py).
+PATTERN = {'t24': '구별 가능성 vs 내용 일치', 't40': '구별 가능성 vs 내용 일치', 't15': '판례 근거 조문 vs 쟁점 전체의 직접 규정', 't18': '판례 근거 조문 vs 쟁점 전체의 직접 규정', 't25': '같은 결함, 심각도 판단 차이'}
 for it in items:
+    it["view"] = views.get(it["id"])
+    it["pattern"] = PATTERN.get(it["key"])
     it["opus"] = opus.get(it["id"])
     it["codex"] = codex.get(it["id"])
 page = (ROOT / "tools/train_review_page.html").read_text()
