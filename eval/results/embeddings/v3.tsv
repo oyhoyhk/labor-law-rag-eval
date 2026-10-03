@@ -1,0 +1,13 @@
+kure-ft-v3	[whole@kure-ft-v3 k=5 split=dev] Recall@k(any) 39/40 = 0.975 · Recall@k(all) 0.750 · MRR 0.832 · 위임 확장 포함 39/40
+kure-ft-v3	[whole@kure-ft-v3 k=5 split=test] Recall@k(any) 49/52 = 0.942 · Recall@k(all) 0.769 · MRR 0.835 · 위임 확장 포함 49/52
+kure-ft-v3	[whole@kure-ft-v3 k=5 split=all] Recall@k(any) 88/92 = 0.957 · Recall@k(all) 0.761 · MRR 0.834 · 위임 확장 포함 88/92
+kure-ft-v3_strict	[whole@kure-ft-v3_strict k=5 split=dev] Recall@k(any) 39/40 = 0.975 · Recall@k(all) 0.700 · MRR 0.840 · 위임 확장 포함 39/40
+kure-ft-v3_strict	[whole@kure-ft-v3_strict k=5 split=test] Recall@k(any) 46/52 = 0.885 · Recall@k(all) 0.692 · MRR 0.778 · 위임 확장 포함 48/52
+kure-ft-v3_strict	[whole@kure-ft-v3_strict k=5 split=all] Recall@k(any) 85/92 = 0.924 · Recall@k(all) 0.696 · MRR 0.805 · 위임 확장 포함 87/92
+qwen3-4b-lora-v3	[whole@qwen3-4b-lora-v3 k=5 split=dev] Recall@k(any) 38/40 = 0.950 · Recall@k(all) 0.700 · MRR 0.858 · 위임 확장 포함 38/40
+qwen3-4b-lora-v3	[whole@qwen3-4b-lora-v3 k=5 split=test] Recall@k(any) 51/52 = 0.981 · Recall@k(all) 0.769 · MRR 0.879 · 위임 확장 포함 51/52
+qwen3-4b-lora-v3	[whole@qwen3-4b-lora-v3 k=5 split=all] Recall@k(any) 89/92 = 0.967 · Recall@k(all) 0.739 · MRR 0.870 · 위임 확장 포함 89/92
+qwen3-4b-lora-v3_strict	[whole@qwen3-4b-lora-v3_strict k=5 split=dev] Recall@k(any) 38/40 = 0.950 · Recall@k(all) 0.725 · MRR 0.855 · 위임 확장 포함 38/40
+qwen3-4b-lora-v3_strict	[whole@qwen3-4b-lora-v3_strict k=5 split=test] Recall@k(any) 49/52 = 0.942 · Recall@k(all) 0.750 · MRR 0.853 · 위임 확장 포함 49/52
+qwen3-4b-lora-v3_strict	[whole@qwen3-4b-lora-v3_strict k=5 split=all] Recall@k(any) 87/92 = 0.946 · Recall@k(all) 0.739 · MRR 0.854 · 위임 확장 포함 87/92
+DONE

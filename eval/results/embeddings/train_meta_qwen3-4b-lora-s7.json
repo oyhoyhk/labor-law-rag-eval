@@ -1,0 +1,27 @@
+{
+ "name": "qwen3-4b-lora-s7",
+ "base": "Qwen/Qwen3-Embedding-4B",
+ "base_revision": null,
+ "lora_r": 16,
+ "query_prefix": "Instruct: Given a question about Korean labor law, retrieve the statute article that answers it\nQuery: ",
+ "bf16": true,
+ "mini_batch": 4,
+ "grad_ckpt": true,
+ "pairs": "data/train/pairs_v2.jsonl",
+ "pairs_sha256": "ef7a06e1f4a8",
+ "sources": [
+  "precedent",
+  "synthetic",
+  "title"
+ ],
+ "frac": 1.0,
+ "n_pairs": 3200,
+ "n_examples": 3348,
+ "hard_negative": false,
+ "epochs": 1,
+ "lr": 2e-05,
+ "batch": 16,
+ "max_len": 512,
+ "seed": 7,
+ "train_seconds": 828
+}

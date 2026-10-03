@@ -1,0 +1,7 @@
+qwen3-8b-lora-s42	[whole@qwen3-8b-lora-s42 k=5 split=dev] Recall@k(any) 39/40 = 0.975 · Recall@k(all) 0.750 · MRR 0.833 · 위임 확장 포함 39/40
+qwen3-8b-lora-s42	[whole@qwen3-8b-lora-s42 k=5 split=test] Recall@k(any) 51/52 = 0.981 · Recall@k(all) 0.769 · MRR 0.856 · 위임 확장 포함 51/52
+qwen3-8b-lora-s42	[whole@qwen3-8b-lora-s42 k=5 split=all] Recall@k(any) 90/92 = 0.978 · Recall@k(all) 0.761 · MRR 0.846 · 위임 확장 포함 90/92
+qwen3-8b-lora-s7	[whole@qwen3-8b-lora-s7 k=5 split=dev] Recall@k(any) 39/40 = 0.975 · Recall@k(all) 0.750 · MRR 0.822 · 위임 확장 포함 39/40
+qwen3-8b-lora-s7	[whole@qwen3-8b-lora-s7 k=5 split=test] Recall@k(any) 51/52 = 0.981 · Recall@k(all) 0.769 · MRR 0.877 · 위임 확장 포함 51/52
+qwen3-8b-lora-s7	[whole@qwen3-8b-lora-s7 k=5 split=all] Recall@k(any) 90/92 = 0.978 · Recall@k(all) 0.761 · MRR 0.853 · 위임 확장 포함 90/92
+DONE
