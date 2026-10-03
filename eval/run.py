@@ -187,7 +187,10 @@ def main() -> None:
         "usage": usage, "cost_krw": round(gen.spent_krw + (jdg.spent_krw if jdg else 0), 2),
         "items_planned": len(items), "items_done": len(done), "aborted": aborted,
     }
-    manifest["embedding"] = f"{manifest['embedding']['embed_model']}@{manifest['embedding']['embed_revision'][:8]}"
+    emb = manifest["embedding"]  # hub models without a pinned revision / local fine-tuned dirs have revision None
+    manifest["embedding"] = f"{emb['embed_model']}@{(emb.get('embed_revision') or 'unpinned')[:8]}"
+    if emb.get("query_prefix"):
+        manifest["embedding_query_prefix"] = emb["query_prefix"]
 
     def dump(name, rows):
         (out / name).write_text("".join(json.dumps(r, ensure_ascii=False) + "\n" for r in rows))
