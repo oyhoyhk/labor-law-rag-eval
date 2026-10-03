@@ -8,3 +8,4 @@ data/index/
 runs/*
 !runs/.gitkeep
 data/cache/
+models/

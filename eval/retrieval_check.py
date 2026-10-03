@@ -63,7 +63,7 @@ def grid(items: list[dict], opt: Options) -> None:
 
 def main() -> None:
     ap = argparse.ArgumentParser()
-    ap.add_argument("--strategy", default="whole", choices=["article", "whole", "fixed"])
+    ap.add_argument("--strategy", default="whole", help="index directory under data/index: article | whole | fixed | whole@<fine-tuned model>")
     ap.add_argument("--k", type=int, default=5)
     ap.add_argument("--ids", default="")
     ap.add_argument("--no-links", action="store_true", help="disable delegation-link expansion")
