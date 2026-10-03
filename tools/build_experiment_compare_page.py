@@ -15,14 +15,14 @@ RES = ROOT / "eval/results/v2"
 EXPERIMENTS = [
     {"key": "v2-final", "name": "최종 구성", "flag": "기본값 (조 전체 색인 + 판례)", "tokens": 6075,
      "hypothesis": "조 전체 색인과 판례 연결을 함께 쓰면 분할·판례 유형이 함께 개선될 것", "decision": "채택", "tone": "keep"},
-    {"key": "v2-precedents", "name": "H7 판례 연결", "flag": "--precedents", "tokens": 5581,
+    {"key": "v2-precedents", "name": "판례 연결", "flag": "--precedents", "tokens": 5581,
      "cost": 485.36,  # run hit the 400원 cap at 81/100 (426.71원) and was resumed from cache (58.65원)
      "hypothesis": "조문에 연결된 대법원 판례를 주입하면 판례형 완전 정답이 오를 것", "decision": "채택", "tone": "keep"},
-    {"key": "v2-h4-no-inject", "name": "H4 시행 상태 주입 끄기", "flag": "--no-inject", "tokens": 3253,
+    {"key": "v2-h4-no-inject", "name": "시행 상태 표시 끄기", "flag": "--no-inject", "tokens": 3253,
      "hypothesis": "시행 상태 헤더를 빼면 시점형 완전 정답이 떨어질 것", "decision": "가설 지지, 주입 유지", "tone": "keep"},
-    {"key": "v2-h1-fixed", "name": "H1 고정 길이 512토큰", "flag": "--strategy fixed", "tokens": 5817,
+    {"key": "v2-h1-fixed", "name": "고정 길이 512토큰 분할", "flag": "--strategy fixed", "tokens": 5817,
      "hypothesis": "고정 길이 분할은 과잉 거절을 늘리고 인용 정밀도를 떨어뜨릴 것", "decision": "기각, 조 단위 유지", "tone": "reject"},
-    {"key": "v2-k10", "name": "k 5 → 10", "flag": "--k 10", "tokens": 5640,
+    {"key": "v2-k10", "name": "검색 개수 5 → 10", "flag": "--k 10", "tokens": 5640,
      "hypothesis": "검색 폭 확대로 Recall(all)이 오르고 답변은 노이즈 내일 것", "decision": "검색 개선 확정, 답변 미확인", "tone": "mixed"},
     {"key": "v2-siblings", "name": "형제 청크 동반", "flag": "--siblings", "tokens": 4179,
      "hypothesis": "분할된 조의 나머지 조각을 주면 분할형 완전 정답이 오를 것", "decision": "방향 일치, 효과 미확인", "tone": "candidate"},

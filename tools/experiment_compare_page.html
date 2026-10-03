@@ -129,7 +129,7 @@ details.more[open] > summary { margin-bottom: 16px }
 
   <section aria-labelledby="h-overview">
     <h2 id="h-overview">한눈에 보기: 전체 정답률</h2>
-    <p class="sub">100문항 중 올바르게 처리한 비율. 답할 수 있는 질문은 필요한 내용을 빠짐없이 답해야, 답할 수 없는 질문은 거절해야 정답. 회색 띠는 같은 구성을 여러 번 돌려도 생기는 흔들림 범위라서, 막대 끝이 띠 안에 있으면 우연과 구별할 수 없음</p>
+    <p class="sub">괄호 안: 기준선 대비 변화 · 판정 · 근거. 95% 범위 = 문항을 무작위로 다시 뽑아 계산한 변화의 범위로, 0을 포함하면 "효과 없음"일 가능성을 배제할 수 없어 판단 보류. 맞힘/틀림 = 기준선 대비 새로 맞히거나 새로 틀린 문항 수. 100문항 중 올바르게 처리한 비율. 답할 수 있는 질문은 필요한 내용을 빠짐없이 답해야, 답할 수 없는 질문은 거절해야 정답. 회색 띠는 같은 구성을 여러 번 돌려도 생기는 흔들림 범위라서, 막대 끝이 띠 안에 있으면 우연과 구별할 수 없음</p>
     <div class="panel"><div class="svgbox" id="overview"></div></div>
   </section>
 
@@ -426,6 +426,15 @@ function renderCost() {
 const PLAIN_V = v => v === "개선" ? ["good", "좋아짐"] : v === "악화" ? ["bad", "나빠짐"] : ["flat", "판단 보류"];
 function m0(e) { return e.rows.find(r => r.metric === "M0_accuracy"); }
 const pp = v => (v >= 0 ? "+" : "−") + Math.abs(v * 100).toFixed(1) + "%p";
+// Short reason for the overview chart label.
+function shortReason(r, fl) {
+  const mix = fl ? ` (맞힘 +${fl.up} / 틀림 −${fl.down})` : "";
+  if (r.noise_range != null && Math.abs(r.delta) <= r.noise_range) return `흔들림 범위 안${mix}`;
+  const ci = r.ci95;
+  if (r.verdict !== "유의하지 않음") return `95% 범위 ${pp(ci[0])}~${pp(ci[1])}, 0 밖${mix}`;
+  return ci ? `95% 범위 ${pp(ci[0])}~${pp(ci[1])}, 0 포함${mix}` : `흔들림은 넘었으나 범위 산출 불가${mix}`;
+}
+
 // One-line reason for a verdict, from the same numbers the verdict rule uses.
 function reason(r, fl) {
   const band = r.noise_range == null ? null : r.noise_range, ci = r.ci95;
@@ -469,9 +478,9 @@ function renderCfg() {
 function renderOverview() {
   const base = m0(EX[0]).base, band = DATA.noise.M0_accuracy || 0;
   const items = [...EX].sort((a, b) => m0(b).exp - m0(a).exp);
-  const W = 760, L = 200, R = 210, rowH = 34, top = 30, H = top + items.length * rowH + 30;
+  const W = 860, L = 200, R = 330, rowH = 46, top = 30, H = top + items.length * rowH + 30;
   const lo = 0.5, hi = 0.9, x = v => L + (v - lo) / (hi - lo) * (W - L - R);
-  let s = `<svg viewBox="0 0 ${W} ${H}" style="width:100%;max-width:900px;min-width:620px" role="img" aria-label="실험별 전체 정답률">`;
+  let s = `<svg viewBox="0 0 ${W} ${H}" style="width:100%;max-width:960px;min-width:700px" role="img" aria-label="실험별 전체 정답률">`;
   [0.5, 0.6, 0.7, 0.8, 0.9].forEach(v => s += `<line class="grid" x1="${x(v)}" x2="${x(v)}" y1="${top - 6}" y2="${H - 24}"/><text x="${x(v)}" y="${H - 8}" text-anchor="middle">${v.toFixed(1)}</text>`);
   s += `<rect x="${x(base - band)}" y="${top - 6}" width="${x(base + band) - x(base - band)}" height="${H - top - 18}" fill="var(--band)"/>`;
   s += `<line x1="${x(base)}" x2="${x(base)}" y1="${top - 10}" y2="${H - 24}" stroke="var(--fg2)" stroke-dasharray="4 3"/>`;
@@ -484,7 +493,8 @@ function renderOverview() {
     s += `<rect x="${x0}" y="${y + 8}" width="${Math.max(2, w)}" height="${rowH - 16}" rx="3" fill="${col}"/>`;
     s += `<circle cx="${x(r.exp)}" cy="${y + rowH / 2}" r="5" fill="${col}" stroke="var(--surface)" stroke-width="2"/>`;
     const pp = (r.delta * 100).toFixed(1);
-    s += `<text class="lbl" x="${W - R + 12}" y="${y + rowH / 2 + 4}">${r.exp.toFixed(3)}  (${r.delta >= 0 ? "+" : ""}${pp}%p, ${label})</text>`;
+    s += `<text class="lbl" x="${W - R + 12}" y="${y + rowH / 2 - 3}">${r.exp.toFixed(3)}  (${r.delta >= 0 ? "+" : ""}${pp}%p, ${label})</text>`;
+    s += `<text x="${W - R + 12}" y="${y + rowH / 2 + 13}">${shortReason(r, e.flips)}</text>`;
   });
   document.getElementById("overview").innerHTML = s + `</svg>`;
 }
