@@ -9,8 +9,10 @@ says the material cannot decide the question instead of asserting a conclusion (
 The official M0 (2026-10-04, Luna dropped as judge) counts an answerable item correct only when Opus AND Codex
 find every key point, and a refusal-expected item correct when it was refused or both judges accept the hedge.
 
-Usage: uv run python -m eval.rejudge NAME runs/a runs/b runs/c [--all] [--reuse eval/results/rejudge_X.json] [--workers 4]
+Usage: uv run python -m eval.rejudge NAME runs/a runs/b runs/c [--all] [--reuse eval/results/rejudge_X.json] [--workers 4] [--max-calls N]
   --all    every answered answerable item, not only the disputed ones (absolute score under Opus/Codex)
+  --max-calls N  hard cap on judge calls this run (cache hits are free); past it calls are skipped, not cached,
+                 and no official score is published — rerun with a higher cap to resume
 Output: eval/results/rejudge_<NAME>.json
 Every successful verdict is appended to eval/results/rejudge_cache/<NAME>.jsonl as soon as it returns, so an
 interrupted run (quota, crash) resumes with only the missing (run, item, judge) calls; failed calls are not cached. (per answer: Luna / Opus / Codex key-point verdicts and reasons)
@@ -131,6 +133,7 @@ def main() -> None:
     ap.add_argument("--workers", type=int, default=4)
     ap.add_argument("--all", action="store_true", help="re-grade every answered answerable item")
     ap.add_argument("--reuse", type=Path, help="earlier rejudge output whose verdicts are kept for the same (run, item)")
+    ap.add_argument("--max-calls", type=int, default=0, help="hard cap on judge CLI/API calls this run; 0 = no cap")
     args = ap.parse_args()
     gold = {json.loads(l)["id"]: json.loads(l) for l in (ROOT / "eval/gold/gold_v2.jsonl").open()}
     load = lambda p: {r["id"]: r for r in map(json.loads, p.open()) if r}
@@ -139,6 +142,22 @@ def main() -> None:
                        if (x["expected"] == "answered" and (args.all or not x["m0_correct"])) or (args.all and x["expected"] != "answered")})
     reused = {(a["run"], a["id"]): a for a in json.loads(args.reuse.read_text())["answers"]} if args.reuse else {}
     cache = Cache(args.name)
+    budget = {"made": 0, "capped": 0}
+    budget_lock = threading.Lock()
+
+    def capped(call):
+        """Count real judge calls against --max-calls; refuse (uncached) once the cap is reached."""
+        def run_call(prompt: str) -> dict:
+            with budget_lock:
+                if args.max_calls and budget["made"] >= args.max_calls:
+                    budget["capped"] += 1
+                    return {"error": f"skipped: --max-calls {args.max_calls} reached"}
+                budget["made"] += 1
+            return call(prompt)
+        return run_call
+
+    def codex_capped(prompt: str) -> dict:  # a Codex call skipped after a Codex failure is not counted
+        return {"error": "skipped: codex failed earlier in this run"} if codex_down.is_set() else capped(codex_guarded)(prompt)
     codex_down = threading.Event()  # first Codex failure (e.g. usage limit) stops further Codex calls this run
 
     def codex_guarded(prompt: str) -> dict:
@@ -172,7 +191,7 @@ def main() -> None:
         if (job["run"], job["id"]) in reused and not reused[(job["run"], job["id"])]["errors"]:
             return reused[(job["run"], job["id"])]
         n = len(job["key_points"])
-        o, c = cache.get(job, "opus", opus), cache.get(job, "codex", codex_guarded)
+        o, c = cache.get(job, "opus", capped(opus)), cache.get(job, "codex", codex_capped)
         out = {k: v for k, v in job.items() if k != "prompt"}
         out.update(opus=verdicts(o, n), codex=verdicts(c, n), errors={k: v["error"] for k, v in (("opus", o), ("codex", c)) if "error" in v})
         return out
@@ -180,6 +199,7 @@ def main() -> None:
     with ThreadPoolExecutor(args.workers) as pool:
         results = list(pool.map(run, jobs))
     missing = sum(bool(r["errors"]) for r in results)
+    print(f"judge calls made {budget['made']}" + (f" / cap {args.max_calls}, skipped {budget['capped']}" if args.max_calls else ""))
     if missing:  # do not publish a score with failed verdicts counted as wrong
         print(f"{missing} answers still lack a verdict ({sum('opus' in r['errors'] for r in results)} opus, "
               f"{sum('codex' in r['errors'] for r in results)} codex); cached {len(cache.hits)} verdicts — rerun to resume")
