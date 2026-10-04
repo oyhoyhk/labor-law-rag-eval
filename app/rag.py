@@ -97,6 +97,12 @@ MERGE_SYSTEM = """당신은 한국 노동법령 답변 편집자입니다. [근�
 3. 사실을 말하는 모든 문장 끝에 근거 블록 번호를 [S1]처럼 붙인다. 합니다체로 쓴다.
 4. 초안 과반이 첫 줄을 "[정보 부족]"으로 썼으면 최종 답변도 첫 줄을 정확히 "[정보 부족]"으로 쓰고 무엇이 없는지만 한 문장으로 쓴다."""
 
+# Targeted temporal fixes (docs/plans/2026-10-04-targeted-temporal-plan.md): applied only when a context block has a
+# pending amendment or is not yet in force — the questions where time-sensitive key points were being dropped.
+PENDING_STATUSES = ("amendment_pending", "pending")
+TEMPORAL_RULE = """
+9. 근거 블록에 시행 예정 개정이 있고 질문과 관련되면 다음 순서로 쓴다: (가) 기준일 현재 시행 중인 내용 (나) 개정으로 바뀌는 내용(신설·개정되는 항·호) (다) 공포일과 시행일 (라) 기준일 현재 적용 여부. 질문의 결론이 개정 전후로 달라지면 두 결론을 모두 밝힌다."""
+
 REWRITE_SYSTEM = """한국 노동법령 검색용 질의를 만듭니다. 사용자 질문을 읽고, 답이 될 법령 조문을 찾기 위한 검색 질의 2~3개를 만드세요.
 - 각 질의는 법령 조문에 쓰이는 용어로 쓴 짧은 문장 (예: "육아휴직 종료 후 같은 업무 또는 같은 수준의 임금을 지급하는 직무 복귀")
 - 질문에 쟁점이 여러 개면 쟁점마다 하나씩
@@ -132,6 +138,9 @@ class Options:
     query_rewrite: bool = False  # 5: LLM rewrites the question into legal-term queries, fused with RRF
     rerank: bool = False  # 6: cross-encoder re-scores the top RERANK_N dense hits
     precedent_search: bool = False  # 7: precedents found directly over all 400 cases, besides linked ones
+    # Targeted temporal fixes, only on questions whose context has a pending amendment (PENDING_STATUSES)
+    verify_pending: bool = False  # verify pass (as #3) on those questions only
+    temporal_rule: bool = False  # TEMPORAL_RULE + changed-호 detail on those questions only, no extra call
 
     def __post_init__(self):
         if self.precedents:
@@ -467,7 +476,14 @@ def answer(question: str, opt: Options | None = None, as_of: date | None = None,
                 "meta": {**base_meta, "model": None, "latency_ms": int((time.time() - t0) * 1000),
                          "usage": None, "cost_krw": 0.0, "refusal_reason": "retrieval_below_tau"}}
 
-    msgs = messages(question, blocks, as_of_s, opt.inject_status, opt.prompt, opt.pending_detail)
+    has_pending = any(b.status.get("status") in PENDING_STATUSES for b in blocks)
+    temporal = opt.temporal_rule and has_pending
+    pending_detail = opt.pending_detail or temporal
+    msgs = messages(question, blocks, as_of_s, opt.inject_status, opt.prompt, pending_detail)
+    if temporal:
+        msgs[0]["content"] += TEMPORAL_RULE
+    if opt.verify_pending or opt.temporal_rule:
+        extra["targeted"] = has_pending
     costs = []  # every generation call of this item (self-consistency / verify make several)
 
     def call(m, **kw):
@@ -481,12 +497,12 @@ def answer(question: str, opt: Options | None = None, as_of: date | None = None,
         extra["drafts"] = drafts
     else:
         text, usage = call(msgs, max_tokens=800)
-    if opt.verify and not text.strip().startswith(REFUSAL):
+    if (opt.verify or (opt.verify_pending and has_pending)) and not text.strip().startswith(REFUSAL):
         extra["draft"] = text
         text, usage = call(_followup(VERIFY_SYSTEM, msgs, question, f"[초안 답변]\n{text}"), max_tokens=900)
     status, citations, reason = finalize(text, blocks)
     context = [{"source": b.source, "chunk_id": b.chunk_id, "article_ids": b.article_ids,
-                "text": _render(b, as_of_s, opt.inject_status, opt.pending_detail)} for b in blocks] if include_context else None
+                "text": _render(b, as_of_s, opt.inject_status, pending_detail)} for b in blocks] if include_context else None
     return {"status": status, "answer": text if status == "answered" else None, "citations": citations,
             "retrieval": retrieval,
             "meta": {**base_meta, "model": usage["model"], "latency_ms": int((time.time() - t0) * 1000),

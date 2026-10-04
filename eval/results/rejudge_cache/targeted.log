@@ -1,0 +1,759 @@
+=== gen tt-verify-pending-r1 (spent 0)
+Warning: You are sending unauthenticated requests to the HF Hub. Please set a HF_TOKEN to enable higher rate limits and faster downloads.
+100 items → runs/20261004-230210_tt-verify-pending-r1  (budget 1200.0원)
+Loading weights:   0%|          | 0/398 [00:00<?, ?it/s]Loading weights: 100%|██████████| 398/398 [00:00<00:00, 13515.77it/s]
+Loading weights:   0%|          | 0/391 [00:00<?, ?it/s]Loading weights: 100%|██████████| 391/391 [00:00<00:00, 15220.73it/s]
+  g001   answered             누적   20.3원
+  g002   answered             누적   20.3원
+  g003   answered             누적   23.7원
+  g004   answered             누적   23.7원
+  g005   answered             누적   23.7원
+  g006   answered             누적   23.7원
+  g007   answered             누적   25.4원
+  g008   answered             누적   32.8원
+  g009   answered             누적   32.8원
+  g010   answered             누적   32.8원
+  g011   answered             누적   45.2원
+  g012   answered             누적   45.2원
+  g013   answered             누적   51.0원
+  g014   answered             누적   51.0원
+  g015   answered             누적   55.5원
+  g016   answered             누적   59.0원
+  g017   answered             누적   62.5원
+  g018   answered             누적   97.4원
+  g019   answered             누적   97.4원
+  g020   answered             누적   97.4원
+  g042   answered             누적   97.4원
+  g021   answered             누적  100.6원
+  g022   answered             누적  100.6원
+  g023   answered             누적  103.6원
+  g024   answered             누적  103.6원
+  g025   answered             누적  116.9원
+  g026   answered             누적  116.9원
+  g027   answered             누적  127.7원
+  g028   answered             누적  127.7원
+  g029   answered             누적  127.7원
+  g030   answered             누적  131.3원
+  g031   answered             누적  138.0원
+  g032   answered             누적  144.5원
+  g033   answered             누적  144.5원
+  g034   answered             누적  154.7원
+  g035   answered             누적  162.2원
+  g036   answered             누적  169.0원
+  g037   answered             누적  172.8원
+  g038   insufficient_context 누적  172.8원
+  g039   insufficient_context 누적  172.8원
+  g040   insufficient_context 누적  174.4원
+  g041   answered             누적  183.4원
+  l5a01  answered             누적  183.4원
+  l5a02  answered             누적  188.1원
+  l5a03  answered             누적  188.1원
+  l5a04  answered             누적  192.0원
+  l5a05  answered             누적  207.3원
+  l5a06  answered             누적  207.3원
+  l5a07  answered             누적  213.6원
+  l5a08  answered             누적  213.6원
+  l5b01  answered             누적  213.6원
+  l5b02  answered             누적  222.9원
+  l5b03  answered             누적  222.9원
+  l5b04  answered             누적  222.9원
+  l5b05  answered             누적  226.0원
+  l5b06  answered             누적  237.1원
+  s01    answered             누적  241.0원
+  s02    answered             누적  249.1원
+  s03    answered             누적  249.1원
+  s04    answered             누적  256.7원
+  s05    answered             누적  258.2원
+  n01    answered             누적  258.2원
+  n02    answered             누적  262.1원
+  n03    answered             누적  265.1원
+  n04    answered             누적  283.7원
+  n05    answered             누적  283.7원
+  n06    answered             누적  283.7원
+  n07    answered             누적  283.7원
+  n08    answered             누적  291.3원
+  n09    answered             누적  294.6원
+  n10    answered             누적  314.6원
+  n11    answered             누적  326.7원
+  n12    answered             누적  326.7원
+  n13    answered             누적  326.7원
+  n14    answered             누적  326.7원
+  n15    answered             누적  329.2원
+  n16    answered             누적  335.2원
+  n17    answered             누적  340.6원
+  n18    answered             누적  349.2원
+  n19    answered             누적  358.2원
+  n20    answered             누적  358.2원
+  n21    answered             누적  361.8원
+  n22    answered             누적  380.6원
+  n23    answered             누적  380.6원
+  n24    answered             누적  384.5원
+  n25    answered             누적  409.3원
+  n26    answered             누적  409.3원
+  n27    answered             누적  409.3원
+  n28    answered             누적  409.3원
+  n29    answered             누적  409.3원
+  n30    answered             누적  411.2원
+  n31    insufficient_context 누적  411.2원
+  n32    insufficient_context 누적  411.2원
+  n33    insufficient_context 누적  413.3원
+  l5b07  answered             누적  427.6원
+  l5b08  answered             누적  439.0원
+  l5b09  answered             누적  439.0원
+  s06    answered             누적  439.0원
+  s07    answered             누적  442.5원
+  s08    answered             누적  451.1원
+
+100/100 items · 451.14원 · cache hits 0
+  M0_accuracy              0.060  (n=100)
+  M1_recall_any            0.989  (n=92)
+  M1_recall_all            0.848  (n=92)
+  M1_mrr                   0.875  (n=92)
+  M2_oos_refusal           0.750  (n=8)
+  M2_l5b_no_assertion      —  (n=0)
+  M2_over_refusal          0.000  (n=92)
+  M3_citation_precision    0.561  (n=92)
+  M3_citation_recall       0.926  (n=92)
+  M4_kp_coverage           —  (n=0)
+  M4_all_kp                —  (n=0)
+  M4_complete              0.000  (n=92)
+  M5_unsupported_rate      —  (n=0)
+  M6_temporal_error        —  (n=0)
+report: runs/20261004-230210_tt-verify-pending-r1/report.md
+elapsed 151s
+=== gen tt-temporal-rule-r1 (spent 451)
+Warning: You are sending unauthenticated requests to the HF Hub. Please set a HF_TOKEN to enable higher rate limits and faster downloads.
+100 items → runs/20261004-230447_tt-temporal-rule-r1  (budget 1200.0원)
+Loading weights:   0%|          | 0/398 [00:00<?, ?it/s]Loading weights: 100%|██████████| 398/398 [00:00<00:00, 11636.71it/s]
+Loading weights:   0%|          | 0/391 [00:00<?, ?it/s]Loading weights: 100%|██████████| 391/391 [00:00<00:00, 9066.89it/s]
+  g001   answered             누적    4.4원
+  g002   answered             누적    4.4원
+  g003   answered             누적    4.4원
+  g004   answered             누적    4.4원
+  g005   answered             누적    5.3원
+  g006   answered             누적    6.2원
+  g007   answered             누적    6.2원
+  g008   answered             누적    6.9원
+  g009   answered             누적    6.9원
+  g010   answered             누적    7.3원
+  g011   answered             누적    9.5원
+  g012   answered             누적   16.1원
+  g013   answered             누적   16.1원
+  g014   answered             누적   16.1원
+  g015   answered             누적   16.7원
+  g016   answered             누적   17.4원
+  g017   answered             누적   18.0원
+  g018   answered             누적   26.7원
+  g019   answered             누적   26.7원
+  g020   answered             누적   26.7원
+  g042   answered             누적   26.7원
+  g021   answered             누적   30.8원
+  g022   answered             누적   30.8원
+  g023   answered             누적   34.3원
+  g024   answered             누적   34.3원
+  g025   answered             누적   37.1원
+  g026   answered             누적   38.5원
+  g027   answered             누적   42.7원
+  g028   answered             누적   42.7원
+  g029   answered             누적   43.2원
+  g030   answered             누적   43.8원
+  g031   answered             누적   47.6원
+  g032   answered             누적   47.6원
+  g033   answered             누적   48.4원
+  g034   answered             누적   56.9원
+  g035   answered             누적   56.9원
+  g036   answered             누적   56.9원
+  g037   answered             누적   60.9원
+  g038   insufficient_context 누적   60.9원
+  g039   insufficient_context 누적   60.9원
+  g040   insufficient_context 누적   61.1원
+  g041   answered             누적   64.5원
+  l5a01  answered             누적   65.4원
+  l5a02  answered             누적   66.2원
+  l5a03  answered             누적   66.9원
+  l5a04  answered             누적   67.7원
+  l5a05  answered             누적   72.0원
+  l5a06  answered             누적   72.0원
+  l5a07  answered             누적   75.6원
+  l5a08  answered             누적   77.2원
+  l5b01  answered             누적   77.2원
+  l5b02  answered             누적   78.0원
+  l5b03  answered             누적   79.0원
+  l5b04  answered             누적   79.6원
+  l5b05  answered             누적   80.5원
+  l5b06  answered             누적   84.1원
+  s01    answered             누적   90.5원
+  s02    answered             누적   90.5원
+  s03    answered             누적   92.1원
+  s04    answered             누적   93.8원
+  s05    answered             누적   95.2원
+  n01    answered             누적   96.3원
+  n02    answered             누적   97.3원
+  n03    answered             누적   98.2원
+  n04    answered             누적  101.3원
+  n05    answered             누적  102.2원
+  n06    answered             누적  102.9원
+  n07    answered             누적  104.1원
+  n08    answered             누적  108.9원
+  n09    answered             누적  108.9원
+  n10    answered             누적  118.3원
+  n11    answered             누적  122.2원
+  n12    answered             누적  122.2원
+  n13    answered             누적  124.0원
+  n14    answered             누적  124.0원
+  n15    answered             누적  124.0원
+  n16    answered             누적  127.1원
+  n17    answered             누적  127.1원
+  n18    answered             누적  136.4원
+  n19    answered             누적  136.4원
+  n20    answered             누적  136.4원
+  n21    answered             누적  139.9원
+  n22    answered             누적  145.4원
+  n23    answered             누적  150.6원
+  n24    answered             누적  150.6원
+  n25    answered             누적  154.9원
+  n26    answered             누적  155.5원
+  n27    answered             누적  156.2원
+  n28    answered             누적  156.2원
+  n29    answered             누적  161.0원
+  n30    insufficient_context 누적  161.0원
+  n31    insufficient_context 누적  161.0원
+  n32    insufficient_context 누적  161.0원
+  n33    insufficient_context 누적  161.2원
+  l5b07  answered             누적  168.8원
+  l5b08  answered             누적  168.8원
+  l5b09  answered             누적  169.7원
+  s06    answered             누적  171.4원
+  s07    answered             누적  174.7원
+  s08    answered             누적  179.2원
+
+100/100 items · 179.19원 · cache hits 0
+  M0_accuracy              0.070  (n=100)
+  M1_recall_any            0.989  (n=92)
+  M1_recall_all            0.848  (n=92)
+  M1_mrr                   0.875  (n=92)
+  M2_oos_refusal           0.875  (n=8)
+  M2_l5b_no_assertion      —  (n=0)
+  M2_over_refusal          0.000  (n=92)
+  M3_citation_precision    0.557  (n=92)
+  M3_citation_recall       0.906  (n=92)
+  M4_kp_coverage           —  (n=0)
+  M4_all_kp                —  (n=0)
+  M4_complete              0.000  (n=92)
+  M5_unsupported_rate      —  (n=0)
+  M6_temporal_error        —  (n=0)
+report: runs/20261004-230447_tt-temporal-rule-r1/report.md
+elapsed 115s
+=== gen tt-verify-pending-r2 (spent 630)
+Warning: You are sending unauthenticated requests to the HF Hub. Please set a HF_TOKEN to enable higher rate limits and faster downloads.
+100 items → runs/20261004-230647_tt-verify-pending-r2  (budget 1200.0원)
+Loading weights:   0%|          | 0/398 [00:00<?, ?it/s]Loading weights: 100%|██████████| 398/398 [00:00<00:00, 19187.96it/s]
+Loading weights:   0%|          | 0/391 [00:00<?, ?it/s]Loading weights: 100%|██████████| 391/391 [00:00<00:00, 10477.19it/s]
+  g001   answered             누적    4.7원
+  g002   answered             누적    4.7원
+  g003   answered             누적    8.7원
+  g004   answered             누적    8.7원
+  g005   answered             누적    8.7원
+  g006   answered             누적    9.5원
+  g007   answered             누적    9.7원
+  g008   answered             누적   10.9원
+  g009   answered             누적   10.9원
+  g010   answered             누적   10.9원
+  g011   answered             누적   18.0원
+  g012   answered             누적   18.0원
+  g013   answered             누적   18.0원
+  g014   answered             누적   21.3원
+  g015   answered             누적   21.9원
+  g016   answered             누적   22.5원
+  g017   answered             누적   23.1원
+  g018   answered             누적   35.1원
+  g019   answered             누적   35.1원
+  g020   answered             누적   35.1원
+  g042   answered             누적   35.1원
+  g021   answered             누적   39.9원
+  g022   answered             누적   39.9원
+  g023   answered             누적   43.2원
+  g024   answered             누적   43.2원
+  g025   answered             누적   45.8원
+  g026   answered             누적   47.4원
+  g027   answered             누적   52.5원
+  g028   answered             누적   52.5원
+  g029   answered             누적   52.5원
+  g030   answered             누적   53.1원
+  g031   answered             누적   57.9원
+  g032   answered             누적   61.6원
+  g033   answered             누적   61.6원
+  g034   answered             누적   63.6원
+  g035   answered             누적   68.0원
+  g036   answered             누적   71.3원
+  g037   answered             누적   75.2원
+  g038   insufficient_context 누적   75.2원
+  g039   insufficient_context 누적   75.2원
+  g040   insufficient_context 누적   75.4원
+  g041   insufficient_context 누적   75.8원
+  l5a01  answered             누적   76.6원
+  l5a02  answered             누적   77.3원
+  l5a03  answered             누적   78.1원
+  l5a04  answered             누적   78.9원
+  l5a05  answered             누적   86.7원
+  l5a06  answered             누적   86.7원
+  l5a07  answered             누적   90.2원
+  l5a08  answered             누적   90.2원
+  l5b01  answered             누적   90.2원
+  l5b02  answered             누적   91.4원
+  l5b03  answered             누적   93.1원
+  l5b04  answered             누적   93.1원
+  l5b05  answered             누적   95.0원
+  l5b06  answered             누적   98.4원
+  s01    answered             누적  101.4원
+  s02    answered             누적  107.6원
+  s03    answered             누적  107.6원
+  s04    answered             누적  109.3원
+  s05    answered             누적  110.6원
+  n01    answered             누적  111.6원
+  n02    answered             누적  113.2원
+  n03    answered             누적  113.2원
+  n04    answered             누적  120.4원
+  n05    answered             누적  120.4원
+  n06    answered             누적  120.4원
+  n07    answered             누적  120.4원
+  n08    answered             누적  125.7원
+  n09    answered             누적  125.7원
+  n10    answered             누적  132.9원
+  n11    answered             누적  138.1원
+  n12    answered             누적  144.4원
+  n13    answered             누적  144.4원
+  n14    answered             누적  144.4원
+  n15    answered             누적  144.4원
+  n16    answered             누적  145.8원
+  n17    answered             누적  148.0원
+  n18    answered             누적  155.2원
+  n19    answered             누적  155.2원
+  n20    answered             누적  159.0원
+  n21    answered             누적  162.4원
+  n22    answered             누적  180.5원
+  n23    answered             누적  180.5원
+  n24    answered             누적  180.5원
+  n25    answered             누적  186.8원
+  n26    answered             누적  186.8원
+  n27    answered             누적  186.8원
+  n28    answered             누적  186.8원
+  n29    answered             누적  189.9원
+  n30    answered             누적  192.2원
+  n31    insufficient_context 누적  192.2원
+  n32    insufficient_context 누적  192.2원
+  n33    insufficient_context 누적  192.2원
+  l5b07  answered             누적  198.1원
+  l5b08  answered             누적  201.5원
+  l5b09  answered             누적  201.5원
+  s06    answered             누적  203.2원
+  s07    answered             누적  209.2원
+  s08    answered             누적  214.0원
+
+100/100 items · 213.97원 · cache hits 0
+  M0_accuracy              0.070  (n=100)
+  M1_recall_any            0.989  (n=92)
+  M1_recall_all            0.848  (n=92)
+  M1_mrr                   0.875  (n=92)
+  M2_oos_refusal           0.875  (n=8)
+  M2_l5b_no_assertion      —  (n=0)
+  M2_over_refusal          0.000  (n=92)
+  M3_citation_precision    0.535  (n=92)
+  M3_citation_recall       0.928  (n=92)
+  M4_kp_coverage           —  (n=0)
+  M4_all_kp                —  (n=0)
+  M4_complete              0.000  (n=92)
+  M5_unsupported_rate      —  (n=0)
+  M6_temporal_error        —  (n=0)
+report: runs/20261004-230647_tt-verify-pending-r2/report.md
+elapsed 153s
+=== gen tt-temporal-rule-r2 (spent 844)
+Warning: You are sending unauthenticated requests to the HF Hub. Please set a HF_TOKEN to enable higher rate limits and faster downloads.
+100 items → runs/20261004-230924_tt-temporal-rule-r2  (budget 1200.0원)
+Loading weights:   0%|          | 0/398 [00:00<?, ?it/s]Loading weights: 100%|██████████| 398/398 [00:00<00:00, 12077.01it/s]
+Loading weights:   0%|          | 0/391 [00:00<?, ?it/s]Loading weights: 100%|██████████| 391/391 [00:00<00:00, 10300.63it/s]
+  g001   answered             누적    1.0원
+  g002   answered             누적    1.0원
+  g003   answered             누적    1.7원
+  g004   answered             누적    1.7원
+  g005   answered             누적    2.7원
+  g006   answered             누적    4.1원
+  g007   answered             누적    4.1원
+  g008   answered             누적    4.1원
+  g009   answered             누적    4.4원
+  g010   answered             누적    4.8원
+  g011   answered             누적    5.8원
+  g012   answered             누적    6.7원
+  g013   answered             누적    6.7원
+  g014   answered             누적    6.7원
+  g015   answered             누적    7.4원
+  g016   answered             누적    8.0원
+  g017   answered             누적    8.6원
+  g018   answered             누적   10.0원
+  g019   answered             누적   10.0원
+  g020   answered             누적   11.3원
+  g042   answered             누적   11.3원
+  g021   answered             누적   14.3원
+  g022   answered             누적   14.3원
+  g023   answered             누적   14.3원
+  g024   answered             누적   14.3원
+  g025   answered             누적   14.8원
+  g026   answered             누적   15.6원
+  g027   answered             누적   17.7원
+  g028   answered             누적   17.7원
+  g029   answered             누적   17.7원
+  g030   answered             누적   19.7원
+  g031   answered             누적   19.7원
+  g032   answered             누적   19.7원
+  g033   answered             누적   20.3원
+  g034   answered             누적   23.5원
+  g035   answered             누적   23.5원
+  g036   answered             누적   23.5원
+  g037   answered             누적   23.5원
+  g038   insufficient_context 누적   23.5원
+  g039   insufficient_context 누적   23.5원
+  g040   insufficient_context 누적   23.7원
+  g041   insufficient_context 누적   24.2원
+  l5a01  answered             누적   25.0원
+  l5a02  answered             누적   25.7원
+  l5a03  answered             누적   26.4원
+  l5a04  answered             누적   27.2원
+  l5a05  answered             누적   28.9원
+  l5a06  answered             누적   28.9원
+  l5a07  answered             누적   29.8원
+  l5a08  answered             누적   30.8원
+  l5b01  answered             누적   31.6원
+  l5b02  answered             누적   32.4원
+  l5b03  answered             누적   33.4원
+  l5b04  answered             누적   34.0원
+  l5b05  answered             누적   34.8원
+  l5b06  answered             누적   35.7원
+  s01    answered             누적   38.7원
+  s02    answered             누적   38.7원
+  s03    answered             누적   40.4원
+  s04    answered             누적   42.8원
+  s05    answered             누적   44.1원
+  n01    answered             누적   44.1원
+  n02    answered             누적   45.0원
+  n03    answered             누적   45.6원
+  n04    answered             누적   46.5원
+  n05    answered             누적   47.4원
+  n06    answered             누적   48.1원
+  n07    answered             누적   49.1원
+  n08    answered             누적   50.9원
+  n09    answered             누적   50.9원
+  n10    answered             누적   52.3원
+  n11    answered             누적   54.7원
+  n12    answered             누적   54.7원
+  n13    answered             누적   55.6원
+  n14    answered             누적   56.3원
+  n15    answered             누적   56.8원
+  n16    answered             누적   58.2원
+  n17    answered             누적   58.2원
+  n18    answered             누적   59.2원
+  n19    answered             누적   59.8원
+  n20    answered             누적   60.5원
+  n21    answered             누적   61.1원
+  n22    answered             누적   64.2원
+  n23    answered             누적   64.2원
+  n24    answered             누적   64.2원
+  n25    answered             누적   66.8원
+  n26    answered             누적   66.8원
+  n27    answered             누적   67.6원
+  n28    answered             누적   67.6원
+  n29    answered             누적   69.2원
+  n30    insufficient_context 누적   69.2원
+  n31    insufficient_context 누적   69.2원
+  n32    insufficient_context 누적   69.2원
+  n33    insufficient_context 누적   69.2원
+  l5b07  answered             누적   71.4원
+  l5b08  answered             누적   71.4원
+  l5b09  answered             누적   72.2원
+  s06    answered             누적   74.8원
+  s07    answered             누적   74.8원
+  s08    answered             누적   76.5원
+
+100/100 items · 76.46원 · cache hits 0
+  M0_accuracy              0.080  (n=100)
+  M1_recall_any            0.989  (n=92)
+  M1_recall_all            0.848  (n=92)
+  M1_mrr                   0.875  (n=92)
+  M2_oos_refusal           1.000  (n=8)
+  M2_l5b_no_assertion      —  (n=0)
+  M2_over_refusal          0.000  (n=92)
+  M3_citation_precision    0.581  (n=92)
+  M3_citation_recall       0.920  (n=92)
+  M4_kp_coverage           —  (n=0)
+  M4_all_kp                —  (n=0)
+  M4_complete              0.000  (n=92)
+  M5_unsupported_rate      —  (n=0)
+  M6_temporal_error        —  (n=0)
+report: runs/20261004-230924_tt-temporal-rule-r2/report.md
+elapsed 112s
+=== gen tt-verify-pending-r3 (spent 920)
+Warning: You are sending unauthenticated requests to the HF Hub. Please set a HF_TOKEN to enable higher rate limits and faster downloads.
+100 items → runs/20261004-231121_tt-verify-pending-r3  (budget 1200.0원)
+Loading weights:   0%|          | 0/398 [00:00<?, ?it/s]Loading weights: 100%|██████████| 398/398 [00:00<00:00, 22780.51it/s]
+Loading weights:   0%|          | 0/391 [00:00<?, ?it/s]Loading weights: 100%|██████████| 391/391 [00:00<00:00, 10036.43it/s]
+  g001   answered             누적    4.7원
+  g002   answered             누적    4.7원
+  g003   answered             누적    8.7원
+  g004   answered             누적    8.7원
+  g005   answered             누적    8.7원
+  g006   answered             누적    9.5원
+  g007   answered             누적    9.8원
+  g008   answered             누적   10.2원
+  g009   answered             누적   10.5원
+  g010   answered             누적   10.9원
+  g011   answered             누적   20.9원
+  g012   answered             누적   20.9원
+  g013   answered             누적   20.9원
+  g014   answered             누적   20.9원
+  g015   answered             누적   21.4원
+  g016   answered             누적   22.6원
+  g017   answered             누적   22.6원
+  g018   answered             누적   32.4원
+  g019   answered             누적   32.4원
+  g020   answered             누적   32.4원
+  g042   answered             누적   32.4원
+  g021   answered             누적   45.7원
+  g022   answered             누적   45.7원
+  g023   answered             누적   45.7원
+  g024   answered             누적   45.7원
+  g025   answered             누적   45.7원
+  g026   answered             누적   45.7원
+  g027   answered             누적   52.3원
+  g028   answered             누적   52.3원
+  g029   answered             누적   52.3원
+  g030   answered             누적   52.3원
+  g031   answered             누적   58.2원
+  g032   answered             누적   61.4원
+  g033   answered             누적   61.4원
+  g034   answered             누적   62.3원
+  g035   answered             누적   67.3원
+  g036   answered             누적   71.0원
+  g037   answered             누적   75.5원
+  g038   insufficient_context 누적   75.5원
+  g039   insufficient_context 누적   75.5원
+  g040   insufficient_context 누적   75.5원
+  g041   insufficient_context 누적   75.5원
+  l5a01  answered             누적   76.4원
+  l5a02  answered             누적   77.3원
+  l5a03  answered             누적   77.9원
+  l5a04  answered             누적   78.7원
+  l5a05  answered             누적   86.6원
+  l5a06  answered             누적   86.6원
+  l5a07  answered             누적   90.2원
+  l5a08  answered             누적   90.2원
+  l5b01  answered             누적   90.2원
+  l5b02  answered             누적   91.0원
+  l5b03  answered             누적   92.5원
+  l5b04  answered             누적   92.5원
+  l5b05  answered             누적   93.3원
+  l5b06  answered             누적   99.1원
+  s01    answered             누적  100.8원
+  s02    answered             누적  106.9원
+  s03    answered             누적  106.9원
+  s04    answered             누적  110.8원
+  s05    answered             누적  110.8원
+  n01    answered             누적  110.8원
+  n02    answered             누적  111.7원
+  n03    answered             누적  113.3원
+  n04    answered             누적  118.6원
+  n05    answered             누적  118.6원
+  n06    answered             누적  118.6원
+  n07    answered             누적  120.1원
+  n08    answered             누적  121.3원
+  n09    answered             누적  124.4원
+  n10    answered             누적  132.9원
+  n11    answered             누적  143.9원
+  n12    answered             누적  143.9원
+  n13    answered             누적  143.9원
+  n14    answered             누적  143.9원
+  n15    answered             누적  143.9원
+  n16    answered             누적  144.8원
+  n17    answered             누적  147.8원
+  n18    answered             누적  156.4원
+  n19    answered             누적  158.2원
+  n20    answered             누적  158.2원
+  n21    answered             누적  162.6원
+  n22    answered             누적  178.5원
+  n23    answered             누적  178.5원
+  n24    answered             누적  178.5원
+  n25    answered             누적  192.0원
+  n26    answered             누적  192.0원
+  n27    answered             누적  192.0원
+  n28    answered             누적  192.0원
+  n29    answered             누적  192.0원
+  n30    answered             누적  192.0원
+  n31    insufficient_context 누적  192.0원
+  n32    insufficient_context 누적  192.0원
+  n33    insufficient_context 누적  192.0원
+  l5b07  answered             누적  200.5원
+  l5b08  answered             누적  204.1원
+  l5b09  answered             누적  204.1원
+  s06    answered             누적  204.1원
+  s07    answered             누적  208.6원
+  s08    answered             누적  215.1원
+
+100/100 items · 215.1원 · cache hits 0
+  M0_accuracy              0.070  (n=100)
+  M1_recall_any            0.989  (n=92)
+  M1_recall_all            0.848  (n=92)
+  M1_mrr                   0.875  (n=92)
+  M2_oos_refusal           0.875  (n=8)
+  M2_l5b_no_assertion      —  (n=0)
+  M2_over_refusal          0.000  (n=92)
+  M3_citation_precision    0.548  (n=92)
+  M3_citation_recall       0.914  (n=92)
+  M4_kp_coverage           —  (n=0)
+  M4_all_kp                —  (n=0)
+  M4_complete              0.000  (n=92)
+  M5_unsupported_rate      —  (n=0)
+  M6_temporal_error        —  (n=0)
+report: runs/20261004-231121_tt-verify-pending-r3/report.md
+elapsed 149s
+=== gen tt-temporal-rule-r3 (spent 1135)
+Warning: You are sending unauthenticated requests to the HF Hub. Please set a HF_TOKEN to enable higher rate limits and faster downloads.
+100 items → runs/20261004-231353_tt-temporal-rule-r3  (budget 1200.0원)
+Loading weights:   0%|          | 0/398 [00:00<?, ?it/s]Loading weights: 100%|██████████| 398/398 [00:00<00:00, 13112.86it/s]
+Loading weights:   0%|          | 0/391 [00:00<?, ?it/s]Loading weights: 100%|██████████| 391/391 [00:00<00:00, 11112.58it/s]
+  g001   answered             누적    1.0원
+  g002   answered             누적    1.0원
+  g003   answered             누적    1.7원
+  g004   answered             누적    1.7원
+  g005   answered             누적    2.9원
+  g006   answered             누적    4.2원
+  g007   answered             누적    4.2원
+  g008   answered             누적    4.2원
+  g009   answered             누적    4.2원
+  g010   answered             누적    4.5원
+  g011   answered             누적    5.5원
+  g012   answered             누적    6.1원
+  g013   answered             누적    6.1원
+  g014   answered             누적    6.5원
+  g015   answered             누적    7.1원
+  g016   answered             누적    7.6원
+  g017   answered             누적    8.2원
+  g018   answered             누적   10.1원
+  g019   answered             누적   10.1원
+  g020   answered             누적   10.8원
+  g042   answered             누적   10.8원
+  g021   answered             누적   13.6원
+  g022   answered             누적   13.6원
+  g023   answered             누적   13.6원
+  g024   answered             누적   13.6원
+  g025   answered             누적   14.1원
+  g026   answered             누적   14.9원
+  g027   answered             누적   16.2원
+  g028   answered             누적   16.2원
+  g029   answered             누적   16.8원
+  g030   answered             누적   17.4원
+  g031   answered             누적   18.7원
+  g032   answered             누적   18.7원
+  g033   answered             누적   19.5원
+  g034   answered             누적   21.8원
+  g035   answered             누적   21.8원
+  g036   answered             누적   21.8원
+  g037   answered             누적   22.8원
+  g038   insufficient_context 누적   22.8원
+  g039   insufficient_context 누적   22.8원
+  g040   insufficient_context 누적   23.0원
+  g041   insufficient_context 누적   23.3원
+  l5a01  answered             누적   24.0원
+  l5a02  answered             누적   25.7원
+  l5a03  answered             누적   26.6원
+  l5a04  answered             누적   26.6원
+  l5a05  answered             누적   27.4원
+  l5a06  answered             누적   28.1원
+  l5a07  answered             누적   30.1원
+  l5a08  answered             누적   30.1원
+  l5b01  answered             누적   30.8원
+  l5b02  answered             누적   31.6원
+  l5b03  answered             누적   33.1원
+  l5b04  answered             누적   33.1원
+  l5b05  answered             누적   34.1원
+  l5b06  answered             누적   35.0원
+  s01    answered             누적   38.1원
+  s02    answered             누적   38.1원
+  s03    answered             누적   39.7원
+  s04    answered             누적   42.1원
+  s05    answered             누적   43.4원
+  n01    answered             누적   43.4원
+  n02    answered             누적   45.0원
+  n03    answered             누적   45.0원
+  n04    answered             누적   45.8원
+  n05    answered             누적   46.8원
+  n06    answered             누적   48.6원
+  n07    answered             누적   48.6원
+  n08    answered             누적   50.6원
+  n09    answered             누적   50.6원
+  n10    answered             누적   55.2원
+  n11    answered             누적   55.2원
+  n12    answered             누적   55.2원
+  n13    answered             누적   55.2원
+  n14    answered             누적   56.4원
+  n15    answered             누적   56.4원
+  n16    answered             누적   57.9원
+  n17    answered             누적   57.9원
+  n18    answered             누적   59.7원
+  n19    answered             누적   59.7원
+  n20    answered             누적   60.5원
+  n21    answered             누적   61.1원
+  n22    answered             누적   64.4원
+  n23    answered             누적   64.4원
+  n24    answered             누적   64.4원
+  n25    answered             누적   66.4원
+  n26    answered             누적   67.1원
+  n27    answered             누적   67.9원
+  n28    answered             누적   67.9원
+  n29    answered             누적   69.2원
+  n30    insufficient_context 누적   69.2원
+  n31    insufficient_context 누적   69.2원
+  n32    insufficient_context 누적   69.2원
+  n33    insufficient_context 누적   69.5원
+  l5b07  answered             누적   70.5원
+  l5b08  answered             누적   72.7원
+  l5b09  answered             누적   72.7원
+  s06    answered             누적   74.3원
+  s07    answered             누적   75.3원
+  s08    answered             누적   77.0원
+
+100/100 items · 76.97원 · cache hits 0
+  M0_accuracy              0.080  (n=100)
+  M1_recall_any            0.989  (n=92)
+  M1_recall_all            0.848  (n=92)
+  M1_mrr                   0.875  (n=92)
+  M2_oos_refusal           1.000  (n=8)
+  M2_l5b_no_assertion      —  (n=0)
+  M2_over_refusal          0.000  (n=92)
+  M3_citation_precision    0.572  (n=92)
+  M3_citation_recall       0.913  (n=92)
+  M4_kp_coverage           —  (n=0)
+  M4_all_kp                —  (n=0)
+  M4_complete              0.000  (n=92)
+  M5_unsupported_rate      —  (n=0)
+  M6_temporal_error        —  (n=0)
+report: runs/20261004-231353_tt-temporal-rule-r3/report.md
+elapsed 109s
+GEN_DONE 1212.8
+=== judge verify-pending
+CODEX_FAILED '\nERROR: You’ve hit your usage limit. Upgrade to Pro (https://chatgpt.com/explore/pro), visit https://chatgpt.com/codex/settings/usage to purchase more credits or try again at Oct 11th, 2026 10:05 AM.\n' — further Codex calls skipped, Opus continues
+skip tt-verify-pending-r1
+skip tt-temporal-rule-r1
+skip tt-verify-pending-r2
+skip tt-temporal-rule-r2
+skip tt-verify-pending-r3
+skip tt-temporal-rule-r3
+GEN_DONE 1212.8
+=== judge verify-pending
+judge calls made 444
+official M0 (Opus ∧ Codex): {'tt-verify-pending-r1': 0.67, 'tt-verify-pending-r2': 0.6, 'tt-verify-pending-r3': 0.63}
+/Users/owen/projects/elice-rag-eval/eval/results/rejudge_tt-verify-pending-official.json 280 answers · luna=opus 0 · luna=codex 0 · opus=codex 231 · errors 0
+EXIT_verify-pending 0
+=== judge temporal-rule
+judge calls made 554
+official M0 (Opus ∧ Codex): {'tt-temporal-rule-r1': 0.66, 'tt-temporal-rule-r2': 0.62, 'tt-temporal-rule-r3': 0.61}
+/Users/owen/projects/elice-rag-eval/eval/results/rejudge_tt-temporal-rule-official.json 277 answers · luna=opus 0 · luna=codex 0 · opus=codex 230 · errors 0
+EXIT_temporal-rule 0
+ALLDONE

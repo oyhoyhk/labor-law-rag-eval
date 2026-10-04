@@ -175,7 +175,7 @@ def main() -> None:
                 continue
             if gold[i]["expected_status"] == "answered":
                 kps = gold[i]["key_points"]
-                luna = {k["key_point"]: k for k in j[i]["grade"]["key_points"]}
+                luna = {k["key_point"]: k for k in j.get(i, {}).get("grade", {}).get("key_points", [])}  # none with --no-judge
                 luna_v = [{"ok": luna[k]["asserted"], "quote": luna[k].get("quote", "")} if k in luna else None for k in kps]
             else:  # answered although refusal was expected: did it hedge instead of concluding?
                 kps = [HEDGE_POINT]

@@ -116,6 +116,8 @@ def main() -> None:
     ap.add_argument("--query-rewrite", action="store_true", help="#5 legal-term query rewrites fused by RRF")
     ap.add_argument("--rerank", action="store_true", help="#6 cross-encoder rerank of the top dense hits")
     ap.add_argument("--precedent-search", action="store_true", help="#7 direct precedent search besides linked cases")
+    ap.add_argument("--verify-pending", action="store_true", help="verify pass only on questions with a pending-amendment block")
+    ap.add_argument("--temporal-rule", action="store_true", help="temporal answer rule + changed-호 detail on those questions only")
     ap.add_argument("--split", default="all", choices=["all", "dev", "test"])
     ap.add_argument("--ids", default="")
     ap.add_argument("--no-judge", action="store_true")
@@ -141,7 +143,8 @@ def main() -> None:
                   precedents=args.precedents, fewshot_dev=args.fewshot_dev, hybrid=args.hybrid,
                   checklist=args.checklist, pending_detail=args.pending_detail, verify=args.verify,
                   self_consistency=args.self_consistency, query_rewrite=args.query_rewrite, rerank=args.rerank,
-                  precedent_search=args.precedent_search)
+                  precedent_search=args.precedent_search, verify_pending=args.verify_pending,
+                  temporal_rule=args.temporal_rule)
     args.prompt = opt.prompt  # record the prompt actually used (--precedents / --fewshot-dev switch it)
     cache = None if args.no_cache else CACHE
     gen = LLM(budget_krw=args.budget, cache_dir=cache)
