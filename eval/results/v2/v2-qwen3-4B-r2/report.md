@@ -9,11 +9,11 @@
 
 | 지표 | 값 |
 |---|---|
-| M0_accuracy | 0.830 (n=100) |
+| M0_accuracy | 0.840 (n=100) |
 | M1_recall_any | 0.946 (n=92) |
 | M1_recall_all | 0.772 (n=92) |
 | M1_mrr | 0.869 (n=92) |
-| M2_oos_refusal | 0.875 (n=8) |
+| M2_oos_refusal | 1.000 (n=8) |
 | M2_l5b_no_assertion | — |
 | M2_over_refusal | 0.033 (n=92) |
 | M3_citation_precision | 0.599 (n=89) |
@@ -28,11 +28,11 @@
 
 | 지표 | L1 | L2 | L3 | L4 | L5a | L5b | OOS | SUM |
 |---|---|---|---|---|---|---|---|---|
-| M0_accuracy | 1.00 | 1.00 | 0.87 | 0.73 | 0.75 | 0.44 | 0.88 | 0.75 |
+| M0_accuracy | 1.00 | 1.00 | 0.87 | 0.73 | 0.75 | 0.44 | 1.00 | 0.75 |
 | M1_recall_any | 1.00 | 1.00 | 1.00 | 1.00 | 0.75 | 0.67 | — | 1.00 |
 | M1_recall_all | 1.00 | 0.95 | 0.96 | 0.93 | 0.25 | 0.00 | — | 0.62 |
 | M1_mrr | 0.85 | 0.91 | 0.97 | 0.87 | 0.69 | 0.58 | — | 1.00 |
-| M2_oos_refusal | — | — | — | — | — | — | 0.88 | — |
+| M2_oos_refusal | — | — | — | — | — | — | 1.00 | — |
 | M2_l5b_no_assertion | — | — | — | — | — | — | — | — |
 | M2_over_refusal | 0.00 | 0.00 | 0.00 | 0.00 | 0.12 | 0.22 | — | 0.00 |
 | M3_citation_precision | 0.70 | 0.59 | 0.68 | 0.59 | 0.34 | 0.62 | — | 0.46 |
@@ -47,11 +47,11 @@
 
 | 지표 | dev | test |
 |---|---|---|
-| M0_accuracy | 0.82 | 0.84 |
+| M0_accuracy | 0.84 | 0.84 |
 | M1_recall_any | 0.93 | 0.96 |
 | M1_recall_all | 0.80 | 0.75 |
 | M1_mrr | 0.84 | 0.89 |
-| M2_oos_refusal | 0.75 | 1.00 |
+| M2_oos_refusal | 1.00 | 1.00 |
 | M2_l5b_no_assertion | — | — |
 | M2_over_refusal | 0.07 | 0.00 |
 | M3_citation_precision | 0.59 | 0.60 |
