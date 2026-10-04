@@ -128,6 +128,25 @@
 - 정답 포인트 2~3개(조문 규칙 1 + 판례 판시 1~2), 판례 원문(판시사항 + 판결요지) 문자열 대조
 - 결과: v2.1 이전 실행과 L5b 점수 직접 비교 불가 — 조문만 검색하는 시스템은 L5b에서 구조적 실패(의도된 설계)
 
+### 3.5 GT 구축 도구와 절차: 생성은 AI·스크립트, 판정은 사람, 모든 판정은 파일로 기록
+
+| 단계 | 도구 (실행) | 입력 → 산출물 | 사람의 역할 | 기록 |
+|---|---|---|---|---|
+| 0. 측정력 확인 | `scripts/closed_book_check.py` | 문항 초안 → 문맥 없이 LLM 정답률(최근 개정 40%) | 최근 개정·시행령 문항 비중 50% 이상으로 설계 결정 | `docs/findings/2026-10-01-closed-book.md` |
+| 1. 판례 사례 수집 | `scripts/fetch_precedents.py search·fetch·bulk` | 법제처 판례 API → 판례 XML 400건 | 판례형 문항 소재 판례 선정 | `data/raw/precedents/`, `eval/gold/cases/l5_candidates.jsonl` |
+| 2. 블라인드 후보 추출 | `scripts/mine_gold_candidates.py` | 조문 그래프(예외 참조·분할 조·시행 상태·위임) → 유형별 후보, 시스템 답변·기존 GT 근거 미사용 | 후보에서 실험 대상 유형 배분 결정 | `eval/gold/candidates_v2.json` |
+| 3. 초안 작성 | Claude Opus(병렬 3개) | 후보 + 조문 원문 → 질문·정답 근거·정답 포인트·원문 문구·참고 답안 | — | `eval/gold/drafts_v2/` |
+| 4. 기계 검증 | `scripts/verify_gold.py [파일]` (LLM 없음) | 초안 → PASS/FAIL: 필수 필드, 근거 ID 존재, 정답 포인트 원문 문구가 근거 조문·판례에 실제로 있는지, 유형 규칙(L3 근거 2개 이상, L4 시행 상태 변화 근거, 범위 밖 근거 없음, L5b 판례 근거) | FAIL 문항 수정 지시 | 실행 출력, CI 빠른 검사 단계 |
+| 5. 독립 재검토 | 별도 컨텍스트 모델(v1 Fable, v2 Opus) | 초안 → 중대·경미 지적, 수정안 | 지적 수용 여부 결정 | `eval/gold/review_v1_independent.md`, `review_v2_independent.md` |
+| 6. 사람 확인 | `tools/build_gt_review_v2_page.py` → `gt_review_v2_page.html`, `gt_review_l5b_page.html` | 문항 + 근거 원문(정답 문구 강조) + 시행 상태 + 판례 판시사항 + 재검토 의견 → 문항별 동의·수정 | **문항마다 원문과 대조해 확정** | `eval/gold/human_review_v1.jsonl`, `human_review_confirm_v2*.jsonl` |
+| 7. 결과 기반 역점검 | 실행 결과 집계(항상 실패·항상 정답 문항) | 여러 구성의 문항별 결과 → GT 결함 후보(질문 범위를 넘는 정답 포인트) | **삭제·유지 결정** (v2.2: 3건 삭제) | `eval/gold/CHANGELOG.md`, `human_review_confirm_v2_2.jsonl` |
+| 8. 채점자 보정 (v1) | `tools/build_judge_label_page.py`, `build_claude_review_page.py` → `eval.calibrate` · `eval.cross_judge` | 고정 표본 답변 + Claude 채점 근거 → 동의·이의, κ 계산 | 표본 46건 판정 | `eval/gold/human_confirmed_labels_v1.jsonl`, `eval/results/judge_calibration.json` |
+| 9. 채점자 검증 (v2.2) | `eval.rejudge --all` → `tools/build_kp_review_page.py`, `build_kp_blind_page.py` | 최종 구성 답변의 정답 포인트 판정(Luna·Opus·Codex) → 사람 판정 | **정답 포인트 231개 전부 판정** (갈린 55 + 일치 176) | `eval/gold/human_kp_review_v1.jsonl`, `human_kp_review_agreed_v1.jsonl` |
+
+- 원칙: AI·스크립트는 후보·초안·검증 결과를 만들고, 채택·수정·삭제는 사람이 결정, 결정마다 파일로 남겨 재현 가능
+- 검토 페이지: 저장소의 `tools/*_page.html`(검토 당시 판단은 각 기록 파일에 저장, 페이지 자체는 다시 만들 수 있게 `tools/build_*` 스크립트 보관)
+- 한계: 사람 확인은 1명·비블라인드(AI 작성·재검토 결과와 채점자 판정을 보며 판정) → 동조 편향 가능
+
 ## 4. 편향과 한계: 단일 작성 계열·비블라인드 사람 확인·실험 유형 과대 표집
 
 - 작성 계열: 전 문항 AI(Opus) 초안, v2 재검토도 동일 계열
@@ -286,17 +305,34 @@ make calibrate                             # Judge vs 사람 판정 κ
 - **근거 없는 주장**: κ 0.54, 주장 분해 정정 맹점
 - **흔들림 문항**: 동일 설정에서도 결과가 바뀌는 문항(기준선 21개, 최종 14개) → 개별 문항 변화 해석 제외, 다회 기준선 평균 필수
 
-## 11. CI 연동 설계: PR마다 0원 검사, 라벨·야간에 캐시 기반 전체 평가
+## 11. CI 연동 설계: PR마다 0원 검사, 품질 평가는 시크릿 주입 API로 야간·라벨 실행
 
-| 단계 | 트리거 | 내용 | LLM 비용 |
+| 단계 | 트리거 | 내용 | 비용 |
 |---|---|---|---|
-| 빠른 검사 | 모든 PR | `pytest`(43개), `make verify-gold`, `make retrieval` — 검색 지표가 기준선보다 하락하면 실패 | 0원 |
-| 전체 평가 | `eval` 라벨 PR · 야간 | `make eval` 100문항, 응답 캐시로 변경분만 호출, `--budget` 상한 | 수십~440원 |
-| 퇴행 판정 | 전체 평가 후 | `make compare diff <기준선> <PR 실행> --base-runs …` — 전체·구조 태그·dev/test에서 노이즈 폭과 CI를 모두 넘는 하락만 실패 | 0원 |
-| 결과 공유 | PR 코멘트 | 지표 표·악화 문항 목록, `report.md` 아티팩트 첨부 | — |
+| 빠른 검사 | 모든 PR | `pytest`, `verify_gold`, 검색 지표(`make retrieval`) — 기준선 대비 하락 시 실패 | 0원 |
+| 답변 생성 | `eval` 라벨 PR · 야간 | `make eval` 100문항 × 3회(`--no-judge`), LLM 응답 캐시로 변경분만 호출, 예산 상한 | Luna 회당 약 500~700원 |
+| 공식 채점 | 답변 생성 후 | `eval.rejudge --all` — Opus·Codex 둘 다 정답일 때만 정답, **API 키를 CI 시크릿으로 주입** | 채점 API 비용(답변 약 280건 × 채점자 2) |
+| 퇴행 판정 | 공식 채점 후 | `eval.multirun 기준선 PR` — 전체·유형별 부분집합에서 노이즈 폭과 95% CI를 모두 넘는 하락만 실패 | 0원 |
+| 채점자 회귀 검사 | 채점 프롬프트·채점 모델·모델 버전 변경 시 | 사람 판정 정답 포인트 231개(`eval/gold/human_kp_review_*.jsonl`)를 새 채점자로 재채점 → 일치율이 기존(Codex 231/231 · 공식 기준)보다 떨어지면 실패 | 채점 API 비용 |
+| 결과 공유 | PR 코멘트 | 지표 표와 악화 문항 목록, `report.md`를 아티팩트로 첨부 | — |
 
-- 비밀값 `ELICE_API_KEY`는 CI secret, 임베딩 모델은 revision 고정 캐시
-- 기준선 재고정 조건: `gold_sha256` 변경, `judge_version` 변경 → 기준선 3회·노이즈 폭 재측정, 이전 기준선과 직접 비교 금지
-- 문항 단위 알림에서 흔들림 문항(`noise_floor.json`의 `unstable_items`) 제외
-- 필수 회귀 항목: 프롬프트 변경 시 범위 밖 거절(부분 답변 프롬프트가 n33에 답한 사례)
-- 비용 근거: 캐시 미사용 전체 평가 1회 427~440원 (`eval/results/v2/final-noise-{2,3}/manifest.json`)
+**비용 통제: 실행·단계·월 단위 3중 상한, 비용 증가도 회귀로 감시**
+
+| 통제 | 방식 | 상한 예시 | 구현 |
+|---|---|---|---|
+| 생성 실행당 상한 | `eval.run --budget` — 누적 원화 비용이 상한에 닿으면 다음 호출 전 중단, 완료분만 저장·manifest에 중단 사유 기록 | 회당 1,500원 | ✅ `app/llm.py` `BudgetExceeded` |
+| 채점 호출 상한 | `eval.rejudge --max-calls N` — 실제 호출만 계산(캐시 적중 0), 넘으면 이후 호출 건너뜀·미저장·공식 점수 미발행, 상한 올려 재실행 시 남은 호출만 | 실행 3회분 700건 | ✅ `eval/rejudge.py` |
+| 캐시 | 생성 응답 캐시(동일 요청 0원), 채점 캐시(실행·문항·채점자·프롬프트 해시) | — | ✅ |
+| 월간 누적 상한 | CI가 실행마다 manifest의 `cost_krw`·채점 호출 수를 누적 기록, 월 상한 초과 시 생성·채점 단계 건너뛰고 빠른 검사만 실행 | 월 20,000원 | 설계 |
+| 비용 회귀 감시 | 퇴행 판정에 문항당 비용·입력 토큰·지연을 함께 비교, 기준선 대비 +30% 초과 시 경고(정답률 개선과 함께 PR에 표시) | +30% | 설계 |
+
+- 근거: 검증 단계(비용 1.7배)·다중 생성(지연 16.7초)처럼 정답률은 노이즈 내인데 비용만 크게 늘리는 변경을 정답률 지표만으로는 거르지 못함
+- 동시 호출(기본 4건) 때문에 상한 도달 시점에 이미 나간 호출만큼 소폭 초과 가능 → 상한은 여유를 두고 설정
+
+- 시크릿: `ELICE_API_KEY`(생성), `ANTHROPIC_API_KEY`(Opus 채점), `OPENAI_API_KEY`(Codex 계열 채점) — 저장소·로그에 값 미노출, 포크 PR에는 시크릿 미제공(빠른 검사만 실행)
+- 채점 백엔드: 로컬 평가는 `claude -p`·`codex exec` CLI(구독), CI는 같은 채점 프롬프트를 API로 호출 — 백엔드 전환 시 채점자 회귀 검사를 먼저 통과해야 공식 점수로 인정(현재 `eval/rejudge.py`는 CLI만 구현, API 백엔드는 미구현)
+- 채점 캐시: (실행, 문항, 채점자, 프롬프트 해시) 단위 저장 → 같은 답변 재채점 0원, 구독·API 한도로 중단돼도 이어서 실행
+- 임베딩 모델(Qwen3-Embedding-4B 약 8GB)·색인은 revision 고정 후 CI 캐시, 캐시 미적중 시 빠른 검사의 검색 단계만 건너뜀
+- Gold Set이 바뀌면(`gold_sha256` 변경) 기준선과 노이즈 폭을 새로 측정하고 이전 기준선과 직접 비교하지 않음
+- 채점 프롬프트·채점자 변경도 기준선 재고정 사유
+- 노이즈가 큰 문항(동일 설정 반복에서 결과가 바뀌는 문항, `noise_floor.json`의 `unstable_items`)은 문항 단위 회귀 알림에서 제외
