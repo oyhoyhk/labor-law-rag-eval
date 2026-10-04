@@ -42,6 +42,23 @@ def _iso(yyyymmdd: str) -> str:
     return f"{yyyymmdd[:4]}-{yyyymmdd[4:6]}-{yyyymmdd[6:]}"
 
 
+def _changed_detail(old: Article, new: Article, changed: list[int]) -> list[str]:
+    """Each changed paragraph of `new` with the 호 that differ from the same-numbered old paragraph.
+
+    changed_paragraphs keeps only the paragraph's lead sentence, so an added 호 (e.g. a new penalty item)
+    never reached the prompt; here such items are listed under their paragraph.
+    """
+    old_by_no = {p.no: p for p in old.paragraphs}
+    out = []
+    for j in changed:
+        p = new.paragraphs[j]
+        before = old_by_no.get(p.no)
+        old_items = set(before.items) if before else set()
+        items = ["(신설·개정) " + i for i in p.items if i not in old_items]  # 호 renumbering makes 신설 vs 개정 unreliable
+        out.append("\n".join([p.text, *items]))
+    return out
+
+
 def _pending(current: dict[str, Article], manifest: list[dict]) -> dict[str, list[dict]]:
     """Diff each statute's version chain; returns article_id -> scheduled changes."""
     out: dict[str, list[dict]] = {}
@@ -58,11 +75,13 @@ def _pending(current: dict[str, Article], manifest: list[dict]) -> dict[str, lis
                 if old and new and _body(old) == _body(new):
                     continue
                 kind = "added" if old is None else "deleted" if new is None else "modified"
-                changed = []
+                changed, detail = [], []
                 if old and new:
                     sm = difflib.SequenceMatcher(a=_body(old), b=_body(new))
                     changed = [new.paragraphs[j].text for tag, *_, j1, j2 in sm.get_opcodes()
                                if tag != "equal" for j in range(j1, j2)]
+                    detail = _changed_detail(old, new, [j for tag, *_, j1, j2 in sm.get_opcodes()
+                                                        if tag != "equal" for j in range(j1, j2)])
                 eff = new.effective if new and new.effective > d["effective"] else d["effective"]
                 out.setdefault(article_id(law, key), []).append({
                     "kind": kind,
@@ -70,6 +89,7 @@ def _pending(current: dict[str, Article], manifest: list[dict]) -> dict[str, lis
                     "promulgated": _iso(d["promulgated"]),
                     "promulgation_no": d["promulgation_no"],
                     "changed_paragraphs": changed,
+                    "changed_detail": detail,
                     "new_text": new.render() if new else None,
                 })
             prev = nxt

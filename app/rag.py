@@ -13,14 +13,15 @@ from functools import lru_cache
 from urllib.parse import quote
 
 from app import hybrid
-from app.index import INDEX_DIR, PrecedentScorer, Retriever
+from app.index import ENCODE_LOCK, INDEX_DIR, PrecedentScorer, Retriever
 from app.ingest.precedent import load_precedents
 from app.ingest.provision import GRAPH, status_at
-from app.llm import LLM, cost_of
+from app.llm import LLM, SEED, cost_of
 
 PROMPT_VERSION = "gen-v1"  # default generation prompt
 PROMPT_VERSION_PARTIAL = "gen-v2-partial"  # adds a partial-answer mode between full answer and refusal
 PROMPT_VERSION_PRECEDENT = "gen-v3-precedent"  # statute first, then linked Supreme Court holdings; set by --precedents
+PROMPT_VERSION_CHECKLIST = "gen-v4-checklist"  # gen-v3-precedent + a legal-answer checklist; set by --checklist
 # Suffix for --fewshot-dev (app/fewshot.py, deliberate eval-set leakage demo): base prompt + nearest dev examples.
 FEWSHOT_SUFFIX = "+fewshot-dev"
 TAU = 0.50  # top-1 cosine below this → refuse without calling the LLM (calibrated in H3)
@@ -68,7 +69,44 @@ SYSTEM_PRECEDENT = """당신은 한국 노동법령 질의응답 도우미입니
 7. 조문 블록과 판례 블록으로 모두 답할 수 없으면 첫 줄을 정확히 "[정보 부족]"으로 쓰고, 무엇이 없는지만 한 문장으로 쓴다.
 8. 한국어 합니다체로 간결하게 답한다."""
 
-SYSTEMS = {PROMPT_VERSION: SYSTEM, PROMPT_VERSION_PARTIAL: SYSTEM_PARTIAL, PROMPT_VERSION_PRECEDENT: SYSTEM_PRECEDENT}
+# Generalization A/B #1 (docs/plans/2026-10-03-generalization-ab-plan.md): the items every legal answer should check,
+# derived from failure types (missing exception status, delegation, pending amendment, general rule), not from items.
+CHECKLIST_RULE = """
+답변하기 전에 근거 블록에서 다음을 차례로 확인하고, 질문과 관련된 것은 빠짐없이 답변에 쓴다.
+(가) 질문에 적용되는 원칙(누가, 무엇을, 얼마나, 언제까지)
+(나) 그 원칙의 예외·단서가 근거 블록에 있는지. 질문이 예외 해당 여부를 묻는데 예외가 없으면 예외가 없다는 점
+(다) 세부 기준을 대통령령·고용노동부령 등 하위 법령에 위임했는지와, 하위 법령 블록이 있으면 그 기준
+(라) 시행 예정 개정이 질문의 결론을 바꾸는지. 바꾸면 바뀌는 내용, 공포일, 시행일, 기준일 현재 적용 여부
+(마) 질문이 특수한 경우를 물으면, 비교 기준이 되는 일반적인 경우의 기준"""
+SYSTEM_CHECKLIST = SYSTEM_PRECEDENT.replace("\n8. 한국어 합니다체로 간결하게 답한다.", "\n8. 한국어 합니다체로 답한다." + CHECKLIST_RULE)
+
+SYSTEMS = {PROMPT_VERSION: SYSTEM, PROMPT_VERSION_PARTIAL: SYSTEM_PARTIAL, PROMPT_VERSION_PRECEDENT: SYSTEM_PRECEDENT,
+           PROMPT_VERSION_CHECKLIST: SYSTEM_CHECKLIST}
+
+VERIFY_SYSTEM = """당신은 한국 노동법령 답변 검토자입니다. [근거] 블록, [질문], [초안 답변]을 받습니다.
+초안을 [근거] 블록과 대조해 다음을 고친 최종 답변만 출력하세요.
+1. 근거 블록에 있는데 질문에 답하는 데 필요한 내용(원칙, 예외·단서 유무, 위임된 하위 법령의 기준, 시행 예정 개정의 내용·공포일·시행일)이 빠졌으면 추가한다.
+2. 근거 블록이 뒷받침하지 않는 문장은 삭제한다.
+3. 사실을 말하는 모든 문장 끝에 근거 블록 번호를 [S1]처럼 붙인다. 초안의 형식(판례 인용 방식, 합니다체)을 유지한다.
+4. 고칠 것이 없으면 초안을 그대로 출력한다. 설명이나 검토 의견은 쓰지 않는다."""
+
+MERGE_SYSTEM = """당신은 한국 노동법령 답변 편집자입니다. [근거] 블록, [질문], 같은 질문에 대한 [초안] 여러 개를 받습니다.
+초안들을 종합해 최종 답변 하나만 출력하세요.
+1. 초안들 중 어느 하나에라도 있고 근거 블록이 뒷받침하는 내용은 빠짐없이 포함한다.
+2. 근거 블록이 뒷받침하지 않거나 초안끼리 충돌하는 내용은 근거 블록에 맞는 쪽만 남긴다.
+3. 사실을 말하는 모든 문장 끝에 근거 블록 번호를 [S1]처럼 붙인다. 합니다체로 쓴다.
+4. 초안 과반이 첫 줄을 "[정보 부족]"으로 썼으면 최종 답변도 첫 줄을 정확히 "[정보 부족]"으로 쓰고 무엇이 없는지만 한 문장으로 쓴다."""
+
+REWRITE_SYSTEM = """한국 노동법령 검색용 질의를 만듭니다. 사용자 질문을 읽고, 답이 될 법령 조문을 찾기 위한 검색 질의 2~3개를 만드세요.
+- 각 질의는 법령 조문에 쓰이는 용어로 쓴 짧은 문장 (예: "육아휴직 종료 후 같은 업무 또는 같은 수준의 임금을 지급하는 직무 복귀")
+- 질문에 쟁점이 여러 개면 쟁점마다 하나씩
+- 법령명이나 조문 번호를 추측해 쓰지 않는다
+JSON으로만 답: {"queries": ["...", "..."]}"""
+REWRITE_N = 30  # dense candidates per query before RRF
+RERANK_MODEL = "BAAI/bge-reranker-v2-m3"
+RERANK_N = 30  # dense candidates re-scored by the cross-encoder
+RERANK_MAX_TOKENS = 1024
+DIRECT_PRECEDENTS = 2  # --precedent-search: cases found by cosine over all precedents, on top of linked ones
 
 
 @dataclass
@@ -84,10 +122,18 @@ class Options:
     precedents: bool = True  # add linked Supreme Court precedents; switches the prompt to gen-v3-precedent
     fewshot_dev: bool = False  # OVERFITTING DEMO ONLY (app/fewshot.py): never enable in production
     hybrid: bool = False  # dense + character-bigram BM25 fused by RRF (app/hybrid.py)
+    # Generalization A/B (docs/plans/2026-10-03-generalization-ab-plan.md), all off by default
+    checklist: bool = False  # 1: legal-answer checklist in the prompt
+    pending_detail: bool = False  # 2: show the changed 호 of pending amendments, not just the paragraph lead
+    verify: bool = False  # 3: second call that checks the draft against the context and rewrites it
+    self_consistency: int = 0  # 4: n drafts (different seeds, temperature 0.7) merged by one more call
+    query_rewrite: bool = False  # 5: LLM rewrites the question into legal-term queries, fused with RRF
+    rerank: bool = False  # 6: cross-encoder re-scores the top RERANK_N dense hits
+    precedent_search: bool = False  # 7: precedents found directly over all 400 cases, besides linked ones
 
     def __post_init__(self):
         if self.precedents:
-            self.prompt = PROMPT_VERSION_PRECEDENT
+            self.prompt = PROMPT_VERSION_CHECKLIST if self.checklist else PROMPT_VERSION_PRECEDENT
         if self.fewshot_dev and not self.prompt.endswith(FEWSHOT_SUFFIX):
             self.prompt += FEWSHOT_SUFFIX
 
@@ -156,8 +202,10 @@ def _status(article_ids: list[str], as_of: str) -> dict:
     return {"status": min((s["status"] for s in sts), key=order.index), "notes": [n for s in sts for n in s["notes"]]}
 
 
-def _render(b: Block, as_of: str, inject: bool) -> str:
+def _render(b: Block, as_of: str, inject: bool, pending_detail: bool = False) -> str:
     if b.via == "precedent":
+        if not b.referenced:  # --precedent-search hit, not linked to a retrieved article
+            return f"[{b.source}] (질문과 유사한 대법원 판례)\n{b.text}"
         return f"[{b.source}] (검색된 조문 {'·'.join(_title(a) for a in b.referenced)}에 연결된 대법원 판례)\n{b.text}"
     if b.referenced:
         note = f" ({'·'.join(_label(a) for a in b.referenced)}의 예외·준용을 정한 조문)"
@@ -171,16 +219,71 @@ def _render(b: Block, as_of: str, inject: bool) -> str:
         for aid in b.article_ids:
             for p in graph().get(aid, {}).get("pending", []):
                 if p["effective"] > as_of and p["changed_paragraphs"]:
-                    lines.append(f"[{p['effective']} 시행 예정 개정 내용] " + " / ".join(p["changed_paragraphs"]))
+                    if pending_detail and p.get("changed_detail"):
+                        lines.append(f"[{p['effective']} 시행 예정 개정 내용 (공포 {p['promulgated']}, 바뀌는 항과 신설·개정되는 호)]\n"
+                                     + "\n".join(p["changed_detail"]))
+                    else:
+                        lines.append(f"[{p['effective']} 시행 예정 개정 내용] " + " / ".join(p["changed_paragraphs"]))
     lines.append(b.text)
     return "\n".join(lines)
 
 
-def build_blocks(question: str, opt: Options, as_of: str) -> list[Block]:
+@lru_cache(maxsize=1)
+def reranker():
+    from sentence_transformers import CrossEncoder
+    return CrossEncoder(RERANK_MODEL, max_length=RERANK_MAX_TOKENS)
+
+
+def rewrite_queries(question: str, llm: LLM) -> list[str]:
+    try:
+        text, _ = llm.chat([{"role": "system", "content": REWRITE_SYSTEM}, {"role": "user", "content": question}],
+                           max_tokens=300, json_mode=True)
+        qs = json.loads(text).get("queries", [])
+        return [q for q in qs if isinstance(q, str) and q.strip()][:3]
+    except (json.JSONDecodeError, AttributeError):
+        return []
+
+
+def _search(question: str, opt: Options, llm: LLM | None) -> tuple[list[dict], dict]:
+    """Search hits (score = cosine to the original question, for the τ gate) and extra meta."""
+    r = retriever(opt.strategy)
     if opt.hybrid:
-        hits = hybrid.search(retriever(opt.strategy), question, opt.top_k)
+        return hybrid.search(r, question, opt.top_k), {}
+    if not (opt.query_rewrite or opt.rerank):
+        return r.search(question, opt.top_k), {}
+    base = r.search(question, max(REWRITE_N, RERANK_N))
+    cos = {h["chunk_id"]: h["score"] for h in base}
+    meta: dict = {}
+    if opt.query_rewrite:
+        queries = rewrite_queries(question, llm or LLM())
+        meta["rewritten_queries"] = queries
+        rankings = [[h["chunk_id"] for h in base[:REWRITE_N]]] + [[h["chunk_id"] for h in r.search(q, REWRITE_N)] for q in queries]
+        by_id = {c["chunk_id"]: c for c in r.chunks}
+        fused = hybrid.rrf(rankings, [1.0] * len(rankings), hybrid.RRF_K)
+        cand = [by_id[cid] for cid, _ in fused]
     else:
-        hits = retriever(opt.strategy).search(question, opt.top_k)
+        cand = base
+    if opt.rerank:
+        cand = cand[:RERANK_N]
+        with ENCODE_LOCK:
+            rs = reranker().predict([(question, c["text"]) for c in cand], batch_size=8)
+        cand = [c for _, c in sorted(zip(rs, cand), key=lambda x: -float(x[0]))]
+        meta["rerank_scores"] = sorted((round(float(x), 4) for x in rs), reverse=True)[:opt.top_k]
+    out = []
+    for c in cand[:opt.top_k]:
+        s = cos.get(c["chunk_id"])
+        if s is None:  # outside the original-question candidates: cosine from the stored vector
+            with ENCODE_LOCK:
+                q = r.model.encode([r.query_prefix + question], normalize_embeddings=True, convert_to_numpy=True)[0]
+            s = float(r.index.reconstruct(r.chunks.index(c)) @ q)
+        out.append({**c, "score": s})
+    return out, meta
+
+
+def build_blocks(question: str, opt: Options, as_of: str, llm: LLM | None = None, meta: dict | None = None) -> list[Block]:
+    hits, extra = _search(question, opt, llm)
+    if meta is not None:
+        meta.update(extra)
     blocks = [Block(f"S{i + 1}", h["chunk_id"], h["article_ids"], h["text"], h["score"]) for i, h in enumerate(hits)]
     n_sib = 0
     if opt.include_siblings:
@@ -207,7 +310,7 @@ def build_blocks(question: str, opt: Options, as_of: str) -> list[Block]:
     for b in blocks:
         b.status = _status(b.article_ids, as_of)
     if opt.precedents:
-        blocks += _precedent_blocks(question, blocks, len(blocks))
+        blocks += _precedent_blocks(question, blocks, len(blocks), opt.precedent_search)
     return blocks
 
 
@@ -232,8 +335,13 @@ def _truncate_holding(holding: str) -> str:
     return (cut[:end + 2] if end > 0 else cut) + " …(이하 생략)"
 
 
-def _precedent_blocks(question: str, blocks: list[Block], start: int) -> list[Block]:
+def _precedent_blocks(question: str, blocks: list[Block], start: int, direct: bool = False) -> list[Block]:
     kept = [c for c in precedent_candidates(question, blocks) if c[1] >= PREC_TAU][:MAX_PRECEDENTS]
+    if direct:  # A/B #7: also the closest cases over the whole set, linked or not
+        have = {c[0] for c in kept}
+        scores = precedent_scorer().scores(question, list(precedents()))
+        best = sorted((pid for pid in scores if pid not in have and scores[pid] >= PREC_TAU), key=lambda p: (-scores[p], p))
+        kept += [(pid, scores[pid], []) for pid in best[:DIRECT_PRECEDENTS]]
     out = []
     for i, (pid, score, via) in enumerate(kept):
         p = precedents()[pid]
@@ -262,8 +370,8 @@ def _reverse_ref_blocks(blocks: list[Block], start: int) -> list[Block]:
 
 
 def messages(question: str, blocks: list[Block], as_of: str, inject: bool,
-             prompt: str = PROMPT_VERSION) -> list[dict]:
-    context = "\n\n".join(_render(b, as_of, inject) for b in blocks)
+             prompt: str = PROMPT_VERSION, pending_detail: bool = False) -> list[dict]:
+    context = "\n\n".join(_render(b, as_of, inject, pending_detail) for b in blocks)
     system = SYSTEMS[prompt.removesuffix(FEWSHOT_SUFFIX)].format(as_of=as_of)
     if prompt.endswith(FEWSHOT_SUFFIX):
         from app import fewshot  # imported only when the leakage demo is on
@@ -334,31 +442,54 @@ def finalize(answer: str, blocks: list[Block]) -> tuple[str, list[dict], str | N
     return "answered", citations, None
 
 
+def _followup(system: str, msgs: list[dict], question: str, drafts: str) -> list[dict]:
+    """A second-pass request over the same context: msgs[1] holds "[근거]…[질문]…"."""
+    return [{"role": "system", "content": system},
+            {"role": "user", "content": f"{msgs[1]['content']}\n\n{drafts}"}]
+
+
 def answer(question: str, opt: Options | None = None, as_of: date | None = None, llm: LLM | None = None,
            include_context: bool = False) -> dict:
     """include_context adds meta["context"] (the rendered blocks the model saw) for grounding checks."""
     opt, t0 = opt or Options(), time.time()
     as_of_s = (as_of or date.today()).isoformat()
     llm = llm or LLM()
-    blocks = build_blocks(question, opt, as_of_s)
+    extra: dict = {}
+    blocks = build_blocks(question, opt, as_of_s, llm, extra)
     retrieval = [{"rank": i + 1, "chunk_id": b.chunk_id, "article_ids": b.article_ids, "score": round(b.score, 4),
                   "linked": b.linked, "via": b.via} for i, b in enumerate(blocks)]
-    base_meta = {"prompt_version": opt.prompt, "strategy": opt.strategy, "as_of": as_of_s}
+    base_meta = {"prompt_version": opt.prompt, "strategy": opt.strategy, "as_of": as_of_s, **extra}
 
     if not blocks or blocks[0].score < opt.tau:
         return {"status": "insufficient_context", "answer": None, "citations": [], "retrieval": retrieval,
                 "meta": {**base_meta, "model": None, "latency_ms": int((time.time() - t0) * 1000),
                          "usage": None, "cost_krw": 0.0, "refusal_reason": "retrieval_below_tau"}}
 
-    text, usage = llm.chat(messages(question, blocks, as_of_s, opt.inject_status, opt.prompt), max_tokens=800)
+    msgs = messages(question, blocks, as_of_s, opt.inject_status, opt.prompt, opt.pending_detail)
+    costs = []  # every generation call of this item (self-consistency / verify make several)
+
+    def call(m, **kw):
+        t, u = llm.chat(m, **kw)
+        costs.append(0.0 if u.get("cached") else cost_of(llm.model, u))
+        return t, u
+    if opt.self_consistency:
+        drafts = [call(msgs, max_tokens=800, seed=SEED + i, temperature=0.7)[0] for i in range(opt.self_consistency)]
+        text, usage = call(_followup(MERGE_SYSTEM, msgs, question,
+                                     "\n\n".join(f"[초안 {i + 1}]\n{d}" for i, d in enumerate(drafts))), max_tokens=900)
+        extra["drafts"] = drafts
+    else:
+        text, usage = call(msgs, max_tokens=800)
+    if opt.verify and not text.strip().startswith(REFUSAL):
+        extra["draft"] = text
+        text, usage = call(_followup(VERIFY_SYSTEM, msgs, question, f"[초안 답변]\n{text}"), max_tokens=900)
     status, citations, reason = finalize(text, blocks)
     context = [{"source": b.source, "chunk_id": b.chunk_id, "article_ids": b.article_ids,
-                "text": _render(b, as_of_s, opt.inject_status)} for b in blocks] if include_context else None
+                "text": _render(b, as_of_s, opt.inject_status, opt.pending_detail)} for b in blocks] if include_context else None
     return {"status": status, "answer": text if status == "answered" else None, "citations": citations,
             "retrieval": retrieval,
             "meta": {**base_meta, "model": usage["model"], "latency_ms": int((time.time() - t0) * 1000),
                      "usage": {"input": usage["prompt_tokens"], "output": usage["completion_tokens"],
                                "cached_input": (usage.get("prompt_tokens_details") or {}).get("cached_tokens") or 0},
-                     "cost_krw": 0.0 if usage.get("cached") else round(cost_of(llm.model, usage), 4),
-                     "refusal_reason": reason, "raw_answer": text,
+                     "cost_krw": round(sum(costs), 4),
+                     "refusal_reason": reason, "raw_answer": text, **extra,
                      "cached": bool(usage.get("cached")), "context": context}}

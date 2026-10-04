@@ -108,6 +108,14 @@ def main() -> None:
     ap.add_argument("--hybrid", action="store_true", help="dense + character-bigram BM25 fused by RRF (app/hybrid.py)")
     ap.add_argument("--fewshot-dev", action="store_true",
                     help="OVERFITTING DEMO: add the 3 nearest dev items' Q+reference answer to the prompt (app/fewshot.py)")
+    # Generalization A/B (docs/plans/2026-10-03-generalization-ab-plan.md)
+    ap.add_argument("--checklist", action="store_true", help="#1 legal-answer checklist prompt (gen-v4-checklist)")
+    ap.add_argument("--pending-detail", action="store_true", help="#2 show changed 호 of pending amendments")
+    ap.add_argument("--verify", action="store_true", help="#3 second pass that checks and rewrites the draft")
+    ap.add_argument("--self-consistency", type=int, default=0, help="#4 n drafts merged by one more call")
+    ap.add_argument("--query-rewrite", action="store_true", help="#5 legal-term query rewrites fused by RRF")
+    ap.add_argument("--rerank", action="store_true", help="#6 cross-encoder rerank of the top dense hits")
+    ap.add_argument("--precedent-search", action="store_true", help="#7 direct precedent search besides linked cases")
     ap.add_argument("--split", default="all", choices=["all", "dev", "test"])
     ap.add_argument("--ids", default="")
     ap.add_argument("--no-judge", action="store_true")
@@ -130,7 +138,10 @@ def main() -> None:
     opt = Options(strategy=args.strategy, top_k=args.k, inject_status=not args.no_inject,
                   expand_links=not args.no_links, tau=args.tau,
                   include_siblings=args.siblings, expand_reverse_refs=args.reverse_refs, prompt=args.prompt,
-                  precedents=args.precedents, fewshot_dev=args.fewshot_dev, hybrid=args.hybrid)
+                  precedents=args.precedents, fewshot_dev=args.fewshot_dev, hybrid=args.hybrid,
+                  checklist=args.checklist, pending_detail=args.pending_detail, verify=args.verify,
+                  self_consistency=args.self_consistency, query_rewrite=args.query_rewrite, rerank=args.rerank,
+                  precedent_search=args.precedent_search)
     args.prompt = opt.prompt  # record the prompt actually used (--precedents / --fewshot-dev switch it)
     cache = None if args.no_cache else CACHE
     gen = LLM(budget_krw=args.budget, cache_dir=cache)
@@ -144,6 +155,9 @@ def main() -> None:
     retriever(opt.strategy).search("워밍업", 1)  # load the embedder once, before worker threads
     if opt.hybrid:
         hybrid.bm25(retriever(opt.strategy))  # build the BM25 index once, too
+    if opt.rerank:
+        from app.rag import reranker
+        reranker()  # load the cross-encoder once, too
     if opt.fewshot_dev:
         from app import fewshot
         fewshot.dev_vectors()
