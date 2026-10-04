@@ -184,19 +184,24 @@ make calibrate                                                # Judge vs 사람 
 - 노이즈 폭: 같은 설정 3회(캐시 없이 2회 재실행)의 max−min (`eval/results/noise_floor.json`, 최종 구성은 `noise_floor_final.json`)
 - 기준선 거절 판단 4칸(1차 61문항): 범위 밖 거절 TP 8 · 환각 FN 0 · 과잉 거절 FP 2 · 정상 답변 TN 49 — 답변한 49건 중 11건은 정답 포인트 일부 누락이라 4칸만으로는 품질을 볼 수 없음 → 완전 정답 지표 도입 근거
 
-## CI 연동 설계 (Regression 방지)
+## CI 연동 설계 (Regression 방지): PR마다 0원 검사, 품질 평가는 시크릿 주입 API로 야간·라벨 실행
 
-| 단계 | 트리거 | 내용 | LLM 비용 |
+| 단계 | 트리거 | 내용 | 비용 |
 |---|---|---|---|
 | 빠른 검사 | 모든 PR | `pytest`, `verify_gold`, 검색 지표(`make retrieval`) — 기준선 대비 하락 시 실패 | 0원 |
-| 전체 평가 | `eval` 라벨 PR · 야간 | `make eval` 100문항, LLM 응답 캐시로 변경분만 호출, 예산 상한 | 수십~400원 |
-| 퇴행 판정 | 전체 평가 후 | `make compare diff 기준선 PR실행` — 전체·유형별 부분집합에서 노이즈 폭과 95% CI를 모두 넘는 하락만 실패 | 0원 |
+| 답변 생성 | `eval` 라벨 PR · 야간 | `make eval` 100문항 × 3회(`--no-judge`), LLM 응답 캐시로 변경분만 호출, 예산 상한 | Luna 회당 약 500~700원 |
+| 공식 채점 | 답변 생성 후 | `eval.rejudge --all` — Opus·Codex 둘 다 정답일 때만 정답, **API 키를 CI 시크릿으로 주입** | 채점 API 비용(답변 약 280건 × 채점자 2) |
+| 퇴행 판정 | 공식 채점 후 | `eval.multirun 기준선 PR` — 전체·유형별 부분집합에서 노이즈 폭과 95% CI를 모두 넘는 하락만 실패 | 0원 |
+| 채점자 회귀 검사 | 채점 프롬프트·채점 모델·모델 버전 변경 시 | 사람 판정 정답 포인트 231개(`eval/gold/human_kp_review_*.jsonl`)를 새 채점자로 재채점 → 일치율이 기존(Codex 231/231 · 공식 기준)보다 떨어지면 실패 | 채점 API 비용 |
 | 결과 공유 | PR 코멘트 | 지표 표와 악화 문항 목록, `report.md`를 아티팩트로 첨부 | — |
 
-- 비밀값(`ELICE_API_KEY`)은 CI secret, 임베딩 모델은 revision 고정으로 캐시
+- 시크릿: `ELICE_API_KEY`(생성), `ANTHROPIC_API_KEY`(Opus 채점), `OPENAI_API_KEY`(Codex 계열 채점) — 저장소·로그에 값 미노출, 포크 PR에는 시크릿 미제공(빠른 검사만 실행)
+- 채점 백엔드: 로컬 평가는 `claude -p`·`codex exec` CLI(구독), CI는 같은 채점 프롬프트를 API로 호출 — 백엔드 전환 시 채점자 회귀 검사를 먼저 통과해야 공식 점수로 인정(현재 `eval/rejudge.py`는 CLI만 구현, API 백엔드는 미구현)
+- 채점 캐시: (실행, 문항, 채점자, 프롬프트 해시) 단위 저장 → 같은 답변 재채점 0원, 구독·API 한도로 중단돼도 이어서 실행
+- 임베딩 모델(Qwen3-Embedding-4B 약 8GB)·색인은 revision 고정 후 CI 캐시, 캐시 미적중 시 빠른 검사의 검색 단계만 건너뜀
 - Gold Set이 바뀌면(`gold_sha256` 변경) 기준선과 노이즈 폭을 새로 측정하고 이전 기준선과 직접 비교하지 않음
-- Judge 프롬프트 변경도 기준선 재고정 사유(`judge_version`)
-- 노이즈가 큰 문항(동일 설정 반복에서 결과가 바뀌는 21문항, `noise_floor.json`의 `unstable_items`)은 문항 단위 회귀 알림에서 제외
+- 채점 프롬프트·채점자 변경도 기준선 재고정 사유
+- 노이즈가 큰 문항(동일 설정 반복에서 결과가 바뀌는 문항, `noise_floor.json`의 `unstable_items`)은 문항 단위 회귀 알림에서 제외
 
 ## Judge 신뢰성
 
