@@ -1,0 +1,3 @@
+official M0 (Opus ∧ Codex): {'baseline-v2': 0.49, 'noise-v2-2': 0.47, 'noise-v2-3': 0.45}
+/Users/owen/projects/elice-rag-eval/eval/results/rejudge_baseline-v2-official.json 247 answers · luna=opus 203 · luna=codex 163 · opus=codex 205 · errors 0
+EXIT 0
