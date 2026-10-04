@@ -1,0 +1,13 @@
+=== checklist 11:36:43
+official M0 (Opus ∧ Codex): {'ab-checklist-r1': 0.63, 'ab-checklist-r2': 0.62, 'ab-checklist-r3': 0.64}
+/Users/owen/projects/elice-rag-eval/eval/results/rejudge_ab-checklist-official.json 281 answers · luna=opus 236 · luna=codex 196 · opus=codex 235 · errors 0
+EXIT_checklist 0
+=== verify 11:58:16
+official M0 (Opus ∧ Codex): {'ab-verify-r1': 0.63, 'ab-verify-r2': 0.69, 'ab-verify-r3': 0.65}
+/Users/owen/projects/elice-rag-eval/eval/results/rejudge_ab-verify-official.json 279 answers · luna=opus 229 · luna=codex 197 · opus=codex 245 · errors 0
+EXIT_verify 0
+=== sc3 12:19:23
+official M0 (Opus ∧ Codex): {'ab-sc3-r1': 0.62, 'ab-sc3-r2': 0.65, 'ab-sc3-r3': 0.65}
+/Users/owen/projects/elice-rag-eval/eval/results/rejudge_ab-sc3-official.json 278 answers · luna=opus 226 · luna=codex 185 · opus=codex 237 · errors 0
+EXIT_sc3 0
+ALLDONE
