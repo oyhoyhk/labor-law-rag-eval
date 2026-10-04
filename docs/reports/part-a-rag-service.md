@@ -1,5 +1,6 @@
 # Part A 리포트: 조 전체 색인 + 조문·판례 그래프 확장 RAG, 전체 정답률 0.717 → 0.777
 
+> **2026-10-04 갱신**: 기본 임베딩 KURE-v1 → Qwen3-Embedding-4B(색인 `whole@Qwen3-Embedding-4B`, `make ingest`의 `--preset qwen3-4b`), 검색 top-5 → top-10. 근거 `docs/findings/2026-10-03-embedding-finetune.md`. 아래 본문의 KURE·top-5 수치는 2026-10-03 기준
 > 대상: 현재 기본 구성(2026-10-03, git `a6efc0b` 이후) · 근거 수치는 모두 저장소 파일에서 인용, 표마다 출처 경로 표기
 > 관련: 평가 체계 [part-b-eval-harness.md](part-b-eval-harness.md) · 개선 실험 [part-c-experiments.md](part-c-experiments.md) · 초기 설계 [../design.md](../design.md)
 
@@ -180,7 +181,7 @@
 | 요청 필드 | 타입 | 기본값 | 설명 |
 |---|---|---|---|
 | `question` | str, 1~500자 | — | 질문 |
-| `top_k` | int, 1~20 | 5 | 조문 검색 개수 |
+| `top_k` | int, 1~20 | 10 | 조문 검색 개수 (2026-10-04 이전 5) |
 | `as_of` | date | 요청일 | 시행 상태 판단 기준일 |
 | `stream` | bool | false | SSE 스트리밍 |
 | `precedents` | bool | true | 연결 판례 사용 |

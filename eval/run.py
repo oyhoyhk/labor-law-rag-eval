@@ -94,7 +94,7 @@ def main() -> None:
     ap = argparse.ArgumentParser()
     ap.add_argument("--name", required=True)
     ap.add_argument("--strategy", default=Options.strategy, help="index directory under data/index: article | whole | fixed | whole@<fine-tuned model>")
-    ap.add_argument("--k", type=int, default=5)
+    ap.add_argument("--k", type=int, default=Options.top_k)
     ap.add_argument("--tau", type=float, default=Options.tau)
     ap.add_argument("--no-inject", action="store_true", help="H4 ablation: no effectivity headers")
     ap.add_argument("--no-links", action="store_true", help="disable delegation-link expansion")

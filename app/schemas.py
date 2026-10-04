@@ -8,7 +8,7 @@ from pydantic import BaseModel, Field
 
 class QueryRequest(BaseModel):
     question: str = Field(min_length=1, max_length=500)
-    top_k: int = Field(default=5, ge=1, le=20)
+    top_k: int = Field(default=10, ge=1, le=20)
     as_of: date | None = Field(default=None, description="기준일. 생략 시 요청일")
     stream: bool = False
     precedents: bool = Field(default=True, description="검색된 조문에 연결된 대법원 판례를 근거로 함께 사용")

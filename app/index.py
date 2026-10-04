@@ -150,6 +150,12 @@ class Retriever:
         return [{**self.chunks[i], "score": float(s)} for s, i in zip(scores[0], idx[0]) if i >= 0]
 
 
+# Adopted retrieval embedder (2026-10-04, docs/findings/2026-10-03-embedding-finetune.md): Qwen3-Embedding-4B with the
+# instruction its model card recommends for queries; documents are embedded as-is. Index dir: whole@Qwen3-Embedding-4B.
+PRESETS = {"qwen3-4b": {"model": "Qwen/Qwen3-Embedding-4B", "bf16": True,
+                        "query_prefix": "Instruct: Given a question about Korean labor law, retrieve the statute article "
+                                        "that answers it\nQuery: "}}
+
 if __name__ == "__main__":
     ap = argparse.ArgumentParser()
     sub = ap.add_subparsers(dest="cmd", required=True)
@@ -160,7 +166,11 @@ if __name__ == "__main__":
     b.add_argument("--doc-prefix", default="")
     b.add_argument("--bf16", action="store_true")
     b.add_argument("--trust-remote-code", action="store_true")
+    b.add_argument("--preset", choices=list(PRESETS), help="named model settings; overrides --model/--query-prefix/--bf16")
     args = ap.parse_args()
+    if args.preset:
+        p = PRESETS[args.preset]
+        args.model, args.query_prefix, args.bf16 = p["model"], p["query_prefix"], p["bf16"]
     if args.strategy == "precedent":
         build_precedents()
     else:

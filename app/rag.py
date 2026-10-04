@@ -111,8 +111,10 @@ DIRECT_PRECEDENTS = 2  # --precedent-search: cases found by cosine over all prec
 
 @dataclass
 class Options:
-    strategy: str = "whole"  # one chunk per 조 (adopted 2026-10-03; "article" splits long 조 at 항·호)
-    top_k: int = 5
+    # one chunk per 조, embedded with Qwen3-Embedding-4B (adopted 2026-10-04; "whole" = same chunks with KURE-v1,
+    # "article" splits long 조 at 항·호); top 10 (adopted 2026-10-04, docs/findings/2026-10-03-embedding-finetune.md §7)
+    strategy: str = "whole@Qwen3-Embedding-4B"
+    top_k: int = 10
     inject_status: bool = True  # H4 switch
     expand_links: bool = True
     tau: float = TAU
