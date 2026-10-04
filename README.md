@@ -564,6 +564,25 @@ make calibrate                                                # Judge vs 사람 
 5. v2.2: 실행 결과 분석으로 질문 범위를 넘는 정답 포인트 3건 발견 → 삭제(사람 결정), 저장된 판정으로 0원 재채점 (아래 "GT 품질 검증")
 - 이력: `eval/gold/CHANGELOG.md`, 사람 확인 기록: `eval/gold/human_review_*.jsonl`
 
+### GT 구축 도구와 절차: 생성은 AI·스크립트, 판정은 사람, 모든 판정은 파일로 기록
+
+| 단계 | 도구 (실행) | 입력 → 산출물 | 사람의 역할 | 기록 |
+|---|---|---|---|---|
+| 0. 측정력 확인 | `scripts/closed_book_check.py` | 문항 초안 → 문맥 없이 LLM 정답률(최근 개정 40%) | 최근 개정·시행령 문항 비중 50% 이상으로 설계 결정 | `docs/findings/2026-10-01-closed-book.md` |
+| 1. 판례 사례 수집 | `scripts/fetch_precedents.py search·fetch·bulk` | 법제처 판례 API → 판례 XML 400건 | 판례형 문항 소재 판례 선정 | `data/raw/precedents/`, `eval/gold/cases/l5_candidates.jsonl` |
+| 2. 블라인드 후보 추출 | `scripts/mine_gold_candidates.py` | 조문 그래프(예외 참조·분할 조·시행 상태·위임) → 유형별 후보, 시스템 답변·기존 GT 근거 미사용 | 후보에서 실험 대상 유형 배분 결정 | `eval/gold/candidates_v2.json` |
+| 3. 초안 작성 | Claude Opus(병렬 3개) | 후보 + 조문 원문 → 질문·정답 근거·정답 포인트·원문 문구·참고 답안 | — | `eval/gold/drafts_v2/` |
+| 4. 기계 검증 | `scripts/verify_gold.py [파일]` (LLM 없음) | 초안 → PASS/FAIL: 필수 필드, 근거 ID 존재, 정답 포인트 원문 문구가 근거 조문·판례에 실제로 있는지, 유형 규칙(L3 근거 2개 이상, L4 시행 상태 변화 근거, 범위 밖 근거 없음, L5b 판례 근거) | FAIL 문항 수정 지시 | 실행 출력, CI 빠른 검사 단계 |
+| 5. 독립 재검토 | 별도 컨텍스트 모델(v1 Fable, v2 Opus) | 초안 → 중대·경미 지적, 수정안 | 지적 수용 여부 결정 | `eval/gold/review_v1_independent.md`, `review_v2_independent.md` |
+| 6. 사람 확인 | `tools/build_gt_review_v2_page.py` → `gt_review_v2_page.html`, `gt_review_l5b_page.html` | 문항 + 근거 원문(정답 문구 강조) + 시행 상태 + 판례 판시사항 + 재검토 의견 → 문항별 동의·수정 | **문항마다 원문과 대조해 확정** | `eval/gold/human_review_v1.jsonl`, `human_review_confirm_v2*.jsonl` |
+| 7. 결과 기반 역점검 | 실행 결과 집계(항상 실패·항상 정답 문항) | 여러 구성의 문항별 결과 → GT 결함 후보(질문 범위를 넘는 정답 포인트) | **삭제·유지 결정** (v2.2: 3건 삭제) | `eval/gold/CHANGELOG.md`, `human_review_confirm_v2_2.jsonl` |
+| 8. 채점자 보정 (v1) | `tools/build_judge_label_page.py`, `build_claude_review_page.py` → `eval.calibrate` · `eval.cross_judge` | 고정 표본 답변 + Claude 채점 근거 → 동의·이의, κ 계산 | 표본 46건 판정 | `eval/gold/human_confirmed_labels_v1.jsonl`, `eval/results/judge_calibration.json` |
+| 9. 채점자 검증 (v2.2) | `eval.rejudge --all` → `tools/build_kp_review_page.py`, `build_kp_blind_page.py` | 최종 구성 답변의 정답 포인트 판정(Luna·Opus·Codex) → 사람 판정 | **정답 포인트 231개 전부 판정** (갈린 55 + 일치 176) | `eval/gold/human_kp_review_v1.jsonl`, `human_kp_review_agreed_v1.jsonl` |
+
+- 원칙: AI·스크립트는 후보·초안·검증 결과를 만들고, 채택·수정·삭제는 사람이 결정, 결정마다 파일로 남겨 재현 가능
+- 검토 페이지: 저장소의 `tools/*_page.html`(검토 당시 판단은 각 기록 파일에 저장, 페이지 자체는 다시 만들 수 있게 `tools/build_*` 스크립트 보관)
+- 한계: 사람 확인은 1명·비블라인드(AI 작성·재검토 결과와 채점자 판정을 보며 판정) → 동조 편향 가능
+
 편향·한계
 - 단일 작성 계열(AI)·단일 검토자, 사람 확인이 블라인드가 아니라 작성·재검토 결과를 본 뒤 동의/이의
 - 쟁점이 명확한 판례 위주 선정, 법률 문어체 질의 비중이 높음
