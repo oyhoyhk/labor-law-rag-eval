@@ -1,0 +1,706 @@
+{
+ "g001-kp1": {
+  "run": "20261003-210437_v2-qwen3-4B-k10",
+  "judges_agree": true
+ },
+ "g002-kp1": {
+  "run": "20261003-210437_v2-qwen3-4B-k10",
+  "judges_agree": true
+ },
+ "g002-kp2": {
+  "run": "20261003-210933_v2-qwen3-4B-k10-r2",
+  "judges_agree": true
+ },
+ "g003-kp1": {
+  "run": "20261003-210437_v2-qwen3-4B-k10",
+  "judges_agree": true
+ },
+ "g004-kp1": {
+  "run": "20261003-211429_v2-qwen3-4B-k10-r3",
+  "judges_agree": true
+ },
+ "g005-kp1": {
+  "run": "20261003-210437_v2-qwen3-4B-k10",
+  "judges_agree": true
+ },
+ "g007-kp1": {
+  "run": "20261003-210437_v2-qwen3-4B-k10",
+  "judges_agree": true
+ },
+ "g008-kp1": {
+  "run": "20261003-210437_v2-qwen3-4B-k10",
+  "judges_agree": true
+ },
+ "g008-kp2": {
+  "run": "20261003-210437_v2-qwen3-4B-k10",
+  "judges_agree": true
+ },
+ "g009-kp1": {
+  "run": "20261003-210437_v2-qwen3-4B-k10",
+  "judges_agree": true
+ },
+ "g009-kp2": {
+  "run": "20261003-211429_v2-qwen3-4B-k10-r3",
+  "judges_agree": true
+ },
+ "g010-kp1": {
+  "run": "20261003-210933_v2-qwen3-4B-k10-r2",
+  "judges_agree": true
+ },
+ "g011-kp1": {
+  "run": "20261003-211429_v2-qwen3-4B-k10-r3",
+  "judges_agree": true
+ },
+ "g012-kp1": {
+  "run": "20261003-210933_v2-qwen3-4B-k10-r2",
+  "judges_agree": true
+ },
+ "g012-kp2": {
+  "run": "20261003-210437_v2-qwen3-4B-k10",
+  "judges_agree": true
+ },
+ "g013-kp1": {
+  "run": "20261003-210933_v2-qwen3-4B-k10-r2",
+  "judges_agree": true
+ },
+ "g014-kp1": {
+  "run": "20261003-210933_v2-qwen3-4B-k10-r2",
+  "judges_agree": true
+ },
+ "g015-kp1": {
+  "run": "20261003-211429_v2-qwen3-4B-k10-r3",
+  "judges_agree": true
+ },
+ "g015-kp2": {
+  "run": "20261003-210437_v2-qwen3-4B-k10",
+  "judges_agree": true
+ },
+ "g016-kp1": {
+  "run": "20261003-211429_v2-qwen3-4B-k10-r3",
+  "judges_agree": true
+ },
+ "g016-kp2": {
+  "run": "20261003-211429_v2-qwen3-4B-k10-r3",
+  "judges_agree": true
+ },
+ "g017-kp1": {
+  "run": "20261003-211429_v2-qwen3-4B-k10-r3",
+  "judges_agree": true
+ },
+ "g017-kp2": {
+  "run": "20261003-210933_v2-qwen3-4B-k10-r2",
+  "judges_agree": true
+ },
+ "g018-kp1": {
+  "run": "20261003-210437_v2-qwen3-4B-k10",
+  "judges_agree": true
+ },
+ "g018-kp2": {
+  "run": "20261003-210933_v2-qwen3-4B-k10-r2",
+  "judges_agree": true
+ },
+ "g018-kp3": {
+  "run": "20261003-211429_v2-qwen3-4B-k10-r3",
+  "judges_agree": true
+ },
+ "g019-kp1": {
+  "run": "20261003-210933_v2-qwen3-4B-k10-r2",
+  "judges_agree": true
+ },
+ "g019-kp2": {
+  "run": "20261003-211429_v2-qwen3-4B-k10-r3",
+  "judges_agree": true
+ },
+ "g020-kp2": {
+  "run": "20261003-210437_v2-qwen3-4B-k10",
+  "judges_agree": true
+ },
+ "g020-kp3": {
+  "run": "20261003-210437_v2-qwen3-4B-k10",
+  "judges_agree": true
+ },
+ "g021-kp2": {
+  "run": "20261003-211429_v2-qwen3-4B-k10-r3",
+  "judges_agree": true
+ },
+ "g021-kp3": {
+  "run": "20261003-210933_v2-qwen3-4B-k10-r2",
+  "judges_agree": true
+ },
+ "g022-kp2": {
+  "run": "20261003-210437_v2-qwen3-4B-k10",
+  "judges_agree": true
+ },
+ "g023-kp1": {
+  "run": "20261003-210437_v2-qwen3-4B-k10",
+  "judges_agree": true
+ },
+ "g023-kp2": {
+  "run": "20261003-210437_v2-qwen3-4B-k10",
+  "judges_agree": true
+ },
+ "g024-kp2": {
+  "run": "20261003-211429_v2-qwen3-4B-k10-r3",
+  "judges_agree": true
+ },
+ "g024-kp3": {
+  "run": "20261003-211429_v2-qwen3-4B-k10-r3",
+  "judges_agree": true
+ },
+ "g025-kp1": {
+  "run": "20261003-210933_v2-qwen3-4B-k10-r2",
+  "judges_agree": true
+ },
+ "g025-kp2": {
+  "run": "20261003-211429_v2-qwen3-4B-k10-r3",
+  "judges_agree": true
+ },
+ "g026-kp1": {
+  "run": "20261003-210437_v2-qwen3-4B-k10",
+  "judges_agree": true
+ },
+ "g026-kp2": {
+  "run": "20261003-210437_v2-qwen3-4B-k10",
+  "judges_agree": true
+ },
+ "g026-kp3": {
+  "run": "20261003-211429_v2-qwen3-4B-k10-r3",
+  "judges_agree": true
+ },
+ "g027-kp1": {
+  "run": "20261003-210437_v2-qwen3-4B-k10",
+  "judges_agree": true
+ },
+ "g027-kp3": {
+  "run": "20261003-210933_v2-qwen3-4B-k10-r2",
+  "judges_agree": true
+ },
+ "g028-kp2": {
+  "run": "20261003-211429_v2-qwen3-4B-k10-r3",
+  "judges_agree": true
+ },
+ "g028-kp3": {
+  "run": "20261003-210933_v2-qwen3-4B-k10-r2",
+  "judges_agree": true
+ },
+ "g029-kp2": {
+  "run": "20261003-210933_v2-qwen3-4B-k10-r2",
+  "judges_agree": true
+ },
+ "g030-kp1": {
+  "run": "20261003-211429_v2-qwen3-4B-k10-r3",
+  "judges_agree": true
+ },
+ "g030-kp2": {
+  "run": "20261003-210437_v2-qwen3-4B-k10",
+  "judges_agree": true
+ },
+ "g032-kp1": {
+  "run": "20261003-211429_v2-qwen3-4B-k10-r3",
+  "judges_agree": true
+ },
+ "g032-kp2": {
+  "run": "20261003-211429_v2-qwen3-4B-k10-r3",
+  "judges_agree": true
+ },
+ "g032-kp3": {
+  "run": "20261003-211429_v2-qwen3-4B-k10-r3",
+  "judges_agree": true
+ },
+ "g033-kp1": {
+  "run": "20261003-210933_v2-qwen3-4B-k10-r2",
+  "judges_agree": true
+ },
+ "g034-kp1": {
+  "run": "20261003-211429_v2-qwen3-4B-k10-r3",
+  "judges_agree": true
+ },
+ "g034-kp2": {
+  "run": "20261003-210437_v2-qwen3-4B-k10",
+  "judges_agree": true
+ },
+ "g034-kp3": {
+  "run": "20261003-210437_v2-qwen3-4B-k10",
+  "judges_agree": true
+ },
+ "g035-kp1": {
+  "run": "20261003-210933_v2-qwen3-4B-k10-r2",
+  "judges_agree": true
+ },
+ "g035-kp3": {
+  "run": "20261003-211429_v2-qwen3-4B-k10-r3",
+  "judges_agree": true
+ },
+ "g036-kp1": {
+  "run": "20261003-210437_v2-qwen3-4B-k10",
+  "judges_agree": true
+ },
+ "g036-kp2": {
+  "run": "20261003-211429_v2-qwen3-4B-k10-r3",
+  "judges_agree": true
+ },
+ "g037-kp1": {
+  "run": "20261003-210933_v2-qwen3-4B-k10-r2",
+  "judges_agree": true
+ },
+ "g037-kp2": {
+  "run": "20261003-210933_v2-qwen3-4B-k10-r2",
+  "judges_agree": true
+ },
+ "g037-kp3": {
+  "run": "20261003-211429_v2-qwen3-4B-k10-r3",
+  "judges_agree": true
+ },
+ "g042-kp1": {
+  "run": "20261003-210933_v2-qwen3-4B-k10-r2",
+  "judges_agree": true
+ },
+ "l5a01-kp1": {
+  "run": "20261003-210933_v2-qwen3-4B-k10-r2",
+  "judges_agree": true
+ },
+ "l5a02-kp1": {
+  "run": "20261003-210933_v2-qwen3-4B-k10-r2",
+  "judges_agree": true
+ },
+ "l5a02-kp3": {
+  "run": "20261003-211429_v2-qwen3-4B-k10-r3",
+  "judges_agree": true
+ },
+ "l5a03-kp1": {
+  "run": "20261003-210437_v2-qwen3-4B-k10",
+  "judges_agree": true
+ },
+ "l5a03-kp2": {
+  "run": "20261003-210933_v2-qwen3-4B-k10-r2",
+  "judges_agree": true
+ },
+ "l5a03-kp3": {
+  "run": "20261003-210933_v2-qwen3-4B-k10-r2",
+  "judges_agree": true
+ },
+ "l5a04-kp1": {
+  "run": "20261003-210437_v2-qwen3-4B-k10",
+  "judges_agree": true
+ },
+ "l5a04-kp2": {
+  "run": "20261003-211429_v2-qwen3-4B-k10-r3",
+  "judges_agree": false
+ },
+ "l5a04-kp4": {
+  "run": "20261003-210437_v2-qwen3-4B-k10",
+  "judges_agree": true
+ },
+ "l5a05-kp1": {
+  "run": "20261003-210933_v2-qwen3-4B-k10-r2",
+  "judges_agree": true
+ },
+ "l5a06-kp1": {
+  "run": "20261003-210437_v2-qwen3-4B-k10",
+  "judges_agree": true
+ },
+ "l5a06-kp2": {
+  "run": "20261003-211429_v2-qwen3-4B-k10-r3",
+  "judges_agree": true
+ },
+ "l5a06-kp3": {
+  "run": "20261003-210437_v2-qwen3-4B-k10",
+  "judges_agree": true
+ },
+ "l5a07-kp1": {
+  "run": "20261003-211429_v2-qwen3-4B-k10-r3",
+  "judges_agree": true
+ },
+ "l5a07-kp2": {
+  "run": "20261003-210933_v2-qwen3-4B-k10-r2",
+  "judges_agree": true
+ },
+ "l5a08-kp1": {
+  "run": "20261003-211429_v2-qwen3-4B-k10-r3",
+  "judges_agree": true
+ },
+ "l5a08-kp2": {
+  "run": "20261003-210437_v2-qwen3-4B-k10",
+  "judges_agree": true
+ },
+ "l5a08-kp3": {
+  "run": "20261003-211429_v2-qwen3-4B-k10-r3",
+  "judges_agree": true
+ },
+ "l5b01-kp1": {
+  "run": "20261003-210933_v2-qwen3-4B-k10-r2",
+  "judges_agree": true
+ },
+ "l5b01-kp2": {
+  "run": "20261003-211429_v2-qwen3-4B-k10-r3",
+  "judges_agree": true
+ },
+ "l5b02-kp1": {
+  "run": "20261003-211429_v2-qwen3-4B-k10-r3",
+  "judges_agree": true
+ },
+ "l5b03-kp2": {
+  "run": "20261003-211429_v2-qwen3-4B-k10-r3",
+  "judges_agree": true
+ },
+ "l5b03-kp3": {
+  "run": "20261003-210437_v2-qwen3-4B-k10",
+  "judges_agree": true
+ },
+ "l5b04-kp1": {
+  "run": "20261003-210437_v2-qwen3-4B-k10",
+  "judges_agree": true
+ },
+ "l5b04-kp2": {
+  "run": "20261003-210933_v2-qwen3-4B-k10-r2",
+  "judges_agree": true
+ },
+ "l5b05-kp2": {
+  "run": "20261003-211429_v2-qwen3-4B-k10-r3",
+  "judges_agree": true
+ },
+ "l5b05-kp3": {
+  "run": "20261003-210437_v2-qwen3-4B-k10",
+  "judges_agree": true
+ },
+ "l5b06-kp1": {
+  "run": "20261003-210437_v2-qwen3-4B-k10",
+  "judges_agree": false
+ },
+ "l5b07-kp1": {
+  "run": "20261003-211429_v2-qwen3-4B-k10-r3",
+  "judges_agree": true
+ },
+ "l5b07-kp2": {
+  "run": "20261003-210933_v2-qwen3-4B-k10-r2",
+  "judges_agree": true
+ },
+ "l5b07-kp3": {
+  "run": "20261003-210437_v2-qwen3-4B-k10",
+  "judges_agree": true
+ },
+ "l5b08-kp1": {
+  "run": "20261003-210933_v2-qwen3-4B-k10-r2",
+  "judges_agree": true
+ },
+ "l5b08-kp2": {
+  "run": "20261003-210933_v2-qwen3-4B-k10-r2",
+  "judges_agree": true
+ },
+ "l5b09-kp2": {
+  "run": "20261003-210933_v2-qwen3-4B-k10-r2",
+  "judges_agree": true
+ },
+ "l5b09-kp3": {
+  "run": "20261003-210933_v2-qwen3-4B-k10-r2",
+  "judges_agree": true
+ },
+ "n01-kp1": {
+  "run": "20261003-211429_v2-qwen3-4B-k10-r3",
+  "judges_agree": true
+ },
+ "n01-kp2": {
+  "run": "20261003-211429_v2-qwen3-4B-k10-r3",
+  "judges_agree": true
+ },
+ "n02-kp2": {
+  "run": "20261003-210437_v2-qwen3-4B-k10",
+  "judges_agree": true
+ },
+ "n02-kp3": {
+  "run": "20261003-210437_v2-qwen3-4B-k10",
+  "judges_agree": true
+ },
+ "n03-kp2": {
+  "run": "20261003-210933_v2-qwen3-4B-k10-r2",
+  "judges_agree": true
+ },
+ "n03-kp3": {
+  "run": "20261003-210933_v2-qwen3-4B-k10-r2",
+  "judges_agree": true
+ },
+ "n04-kp1": {
+  "run": "20261003-211429_v2-qwen3-4B-k10-r3",
+  "judges_agree": true
+ },
+ "n05-kp2": {
+  "run": "20261003-210933_v2-qwen3-4B-k10-r2",
+  "judges_agree": true
+ },
+ "n06-kp1": {
+  "run": "20261003-210933_v2-qwen3-4B-k10-r2",
+  "judges_agree": true
+ },
+ "n06-kp2": {
+  "run": "20261003-210933_v2-qwen3-4B-k10-r2",
+  "judges_agree": true
+ },
+ "n06-kp3": {
+  "run": "20261003-210933_v2-qwen3-4B-k10-r2",
+  "judges_agree": true
+ },
+ "n08-kp1": {
+  "run": "20261003-211429_v2-qwen3-4B-k10-r3",
+  "judges_agree": true
+ },
+ "n08-kp2": {
+  "run": "20261003-211429_v2-qwen3-4B-k10-r3",
+  "judges_agree": true
+ },
+ "n08-kp3": {
+  "run": "20261003-211429_v2-qwen3-4B-k10-r3",
+  "judges_agree": true
+ },
+ "n09-kp1": {
+  "run": "20261003-210437_v2-qwen3-4B-k10",
+  "judges_agree": true
+ },
+ "n10-kp1": {
+  "run": "20261003-211429_v2-qwen3-4B-k10-r3",
+  "judges_agree": true
+ },
+ "n10-kp2": {
+  "run": "20261003-211429_v2-qwen3-4B-k10-r3",
+  "judges_agree": true
+ },
+ "n11-kp2": {
+  "run": "20261003-210437_v2-qwen3-4B-k10",
+  "judges_agree": true
+ },
+ "n12-kp2": {
+  "run": "20261003-211429_v2-qwen3-4B-k10-r3",
+  "judges_agree": true
+ },
+ "n13-kp1": {
+  "run": "20261003-210933_v2-qwen3-4B-k10-r2",
+  "judges_agree": true
+ },
+ "n13-kp2": {
+  "run": "20261003-210933_v2-qwen3-4B-k10-r2",
+  "judges_agree": true
+ },
+ "n14-kp2": {
+  "run": "20261003-211429_v2-qwen3-4B-k10-r3",
+  "judges_agree": true
+ },
+ "n15-kp2": {
+  "run": "20261003-211429_v2-qwen3-4B-k10-r3",
+  "judges_agree": true
+ },
+ "n16-kp1": {
+  "run": "20261003-210437_v2-qwen3-4B-k10",
+  "judges_agree": true
+ },
+ "n17-kp1": {
+  "run": "20261003-211429_v2-qwen3-4B-k10-r3",
+  "judges_agree": true
+ },
+ "n18-kp1": {
+  "run": "20261003-210437_v2-qwen3-4B-k10",
+  "judges_agree": true
+ },
+ "n19-kp1": {
+  "run": "20261003-210437_v2-qwen3-4B-k10",
+  "judges_agree": true
+ },
+ "n19-kp2": {
+  "run": "20261003-210437_v2-qwen3-4B-k10",
+  "judges_agree": true
+ },
+ "n20-kp1": {
+  "run": "20261003-211429_v2-qwen3-4B-k10-r3",
+  "judges_agree": true
+ },
+ "n20-kp2": {
+  "run": "20261003-211429_v2-qwen3-4B-k10-r3",
+  "judges_agree": true
+ },
+ "n23-kp1": {
+  "run": "20261003-211429_v2-qwen3-4B-k10-r3",
+  "judges_agree": false
+ },
+ "n24-kp1": {
+  "run": "20261003-210437_v2-qwen3-4B-k10",
+  "judges_agree": true
+ },
+ "n25-kp1": {
+  "run": "20261003-210933_v2-qwen3-4B-k10-r2",
+  "judges_agree": true
+ },
+ "n25-kp2": {
+  "run": "20261003-210437_v2-qwen3-4B-k10",
+  "judges_agree": true
+ },
+ "n25-kp3": {
+  "run": "20261003-211429_v2-qwen3-4B-k10-r3",
+  "judges_agree": true
+ },
+ "n26-kp2": {
+  "run": "20261003-210933_v2-qwen3-4B-k10-r2",
+  "judges_agree": true
+ },
+ "n26-kp3": {
+  "run": "20261003-210437_v2-qwen3-4B-k10",
+  "judges_agree": true
+ },
+ "n27-kp2": {
+  "run": "20261003-211429_v2-qwen3-4B-k10-r3",
+  "judges_agree": true
+ },
+ "n28-kp1": {
+  "run": "20261003-211429_v2-qwen3-4B-k10-r3",
+  "judges_agree": true
+ },
+ "n28-kp2": {
+  "run": "20261003-210437_v2-qwen3-4B-k10",
+  "judges_agree": true
+ },
+ "n28-kp3": {
+  "run": "20261003-210933_v2-qwen3-4B-k10-r2",
+  "judges_agree": true
+ },
+ "n29-kp1": {
+  "run": "20261003-210933_v2-qwen3-4B-k10-r2",
+  "judges_agree": true
+ },
+ "n29-kp2": {
+  "run": "20261003-210933_v2-qwen3-4B-k10-r2",
+  "judges_agree": true
+ },
+ "n29-kp3": {
+  "run": "20261003-211429_v2-qwen3-4B-k10-r3",
+  "judges_agree": true
+ },
+ "s01-kp1": {
+  "run": "20261003-210437_v2-qwen3-4B-k10",
+  "judges_agree": true
+ },
+ "s01-kp2": {
+  "run": "20261003-210933_v2-qwen3-4B-k10-r2",
+  "judges_agree": true
+ },
+ "s01-kp3": {
+  "run": "20261003-211429_v2-qwen3-4B-k10-r3",
+  "judges_agree": true
+ },
+ "s01-kp4": {
+  "run": "20261003-210933_v2-qwen3-4B-k10-r2",
+  "judges_agree": true
+ },
+ "s02-kp1": {
+  "run": "20261003-210437_v2-qwen3-4B-k10",
+  "judges_agree": true
+ },
+ "s02-kp2": {
+  "run": "20261003-210933_v2-qwen3-4B-k10-r2",
+  "judges_agree": true
+ },
+ "s02-kp3": {
+  "run": "20261003-210437_v2-qwen3-4B-k10",
+  "judges_agree": true
+ },
+ "s02-kp4": {
+  "run": "20261003-210437_v2-qwen3-4B-k10",
+  "judges_agree": true
+ },
+ "s02-kp5": {
+  "run": "20261003-210933_v2-qwen3-4B-k10-r2",
+  "judges_agree": true
+ },
+ "s03-kp1": {
+  "run": "20261003-210933_v2-qwen3-4B-k10-r2",
+  "judges_agree": true
+ },
+ "s03-kp2": {
+  "run": "20261003-210933_v2-qwen3-4B-k10-r2",
+  "judges_agree": true
+ },
+ "s03-kp3": {
+  "run": "20261003-211429_v2-qwen3-4B-k10-r3",
+  "judges_agree": true
+ },
+ "s03-kp4": {
+  "run": "20261003-210933_v2-qwen3-4B-k10-r2",
+  "judges_agree": true
+ },
+ "s04-kp1": {
+  "run": "20261003-210933_v2-qwen3-4B-k10-r2",
+  "judges_agree": true
+ },
+ "s04-kp2": {
+  "run": "20261003-211429_v2-qwen3-4B-k10-r3",
+  "judges_agree": true
+ },
+ "s04-kp3": {
+  "run": "20261003-211429_v2-qwen3-4B-k10-r3",
+  "judges_agree": true
+ },
+ "s04-kp4": {
+  "run": "20261003-211429_v2-qwen3-4B-k10-r3",
+  "judges_agree": true
+ },
+ "s04-kp5": {
+  "run": "20261003-211429_v2-qwen3-4B-k10-r3",
+  "judges_agree": true
+ },
+ "s05-kp1": {
+  "run": "20261003-211429_v2-qwen3-4B-k10-r3",
+  "judges_agree": true
+ },
+ "s05-kp2": {
+  "run": "20261003-210933_v2-qwen3-4B-k10-r2",
+  "judges_agree": true
+ },
+ "s05-kp3": {
+  "run": "20261003-210933_v2-qwen3-4B-k10-r2",
+  "judges_agree": true
+ },
+ "s06-kp1": {
+  "run": "20261003-210933_v2-qwen3-4B-k10-r2",
+  "judges_agree": true
+ },
+ "s06-kp2": {
+  "run": "20261003-211429_v2-qwen3-4B-k10-r3",
+  "judges_agree": true
+ },
+ "s06-kp3": {
+  "run": "20261003-210933_v2-qwen3-4B-k10-r2",
+  "judges_agree": true
+ },
+ "s06-kp4": {
+  "run": "20261003-211429_v2-qwen3-4B-k10-r3",
+  "judges_agree": true
+ },
+ "s07-kp1": {
+  "run": "20261003-211429_v2-qwen3-4B-k10-r3",
+  "judges_agree": true
+ },
+ "s07-kp2": {
+  "run": "20261003-210933_v2-qwen3-4B-k10-r2",
+  "judges_agree": true
+ },
+ "s07-kp3": {
+  "run": "20261003-210437_v2-qwen3-4B-k10",
+  "judges_agree": true
+ },
+ "s08-kp1": {
+  "run": "20261003-210933_v2-qwen3-4B-k10-r2",
+  "judges_agree": true
+ },
+ "s08-kp2": {
+  "run": "20261003-210437_v2-qwen3-4B-k10",
+  "judges_agree": true
+ },
+ "s08-kp3": {
+  "run": "20261003-210933_v2-qwen3-4B-k10-r2",
+  "judges_agree": true
+ },
+ "s08-kp4": {
+  "run": "20261003-210933_v2-qwen3-4B-k10-r2",
+  "judges_agree": true
+ },
+ "s08-kp5": {
+  "run": "20261003-211429_v2-qwen3-4B-k10-r3",
+  "judges_agree": true
+ }
+}
