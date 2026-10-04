@@ -1,5 +1,6 @@
 # Part C 리포트: 사전 등록 실험 7개 중 판례 연결·검색 개수 10이 유의 개선, 최종 구성 전체 정답률 0.717 → 0.777
 
+> **3차 이후(2026-10-03~04)**: 임베딩 교체(Qwen3-Embedding-4B)·파인튜닝(효과 없음)·검색 10 결합(채택) → [embedding-finetune](../findings/2026-10-03-embedding-finetune.md), 일반화 개선 7종 A/B(유의 개선 0) → [generalization-ab](../findings/2026-10-04-generalization-ab.md), Luna 채점 제외·공식 채점 Opus ∧ Codex(기준선 0.470 → 최종 0.633) → [judge-switch](../findings/2026-10-04-judge-switch.md), 요약은 README Part C
 > 대상: 1차(GT v1.1, 6개) · 2차(GT v2.2, 7개 + 최종 구성) · 과적합 vs 일반화(2개) · 근거 수치는 모두 저장소 파일에서 인용
 > 2차 판정 기준선 = 기준선 동일 설정 3회의 문항별 평균 (`diff_vs_base.json`의 `base_runs`)
 > 사전 등록: `docs/plans/2026-10-02-part-c-v2-preregistration.md`(측정 직전 커밋 `b2c8efd`, 첫 측정 실행 8초 후 시작) · `docs/plans/2026-10-03-overfit-vs-generalize-preregistration.md`(커밋 `e574848`)
