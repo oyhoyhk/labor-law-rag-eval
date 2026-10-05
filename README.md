@@ -67,7 +67,8 @@ uv run python -m eval.multirun '<기준선 실행>' '<실험 실행>'           
 | `LLM_MODEL` | `openai/gpt-5.6-luna` |
 | `LAW_OC` | 국가법령정보 OPEN API 키 (Corpus를 다시 받을 때만) |
 
-- 공식 채점을 하려면 로컬에서 `claude` CLI와 `codex` CLI에 로그인해야 함
+- 공식 채점(로컬): `claude` CLI와 `codex` CLI에 로그인해야 함
+- 공식 채점(CI, 설계): 같은 채점 프롬프트를 API로 호출하고 `ANTHROPIC_API_KEY`, `OPENAI_API_KEY`를 CI 시크릿으로 주입함. API 방식은 아직 구현하지 않음
 - 공식 채점이 중간에 멈추면 같은 명령을 다시 실행. 저장된 판정은 다시 호출하지 않음
 - 실행 결과는 `runs/<시각>_<이름>/`에 저장: 답변, 문항별 점수, report.md, manifest.json(모델, seed, 프롬프트, 임베딩, Gold Set 해시, git sha, 비용)
 
