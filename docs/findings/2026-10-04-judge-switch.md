@@ -95,7 +95,7 @@
 ## 한계
 
 - 공식 기준은 가장 엄격한 채점자(Codex)에 사실상 수렴 → 하위 요소 하나만 빠져도 오답, 사람 검토(갈린 포인트 55개)에서는 Codex와 55/55 일치
-- Luna가 맡던 근거 없는 주장(M5)·시점 오류(M6) 판정은 대체 채점 미구현 → 해당 지표는 Luna 기준 참고치로만 유지
+- Luna가 맡던 근거 없는 주장(M5)·시점 오류(M6) 판정도 2026-10-05 Opus ∧ Codex로 교체 (아래 절)
 - CLI 채점 속도: 답변 1건당 Opus·Codex 각 1회, 동시 6건 기준 276건 약 45분
 
 ## 이후 평가 절차
@@ -104,3 +104,17 @@
 uv run python -m eval.run --name <name> --strategy whole@Qwen3-Embedding-4B --k 10 --no-cache   # 답변 생성(+참고용 Luna 채점)
 uv run python -m eval.rejudge <name> runs/<run1> runs/<run2> runs/<run3> --all                    # 공식 채점, official 필드
 ```
+
+## Measure 5·6 재채점 (2026-10-05, `eval/rejudge_grounding.py`)
+
+> 결과: `eval/results/grounding_{baseline-v2,qwen3-4B-k10}.json` · 주장 목록은 Luna 분해 그대로, 판정만 Opus·Codex · 공식 = 둘 다 근거 있음일 때만 근거 있는 주장, 둘 다 오류 없음일 때만 시점 오류 없음
+
+| 지표 (낮을수록 좋음, 3회 평균) | Luna | Opus | Codex | **공식** |
+|---|---|---|---|---|
+| Measure 5 근거 없는 주장 기준선 → 최종 | 0.019 → 0.043 | 0.041 → 0.044 | 0.052 → 0.053 | **0.062 → 0.065** |
+| Measure 6 시점 오류 기준선 → 최종 | 0.024 → 0.067 | 0 → 0.044 | 0 → 0.044 | **0 → 0.044** |
+
+- Measure 5: Luna의 2배 악화는 기준선 과소 판정에 따른 착시, 공식 기준 변화 없음 → 답변이 길어졌어도(주장 6.7 → 9.8개/답변) 근거 없는 주장 비율 유지
+- 주장 단위 일치(4,418개): Opus=Codex 기준선 97.2%·최종 97.0%
+- Measure 6: Luna가 잡은 g037은 Opus·Codex 모두 오류 아님(Luna 오판), 새로 잡힌 g033은 실제 오류 — "지금도 가능한가" 질문에 첫 문장 "원칙적으로는 가능합니다" 후 효력 상실로 정정(3회 중 2회)
+- 한계: 주장 분해는 Luna 결과 사용, Measure 5·6은 사람 판정 기준 없음

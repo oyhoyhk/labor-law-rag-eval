@@ -64,8 +64,8 @@ def parse(text: str) -> dict:
     return json.loads(text[text.find("{"):text.rfind("}") + 1])
 
 
-def opus(prompt: str) -> dict:
-    cmd = ["claude", "-p", "--model", "opus", "--output-format", "json", "--system-prompt", SYSTEM,
+def opus(prompt: str, system: str = SYSTEM) -> dict:
+    cmd = ["claude", "-p", "--model", "opus", "--output-format", "json", "--system-prompt", system,
            "--tools", "", "--setting-sources", "", "--strict-mcp-config", "--no-session-persistence"]
     for attempt in range(2):
         proc = subprocess.run(cmd, input=prompt, capture_output=True, text=True, timeout=600, cwd=ROOT.parent)
@@ -76,11 +76,11 @@ def opus(prompt: str) -> dict:
                 return {"error": (proc.stdout + proc.stderr)[-300:]}
 
 
-def codex(prompt: str) -> dict:
+def codex(prompt: str, schema_obj: dict = SCHEMA) -> dict:
     prompt = "파일을 읽거나 명령을 실행하지 말고, 아래 내용만 보고 판정하세요.\n\n" + prompt
     with tempfile.TemporaryDirectory() as d:  # empty working dir: no repo files or AGENTS.md
         schema, out = Path(d) / "schema.json", Path(d) / "out.json"
-        schema.write_text(json.dumps(SCHEMA))
+        schema.write_text(json.dumps(schema_obj))
         cmd = ["codex", "exec", "-m", CODEX_MODEL, "-s", "read-only", "--skip-git-repo-check", "--ephemeral", "-C", d,
                "--output-schema", str(schema), "-o", str(out), "-"]
         for _ in range(2):

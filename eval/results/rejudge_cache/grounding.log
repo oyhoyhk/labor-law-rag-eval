@@ -1,0 +1,17 @@
+=== baseline 11:54
+judge calls made 494
+20261002-233903_baseline-v2 {"answers": 83, "claims": 561, "M5": {"opus": 0.040941053591656, "codex": 0.053869390315173446, "luna": 0.026147146026664098, "official": 0.060295093126418425}, "case4_answers": 14, "M6": {"opus": 0, "codex": 0, "luna": 0.07142857142857142, "official": 0}}
+20261002-234101_noise-v2-2 {"answers": 81, "claims": 545, "M5": {"opus": 0.03926121889084852, "codex": 0.049837765115542894, "luna": 0.008700010551862404, "official": 0.05799963068481587}, "case4_answers": 13, "M6": {"opus": 0, "codex": 0, "luna": 0, "official": 0}}
+20261002-234103_noise-v2-3 {"answers": 83, "claims": 555, "M5": {"opus": 0.04149454962707975, "codex": 0.0522153549261983, "luna": 0.022692066969175403, "official": 0.0664723830386481}, "case4_answers": 14, "M6": {"opus": 0, "codex": 0, "luna": 0, "official": 0}}
+claim_agreement {"n": 1661, "opus=codex": 1614, "opus=luna": 1597, "codex=luna": 1572}
+/Users/owen/projects/elice-rag-eval/eval/results/grounding_baseline-v2.json 247 answers
+EXIT_baseline 0
+=== final 12:18
+judge calls made 560
+20261003-210437_v2-qwen3-4B-k10 {"answers": 94, "claims": 925, "M5": {"opus": 0.037699770099644946, "codex": 0.04389513600245765, "luna": 0.047672524886229514, "official": 0.05367761121046478}, "case4_answers": 15, "M6": {"opus": 0.06666666666666667, "codex": 0.06666666666666667, "luna": 0.06666666666666667, "official": 0.06666666666666667}}
+20261003-210933_v2-qwen3-4B-k10-r2 {"answers": 93, "claims": 908, "M5": {"opus": 0.0487307987116145, "codex": 0.06438135526603127, "luna": 0.043488972852677846, "official": 0.07543256609175}, "case4_answers": 15, "M6": {"opus": 0.06666666666666667, "codex": 0.06666666666666667, "luna": 0.06666666666666667, "official": 0.06666666666666667}}
+20261003-211429_v2-qwen3-4B-k10-r3 {"answers": 93, "claims": 924, "M5": {"opus": 0.04527945221233463, "codex": 0.05130126743029969, "luna": 0.03681837971640261, "official": 0.06508658653559798}, "case4_answers": 15, "M6": {"opus": 0, "codex": 0, "luna": 0.06666666666666667, "official": 0}}
+claim_agreement {"n": 2757, "opus=codex": 2674, "opus=luna": 2681, "codex=luna": 2632}
+/Users/owen/projects/elice-rag-eval/eval/results/grounding_qwen3-4B-k10.json 280 answers
+EXIT_final 0
+ALLDONE
